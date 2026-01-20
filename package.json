@@ -7,6 +7,7 @@
     "build": "npx drizzle-kit push && next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
     "g:tag": "git tag -s v$(node -p 'require(\"./package.json\").version') -m \"🔖tag: v$(node -p 'require(\"./package.json\").version') release\"",
     "g:push": "git push && git push --follow-tags",
     "v:major": "npm version major --no-git-tag-version",

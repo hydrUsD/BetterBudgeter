@@ -47,6 +47,10 @@ next-env.d.ts
 # local db 
 json.sqlite
 
+# claude code
+/.claude
+CLAUDE.md
+
 # workers
 sw.js
 workbox*.js
