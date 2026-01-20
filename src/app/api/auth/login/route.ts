@@ -16,14 +16,19 @@
  */
 
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+
+// Force Node.js runtime (jsonwebtoken uses Node crypto APIs)
+export const runtime = "nodejs";
 
 const SECRET = process.env.JWT_SECRET as string;
 const PASSCODE = process.env.PASSCODE as string;
 
 export async function POST(request: Request) {
   try {
+    // Dynamic import to avoid build-time issues with jsonwebtoken
+    const jwt = (await import("jsonwebtoken")).default;
+
     const cookieStore = await cookies();
     const { passcode } = await request.json();
 

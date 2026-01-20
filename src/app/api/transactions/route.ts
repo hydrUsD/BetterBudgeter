@@ -20,13 +20,18 @@ import { transactions } from "@/schema/dbSchema";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { expenseCategories, incomeCategories } from "@/lib/categories";
-import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { selectTransactionType } from "@/schema/transactionForm";
+
+// Force Node.js runtime (jsonwebtoken uses Node crypto APIs)
+export const runtime = "nodejs";
 
 const SECRET = process.env.JWT_SECRET as string;
 
 async function verifyToken(req: NextRequest) {
+  // Dynamic import to avoid build-time issues with jsonwebtoken
+  const jwt = (await import("jsonwebtoken")).default;
+
   const cookieStore = await cookies();
   const tokenFromCookie = cookieStore.get("authToken")?.value;
 
