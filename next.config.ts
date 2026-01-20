@@ -13,9 +13,6 @@ const withPWA = withPWAInit({
   },
 });
 
-const nextConfig = {
-  // Externalize packages that use Node.js APIs incompatible with bundling
-  serverExternalPackages: ["jsonwebtoken"],
-};
+const nextConfig = {};
 
 export default withPWA(nextConfig);

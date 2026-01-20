@@ -22,16 +22,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { expenseCategories, incomeCategories } from "@/lib/categories";
 import { cookies } from "next/headers";
 import { selectTransactionType } from "@/schema/transactionForm";
+import { jwtVerify } from "jose";
 
-// Force Node.js runtime (jsonwebtoken uses Node crypto APIs)
-export const runtime = "nodejs";
-
-const SECRET = process.env.JWT_SECRET as string;
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET as string);
 
 async function verifyToken(req: NextRequest) {
-  // Dynamic import to avoid build-time issues with jsonwebtoken
-  const jwt = (await import("jsonwebtoken")).default;
-
   const cookieStore = await cookies();
   const tokenFromCookie = cookieStore.get("authToken")?.value;
 
@@ -46,8 +41,8 @@ async function verifyToken(req: NextRequest) {
   if (!token) return { authorized: false, error: "Unauthorized" };
 
   try {
-    const decoded = jwt.verify(token, SECRET);
-    return { authorized: true, user: decoded };
+    const { payload } = await jwtVerify(token, SECRET);
+    return { authorized: true, user: payload };
   } catch (err) {
     return {
       authorized: false,

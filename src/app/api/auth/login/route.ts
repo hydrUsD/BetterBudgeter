@@ -17,18 +17,13 @@
 
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { SignJWT } from "jose";
 
-// Force Node.js runtime (jsonwebtoken uses Node crypto APIs)
-export const runtime = "nodejs";
-
-const SECRET = process.env.JWT_SECRET as string;
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET as string);
 const PASSCODE = process.env.PASSCODE as string;
 
 export async function POST(request: Request) {
   try {
-    // Dynamic import to avoid build-time issues with jsonwebtoken
-    const jwt = (await import("jsonwebtoken")).default;
-
     const cookieStore = await cookies();
     const { passcode } = await request.json();
 
@@ -39,9 +34,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const token = jwt.sign({ user: "authenticated" }, SECRET, {
-      expiresIn: "7d",
-    });
+    // Create JWT using jose (Edge-compatible)
+    const token = await new SignJWT({ user: "authenticated" })
+      .setProtectedHeader({ alg: "HS256" })
+      .setExpirationTime("7d")
+      .setIssuedAt()
+      .sign(SECRET);
 
     cookieStore.set({
       name: "authToken",
