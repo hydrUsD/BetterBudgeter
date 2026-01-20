@@ -111,6 +111,40 @@ Example:
 - Dashboard & Visualizations
 - Notifications & UI Personalization
 
+### PSD2 Simulation Context (IMPORTANT)
+
+This project simulates a **PSD2-compliant banking environment** without using real banking APIs.
+
+**What is PSD2?**
+PSD2 (Payment Services Directive 2) is an EU regulation that requires banks to provide secure API access to customer account data. Key concepts:
+
+- **AIS (Account Information Services)**: Read-only access to account balances and transaction history
+- **Strong Customer Authentication (SCA)**: Multi-factor auth for sensitive operations
+- **Consent management**: Users explicitly grant access to their data
+- **Data isolation**: Strict separation between users' financial data
+
+**Why simulate PSD2?**
+- Real PSD2 APIs require regulatory approval (not feasible for school project)
+- Mimicking real-world patterns prepares the codebase for future production use
+- Enforces good security practices (RLS, user isolation, consent flows)
+
+**What this means for implementation:**
+
+1. **Mock API format**: The Fake-Finance-API must return data in PSD2-like structure:
+   - `transactionId` (stable external ID)
+   - `bookingDate` / `valueDate`
+   - `transactionAmount` with `amount` and `currency`
+   - `creditorName` / `debtorName`
+   - `remittanceInformationUnstructured` (description)
+
+2. **Row Level Security (RLS)**: Enabled on all tables — mimics real banking data isolation
+
+3. **Consent flow**: Bank linking simulates OAuth-style consent (even though mocked)
+
+4. **Idempotent imports**: Same transaction ID → same record (no duplicates)
+
+See `docs/SUPABASE_STRATEGY.md` for detailed technical decisions.
+
 ### Routing (Canonical)
 
 - `/link-bank` — PSD2-style mock linking flow
@@ -189,13 +223,15 @@ Important constraints:
 
 The following are intentionally NOT implemented in this project:
 
-- Real banking APIs
-- Real PSD2 / OAuth / eIDAS flows
+- Real banking APIs (we use Fake-Finance-API instead)
+- Real PSD2 / OAuth / eIDAS certification (we simulate the data format and security patterns)
 - Push notifications
 - Background jobs / cron
-- Complex multi-user permission models
+- Complex multi-user permission models (teams, sharing, admin roles)
 - Currency conversion
 - Financial advice or predictions
+
+**Note:** While real PSD2 integration is out of scope, the codebase is designed to mimic PSD2 patterns so that future migration to real banking APIs would require minimal changes.
 
 ---
 
