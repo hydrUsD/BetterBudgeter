@@ -20,11 +20,11 @@ import { transactions } from "@/schema/dbSchema";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { expenseCategories, incomeCategories } from "@/lib/categories";
-import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { selectTransactionType } from "@/schema/transactionForm";
+import { jwtVerify } from "jose";
 
-const SECRET = process.env.JWT_SECRET as string;
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET as string);
 
 async function verifyToken(req: NextRequest) {
   const cookieStore = await cookies();
@@ -41,8 +41,8 @@ async function verifyToken(req: NextRequest) {
   if (!token) return { authorized: false, error: "Unauthorized" };
 
   try {
-    const decoded = jwt.verify(token, SECRET);
-    return { authorized: true, user: decoded };
+    const { payload } = await jwtVerify(token, SECRET);
+    return { authorized: true, user: payload };
   } catch (err) {
     return {
       authorized: false,

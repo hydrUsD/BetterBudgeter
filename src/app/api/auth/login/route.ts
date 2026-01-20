@@ -16,10 +16,10 @@
  */
 
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { SignJWT } from "jose";
 
-const SECRET = process.env.JWT_SECRET as string;
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET as string);
 const PASSCODE = process.env.PASSCODE as string;
 
 export async function POST(request: Request) {
@@ -34,9 +34,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const token = jwt.sign({ user: "authenticated" }, SECRET, {
-      expiresIn: "7d",
-    });
+    // Create JWT using jose (Edge-compatible)
+    const token = await new SignJWT({ user: "authenticated" })
+      .setProtectedHeader({ alg: "HS256" })
+      .setExpirationTime("7d")
+      .setIssuedAt()
+      .sign(SECRET);
 
     cookieStore.set({
       name: "authToken",
