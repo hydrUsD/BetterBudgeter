@@ -1,77 +1,175 @@
 /**
  * Database Module
  *
- * Database access layer using Supabase.
- * All database operations should go through this module.
+ * Database access layer using Supabase for BetterBudget features.
+ * All database operations for new features should go through this module.
  *
- * Current status: SKELETON — exports placeholder functions.
+ * Structure:
+ * - supabase.ts: Browser client setup (for auth UI)
+ * - supabaseServer.ts: Server client setup (for data fetching)
+ * - accounts.ts: bb_accounts table queries
+ * - transactions.ts: bb_transactions table queries
+ * - settings.ts: bb_user_settings and bb_notification_prefs queries
+ * - types.ts: Database row types
+ * - This file: Re-exports and convenience functions
  *
- * Note: The legacy OopsBudgeter uses Drizzle + PostgreSQL directly.
- * This module will use Supabase client for new BetterBudget features.
- * Legacy db.ts remains unchanged for backward compatibility.
+ * Note: Legacy OopsBudgeter uses Drizzle + PostgreSQL directly (src/lib/db.ts).
+ * That remains unchanged for backward compatibility.
  *
- * TODO (Task 2+):
- * - Initialize Supabase client
- * - Add typed query functions
- * - Add transaction helpers
+ * @see docs/SUPABASE_STRATEGY.md for architectural decisions
  */
 
-// Re-export types for convenience
+// ─────────────────────────────────────────────────────────────────────────────
+// Client Exports
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Browser client - for client components (auth UI)
+export {
+  createBrowserSupabaseClient,
+  validateSupabaseEnv,
+} from "./supabase";
+
+// Server client - for server components and API routes
+export {
+  createServerSupabaseClient,
+  createServiceRoleClient,
+} from "./supabaseServer";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Query Exports
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Account queries
+export {
+  getAccounts,
+  getAccountById,
+  getTotalBalance,
+  createAccount,
+  updateAccount,
+  updateAccountBalance,
+  deleteAccount,
+} from "./accounts";
+
+// Transaction queries
+export {
+  getTransactions,
+  getTransactionsByAccount,
+  getTransactionById,
+  getRecentTransactions,
+  getTransactionSummary,
+  createTransaction,
+  upsertTransactions,
+  updateTransaction,
+  deleteTransaction,
+} from "./transactions";
+export type { DateRangeOptions, TransactionSummary } from "./transactions";
+
+// Settings queries
+export {
+  getUserSettings,
+  getUserSettingsOrDefaults,
+  updateUserSettings,
+  getNotificationPrefs,
+  getNotificationPrefsOrDefaults,
+  updateNotificationPrefs,
+} from "./settings";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Type Exports
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Supabase types
+export type { User, Session } from "./supabase";
+
+// Database row types
+export type {
+  DbAccount,
+  DbAccountInsert,
+  DbAccountUpdate,
+  DbTransaction,
+  DbTransactionInsert,
+  DbTransactionUpdate,
+  DbTransactionType,
+  DbUserSettings,
+  DbUserSettingsInsert,
+  DbUserSettingsUpdate,
+  DbTheme,
+  DbNotificationPrefs,
+  DbNotificationPrefsInsert,
+  DbNotificationPrefsUpdate,
+} from "./types";
+
+// Finance types (application-level DTOs)
 export type { Transaction, Account, DashboardSummary } from "@/types/finance";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Database Client Placeholder
+// Convenience Functions (API Compatibility Layer)
 // ─────────────────────────────────────────────────────────────────────────────
+
+import { getTransactions, getTransactionSummary } from "./transactions";
+import { getAccounts, getTotalBalance } from "./accounts";
+import type { DbTransaction, DbAccount } from "./types";
 
 /**
- * Get Supabase client
+ * Fetch transactions for the current user within a date range.
+ * Wrapper for getTransactions() with API compatibility.
  *
- * TODO: Initialize with environment variables
- */
-export function getSupabaseClient() {
-  // Placeholder — will be replaced with actual Supabase client
-  console.warn("Supabase client not initialized yet");
-  return null;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Query Placeholders
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Fetch transactions for a user within a date range
- *
- * TODO: Implement with Supabase
+ * @param _userId - User ID (ignored, RLS handles filtering)
+ * @param fromDate - Start date (ISO string)
+ * @param toDate - End date (ISO string)
+ * @returns Array of transactions
  */
 export async function fetchTransactions(
   _userId: string,
-  _fromDate?: string,
-  _toDate?: string
-): Promise<[]> {
-  // Placeholder — will be replaced with Supabase query
-  return [];
+  fromDate?: string,
+  toDate?: string
+): Promise<DbTransaction[]> {
+  return getTransactions({ fromDate, toDate });
 }
 
 /**
- * Fetch linked accounts for a user
+ * Fetch linked bank accounts for the current user.
+ * Wrapper for getAccounts() with API compatibility.
  *
- * TODO: Implement with Supabase
+ * @param _userId - User ID (ignored, RLS handles filtering)
+ * @returns Array of linked accounts
  */
-export async function fetchAccounts(_userId: string): Promise<[]> {
-  // Placeholder — will be replaced with Supabase query
-  return [];
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function fetchAccounts(_userId: string): Promise<DbAccount[]> {
+  return getAccounts();
 }
 
 /**
- * Fetch dashboard summary for a user
+ * Fetch dashboard summary for the current user.
  *
- * TODO: Implement with Supabase
+ * @param _userId - User ID (ignored, RLS handles filtering)
+ * @param fromDate - Start date (ISO string)
+ * @param toDate - End date (ISO string)
+ * @returns Dashboard summary object
  */
 export async function fetchDashboardSummary(
   _userId: string,
-  _fromDate?: string,
-  _toDate?: string
-): Promise<null> {
-  // Placeholder — will be replaced with Supabase query
-  return null;
+  fromDate?: string,
+  toDate?: string
+): Promise<{
+  totalBalance: number;
+  totalIncome: number;
+  totalExpenses: number;
+  netChange: number;
+  periodStart: string;
+  periodEnd: string;
+}> {
+  const [summary, totalBalance] = await Promise.all([
+    getTransactionSummary({ fromDate, toDate }),
+    getTotalBalance(),
+  ]);
+
+  return {
+    totalBalance,
+    totalIncome: summary.totalIncome,
+    totalExpenses: summary.totalExpenses,
+    netChange: summary.netChange,
+    periodStart: fromDate ?? "",
+    periodEnd: toDate ?? "",
+  };
 }

@@ -4,32 +4,49 @@
  * This is the main dashboard showing financial overview.
  * All data is fetched from the database (not mock APIs).
  *
- * Current status: SKELETON — no data fetching implemented yet.
+ * Auth: Protected by middleware - only authenticated users can access.
+ *
+ * Current status: Auth integrated, data fetching pending.
  *
  * TODO (Task 4+):
  * - Fetch account summary from database
- * - Display balance card
+ * - Display balance card with real data
  * - Display income/expense breakdown
  * - Display recent transactions
  * - Add spending trends chart
  * - Add category breakdown chart
+ *
+ * @see docs/SUPABASE_STRATEGY.md for data flow
  */
 
 import { generateMetadata } from "@/lib/head";
+import { getUser } from "@/lib/auth";
+import { SignOutButton } from "@/components/auth";
 
 export const metadata = generateMetadata({
   title: "Dashboard",
 });
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  // Get current user (middleware already verified auth, so user exists)
+  const user = await getUser();
+
   return (
     <main className="flex flex-col gap-6 p-6 max-w-5xl mx-auto">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Your financial overview at a glance
-        </p>
+      {/* Page Header with User Info */}
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Your financial overview at a glance
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-muted-foreground">
+            {user?.email}
+          </span>
+          <SignOutButton variant="outline" size="sm" />
+        </div>
       </div>
 
       {/* Balance Card Placeholder */}
@@ -97,6 +114,11 @@ export default function DashboardPage() {
           <strong>Note:</strong> This dashboard will display data from the
           database only. No mock API data will be shown here.
         </p>
+        {user && (
+          <p className="mt-1">
+            <strong>User ID:</strong> {user.id}
+          </p>
+        )}
       </div>
     </main>
   );

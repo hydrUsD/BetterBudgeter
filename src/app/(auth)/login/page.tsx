@@ -2,25 +2,34 @@
  * BetterBudget Login Page
  *
  * This page handles user authentication via Supabase Auth.
- * It will replace the legacy passcode-based authentication.
+ * It provides email/password login and signup functionality.
  *
- * Current status: SKELETON — no auth logic implemented yet.
+ * Auth Flow:
+ * 1. User enters credentials in LoginForm (client component)
+ * 2. Form calls Supabase Auth directly (browser client)
+ * 3. On success, redirects to /dashboard (or redirect param)
+ * 4. Session is stored in cookies by Supabase
  *
- * TODO (Task 2+):
- * - Integrate Supabase Auth client
- * - Add email/password login form
- * - Add magic link option
- * - Handle auth state and redirects
- * - Add error handling and loading states
+ * @see docs/SUPABASE_STRATEGY.md for auth decisions
  */
 
+import { redirect } from "next/navigation";
+import Link from "next/link";
 import { generateMetadata } from "@/lib/head";
+import { getUser } from "@/lib/auth";
+import LoginForm from "@/components/auth/LoginForm";
 
 export const metadata = generateMetadata({
   title: "Login",
 });
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  // If user is already logged in, redirect to dashboard
+  const user = await getUser();
+  if (user) {
+    redirect("/dashboard");
+  }
+
   return (
     <main className="flex flex-col items-center justify-center min-h-[60vh] p-6">
       <div className="max-w-md w-full space-y-6">
@@ -32,25 +41,18 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Placeholder for Login Form */}
-        <div className="border border-dashed border-muted-foreground/50 rounded-lg p-8 text-center">
-          <p className="text-muted-foreground">
-            Login form will be implemented here
-          </p>
-          <ul className="text-sm text-left mt-4 space-y-1 text-muted-foreground">
-            <li>• Email/password authentication</li>
-            <li>• Magic link option</li>
-            <li>• Supabase Auth integration</li>
-          </ul>
+        {/* Login Form */}
+        <div className="border rounded-lg p-6 bg-card">
+          <LoginForm />
         </div>
 
-        {/* Temporary: Link to legacy app */}
+        {/* Legacy Link */}
         <div className="text-center text-sm text-muted-foreground">
           <p>
             Legacy passcode login is still available at{" "}
-            <a href="/" className="underline hover:text-foreground">
+            <Link href="/" className="underline hover:text-foreground">
               the home page
-            </a>
+            </Link>
           </p>
         </div>
       </div>
