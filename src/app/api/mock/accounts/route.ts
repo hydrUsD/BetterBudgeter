@@ -1,51 +1,96 @@
 /**
- * Mock Accounts API
+ * Mock Accounts API - GET /api/mock/accounts
  *
- * Returns mock bank accounts for a linked bank.
- * Simulates PSD2 account information endpoint.
+ * PSD2 CONCEPT: Account Information (AIS)
+ * In real PSD2, after consent is granted, TPPs can fetch the user's
+ * account list from the bank's AIS endpoint.
  *
- * Current status: SKELETON — returns hardcoded placeholder data.
+ * WHAT THIS SIMULATES:
+ * - Account metadata (name, type, IBAN)
+ * - Current balance
+ * - Multiple accounts per bank
  *
- * TODO (Task 3+):
- * - Accept bank_id parameter
- * - Return deterministic account data based on seed
- * - Include account balances
- * - Include account metadata (IBAN, type, etc.)
+ * WHAT THIS OMITS:
+ * - Real account verification
+ * - Multi-currency accounts
+ * - Account ownership validation
+ * - Balance history
+ *
+ * ACCESS: Requires authentication + bankId parameter
+ *
+ * @see docs/PSD2_MOCK_STRATEGY.md Section 4.3
  */
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { createServerSupabaseClient } from "@/lib/db/supabaseServer";
+import { generateMockAccounts, MOCK_BANKS } from "@/lib/mock";
+import type { MockAccountsResponse } from "@/lib/mock/types";
 
 /**
- * GET /api/mock/accounts
+ * GET /api/mock/accounts?bankId=xxx
  *
- * Returns mock accounts for linked bank.
- * Query params: bank_id (required in future)
+ * Returns mock accounts for the specified bank.
+ *
+ * Query Parameters:
+ * - bankId (required): The bank identifier
+ *
+ * Response shape matches PSD2 account information format:
+ * {
+ *   accounts: [{ accountId, iban, name, accountType, currency, balances }]
+ * }
+ *
+ * Determinism: Same bankId always returns identical accounts.
  */
-export async function GET() {
-  // Placeholder response — will be replaced with deterministic mock data
-  const accounts = [
-    {
-      id: "acc-checking-001",
-      name: "Main Checking",
-      type: "checking",
-      currency: "USD",
-      balance: 0,
-    },
-    {
-      id: "acc-savings-002",
-      name: "Savings Account",
-      type: "savings",
-      currency: "USD",
-      balance: 0,
-    },
-  ];
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<MockAccountsResponse | { error: string }>> {
+  try {
+    // Verify authentication
+    const supabase = await createServerSupabaseClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-  return NextResponse.json({
-    success: true,
-    data: accounts,
-    _meta: {
-      skeleton: true,
-      message: "This is placeholder data. Real mock implementation coming in Task 3.",
-    },
-  });
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: "Unauthorized. Please log in to access account information." },
+        { status: 401 }
+      );
+    }
+
+    // Parse bankId from query params
+    const { searchParams } = new URL(request.url);
+    const bankId = searchParams.get("bankId");
+
+    if (!bankId) {
+      return NextResponse.json(
+        { error: "Missing required parameter: bankId" },
+        { status: 400 }
+      );
+    }
+
+    // Verify bank exists in our mock registry
+    const bankExists = MOCK_BANKS.some((bank) => bank.bankId === bankId);
+    if (!bankExists) {
+      return NextResponse.json(
+        { error: `Unknown bank: ${bankId}` },
+        { status: 404 }
+      );
+    }
+
+    // Generate deterministic accounts for this bank
+    // Note: Account generation is based solely on bankId (not userId)
+    // This means all users see the same accounts for the same bank
+    const accounts = generateMockAccounts(bankId);
+
+    const response: MockAccountsResponse = {
+      accounts,
+    };
+
+    return NextResponse.json(response);
+  } catch (error) {
+    console.error("[api/mock/accounts] Error:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch account information" },
+      { status: 500 }
+    );
+  }
 }
