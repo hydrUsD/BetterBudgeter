@@ -36,9 +36,25 @@ export default async function DashboardPage() {
   const user = await getUser();
 
   // Fetch account and transaction data from database
-  const accounts = await getAccounts();
-  const recentTransactions = await getRecentTransactions(5);
-  const summary = await getTransactionSummary();
+  // Wrapped in try-catch to handle database errors gracefully
+  let accounts: Awaited<ReturnType<typeof getAccounts>> = [];
+  let recentTransactions: Awaited<ReturnType<typeof getRecentTransactions>> = [];
+  let summary: Awaited<ReturnType<typeof getTransactionSummary>> = {
+    totalIncome: 0,
+    totalExpenses: 0,
+    netChange: 0,
+    transactionCount: 0,
+  };
+  let dataError: string | null = null;
+
+  try {
+    accounts = await getAccounts();
+    recentTransactions = await getRecentTransactions(5);
+    summary = await getTransactionSummary();
+  } catch (error) {
+    console.error("[dashboard] Error fetching data:", error);
+    dataError = error instanceof Error ? error.message : "Failed to load data";
+  }
 
   // Calculate total balance across all accounts
   const totalBalance = accounts.reduce((sum, acc) => sum + (acc.balance ?? 0), 0);
@@ -64,6 +80,21 @@ export default async function DashboardPage() {
       <div className="text-sm text-muted-foreground">
         Logged in as {user?.email}
       </div>
+
+      {/* Error State: Database Connection Issue */}
+      {dataError && (
+        <section className="border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950 rounded-lg p-4">
+          <h2 className="font-semibold text-red-800 dark:text-red-200 mb-1">
+            Unable to Load Data
+          </h2>
+          <p className="text-sm text-red-700 dark:text-red-300">
+            {dataError}
+          </p>
+          <p className="text-xs text-red-600 dark:text-red-400 mt-2">
+            Please check your database connection and try refreshing the page.
+          </p>
+        </section>
+      )}
 
       {/* Empty State: No Banks Linked */}
       {accounts.length === 0 && (
