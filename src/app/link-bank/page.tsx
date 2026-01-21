@@ -1,26 +1,51 @@
 /**
  * BetterBudget Link Bank Page
  *
- * This page simulates a PSD2-style bank linking flow.
- * Users will "connect" their bank account via a mock API.
+ * This page implements the PSD2-style bank linking flow for MVP.
  *
- * Current status: SKELETON — no linking logic implemented yet.
+ * PSD2 CONCEPT: Account Access Consent
+ * In real PSD2, users grant explicit consent via OAuth redirect to their bank.
+ * For this MVP, we simulate the consent flow with a simplified UI.
  *
- * TODO (Task 3+):
- * - Display list of mock banks to choose from
- * - Implement mock OAuth consent flow
- * - Store linked account in database
- * - Handle success/error states
- * - Redirect to dashboard after linking
+ * FLOW:
+ * 1. User arrives at /link-bank (must be authenticated)
+ * 2. User sees list of available banks
+ * 3. User selects a bank to connect
+ * 4. User confirms consent explicitly
+ * 5. Bank accounts are created in database (= consent persisted)
+ * 6. User is redirected to dashboard
+ *
+ * WHAT THIS SIMULATES:
+ * - Bank selection from available institutions
+ * - Explicit consent confirmation
+ * - Consent persistence via database
+ *
+ * WHAT THIS OMITS:
+ * - OAuth redirect to bank
+ * - Bank login credentials
+ * - Per-account consent (all accounts are linked for MVP)
+ *
+ * @see docs/PSD2_MOCK_STRATEGY.md Section 5
  */
 
 import { generateMetadata } from "@/lib/head";
+import { requireUser } from "@/lib/auth";
+import { getLinkedBankIds } from "@/lib/db/accounts";
+import { MOCK_BANKS } from "@/lib/mock";
+import { LinkBankFlow } from "@/components/finance/LinkBankFlow";
 
 export const metadata = generateMetadata({
   title: "Link Bank Account",
 });
 
-export default function LinkBankPage() {
+export default async function LinkBankPage() {
+  // Require authentication — redirects to /login if not logged in
+  await requireUser("/link-bank");
+
+  // Get list of already-linked bank IDs for this user
+  // This is used to show which banks are already connected
+  const linkedBankIds = await getLinkedBankIds();
+
   return (
     <main className="flex flex-col items-center justify-center min-h-[60vh] p-6">
       <div className="max-w-lg w-full space-y-6">
@@ -32,35 +57,19 @@ export default function LinkBankPage() {
           </p>
         </div>
 
-        {/* Placeholder for Bank Selection */}
-        <div className="border border-dashed border-muted-foreground/50 rounded-lg p-8">
-          <p className="text-muted-foreground text-center mb-4">
-            Bank selection will appear here
+        {/* Bank Linking Flow (Client Component) */}
+        <LinkBankFlow banks={MOCK_BANKS} linkedBankIds={linkedBankIds} />
+
+        {/* Info Footer */}
+        <div className="text-center text-xs text-muted-foreground space-y-2">
+          <p>
+            Your data is protected by Row Level Security. Only you can access
+            your financial information.
           </p>
-
-          {/* Mock bank list preview */}
-          <div className="space-y-2">
-            {["Demo Bank", "Test Credit Union", "Fake Finance Co."].map(
-              (bank) => (
-                <div
-                  key={bank}
-                  className="p-3 border border-muted rounded-md opacity-50 cursor-not-allowed"
-                >
-                  {bank}
-                </div>
-              )
-            )}
-          </div>
-        </div>
-
-        {/* Implementation Notes */}
-        <div className="text-sm text-muted-foreground space-y-1">
-          <p className="font-medium">Coming soon:</p>
-          <ul className="list-disc list-inside space-y-1">
-            <li>PSD2-style mock consent flow</li>
-            <li>Deterministic transaction generation</li>
-            <li>Account linking persistence</li>
-          </ul>
+          <p>
+            <strong>Note:</strong> This is a demo using mock bank data. No real
+            bank connections are made.
+          </p>
         </div>
       </div>
     </main>
