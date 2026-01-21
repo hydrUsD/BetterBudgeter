@@ -4,23 +4,27 @@
  * Reusable components for financial data display and input.
  * Includes transaction forms, category selectors, amount inputs, etc.
  *
- * Current status: SKELETON — exports placeholder components.
- *
- * TODO (Task 4+):
- * - TransactionForm: Add/edit transaction
- * - CategorySelector: Category dropdown with icons
- * - AmountInput: Currency-aware amount input
- * - TransactionRow: Single transaction display
- * - AccountCard: Linked bank account display
+ * @see docs/ARCHITECTURE_SKELETON.md for component organization
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Placeholder Exports
+// Implemented Components
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * LinkBankFlow: Interactive bank linking / consent flow component.
+ * Used on the /link-bank page for connecting mock banks.
+ *
+ * @see docs/PSD2_MOCK_STRATEGY.md Section 5 for consent flow details
+ */
+export { LinkBankFlow } from "./LinkBankFlow";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Placeholder Exports (Future Implementation)
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * Finance component names for future implementation
- * These will be replaced with actual component exports
  */
 export const FINANCE_COMPONENTS = [
   "TransactionForm",
@@ -29,16 +33,15 @@ export const FINANCE_COMPONENTS = [
   "TransactionRow",
   "AccountCard",
   "BankSelector",
+  "LinkBankFlow", // Implemented
 ] as const;
 
 /**
  * Check if a finance component is implemented
  * @param name - Component name
- * @returns Always false for now (skeleton)
+ * @returns true if component is implemented
  */
 export function isComponentImplemented(name: string): boolean {
-  // All components are placeholders for now
-  return FINANCE_COMPONENTS.includes(name as (typeof FINANCE_COMPONENTS)[number])
-    ? false
-    : false;
+  const implementedComponents = ["LinkBankFlow"];
+  return implementedComponents.includes(name);
 }
