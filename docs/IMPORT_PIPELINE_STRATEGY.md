@@ -1,7 +1,7 @@
 # Import Pipeline Strategy
 
-**Version:** 1.0
-**Status:** Specified
+**Version:** 1.1
+**Status:** Implemented
 **Scope:** MVP Manual Import Pipeline
 
 ---
