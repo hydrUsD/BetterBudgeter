@@ -1,7 +1,7 @@
 # PSD2 Mock API Strategy
 
-**Version:** 1.0
-**Status:** Approved for Implementation
+**Version:** 1.1
+**Status:** Implemented
 **Scope:** MVP Mock API Specification
 
 ---
