@@ -37,6 +37,15 @@ interface SyncTransactionsButtonProps {
 }
 
 /**
+ * Notification from the API (matches ToastNotification type)
+ */
+interface ApiNotification {
+  type: "info" | "success" | "warning" | "error";
+  title: string;
+  message: string;
+}
+
+/**
  * Import API response shape
  */
 interface ImportResponse {
@@ -48,6 +57,8 @@ interface ImportResponse {
   accountsProcessed: number;
   errorDetails?: string[];
   error?: string;
+  /** Notifications from the API (import result + budget alerts) */
+  notifications?: ApiNotification[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -97,20 +108,36 @@ export function SyncTransactionsButton({
         throw new Error(data.error || "Import failed");
       }
 
-      // Success - show appropriate toast based on result
-      if (data.totalImported === 0 && data.totalErrors === 0) {
-        toast.info("All transactions already up to date");
-      } else if (data.totalErrors > 0 && data.totalImported > 0) {
-        // Partial success
-        toast.warning(
-          `Imported ${data.totalImported} transactions. ${data.totalErrors} failed.`
-        );
-      } else if (data.totalErrors > 0) {
-        // All failed
-        toast.error("Import failed. Please try again.");
+      // Display notifications from API response (includes budget alerts)
+      if (data.notifications && data.notifications.length > 0) {
+        // Show each notification with appropriate toast type
+        for (const notification of data.notifications) {
+          const toastFn =
+            notification.type === "error"
+              ? toast.error
+              : notification.type === "warning"
+              ? toast.warning
+              : notification.type === "success"
+              ? toast.success
+              : toast.info;
+
+          toastFn(notification.message, {
+            description: notification.title !== notification.message ? notification.title : undefined,
+          });
+        }
       } else {
-        // Full success
-        toast.success(`Imported ${data.totalImported} transactions`);
+        // Fallback: show basic result if no notifications returned
+        if (data.totalImported === 0 && data.totalErrors === 0) {
+          toast.info("All transactions already up to date");
+        } else if (data.totalErrors > 0 && data.totalImported > 0) {
+          toast.warning(
+            `Imported ${data.totalImported} transactions. ${data.totalErrors} failed.`
+          );
+        } else if (data.totalErrors > 0) {
+          toast.error("Import failed. Please try again.");
+        } else {
+          toast.success(`Imported ${data.totalImported} transactions`);
+        }
       }
 
       // Refresh the page to show new data

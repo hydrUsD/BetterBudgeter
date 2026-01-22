@@ -26,6 +26,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/db/supabaseServer";
 import { getAccounts } from "@/lib/db/accounts";
 import { importTransactions } from "@/lib/import";
+import { generatePostImportNotifications } from "@/lib/notifications";
+import type { ToastNotification } from "@/lib/notifications";
 import type { ImportResult } from "@/types/finance";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -47,6 +49,7 @@ interface ImportRequest {
 
 /**
  * Aggregated import result across all accounts.
+ * Includes notifications to display (budget alerts, import status).
  */
 interface AggregatedImportResult {
   success: boolean;
@@ -56,6 +59,8 @@ interface AggregatedImportResult {
   totalErrors: number;
   accountsProcessed: number;
   errorDetails?: string[];
+  /** Notifications to display (import result + budget alerts) */
+  notifications?: ToastNotification[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -189,6 +194,21 @@ export async function POST(
     // Only include error details if there were errors
     if (allErrors.length > 0) {
       aggregated.errorDetails = allErrors;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Step 6: Generate notifications (budget alerts + import status)
+    // ─────────────────────────────────────────────────────────────────────────
+    try {
+      const notifications = await generatePostImportNotifications({
+        imported: aggregated.totalImported,
+        updated: aggregated.totalUpdated,
+        errors: aggregated.totalErrors,
+      });
+      aggregated.notifications = notifications;
+    } catch (notifError) {
+      // Non-blocking: import succeeded even if notification generation fails
+      console.error("[api/import] Notification generation error:", notifError);
     }
 
     return NextResponse.json(aggregated);

@@ -160,3 +160,62 @@ export interface Notification {
   read: boolean;
   createdAt: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Budget Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Budget status based on usage percentage.
+ * Used for ADHD-friendly traffic light feedback.
+ *
+ * - on_track: Usage < 80% (green)
+ * - warning: 80% <= Usage < 100% (yellow/amber)
+ * - over_budget: Usage >= 100% (red)
+ *
+ * @see docs/BUDGET_STRATEGY.md for rationale
+ */
+export type BudgetStatus = "on_track" | "warning" | "over_budget";
+
+/**
+ * A user's budget configuration for a category.
+ */
+export interface Budget {
+  id: string;
+  userId: string;
+  category: ExpenseCategory;
+  monthlyLimit: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Calculated budget progress for display.
+ * Progress is calculated from transactions, not stored.
+ */
+export interface BudgetProgress {
+  /** The budget configuration */
+  budget: Budget;
+  /** Amount spent in this category for the current month */
+  spentAmount: number;
+  /** Remaining amount (limit - spent) */
+  remainingAmount: number;
+  /** Usage percentage (spent / limit * 100) */
+  usagePercentage: number;
+  /** Traffic light status based on percentage */
+  status: BudgetStatus;
+  /** Number of transactions in this category for the month */
+  transactionCount: number;
+}
+
+/**
+ * Budget alert notification data.
+ * Generated when a budget threshold is crossed.
+ */
+export interface BudgetAlert {
+  category: ExpenseCategory;
+  status: BudgetStatus;
+  spentAmount: number;
+  monthlyLimit: number;
+  usagePercentage: number;
+}

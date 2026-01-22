@@ -194,3 +194,41 @@ export interface DbNotificationPrefsUpdate {
   weekly_summary?: boolean;
   import_notifications?: boolean;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// bb_budgets Table
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Row type for bb_budgets table.
+ *
+ * A budget represents a user-defined spending limit for a specific
+ * expense category over a calendar month.
+ *
+ * @see docs/BUDGET_STRATEGY.md for detailed design
+ */
+export interface DbBudget {
+  id: string;
+  user_id: string;
+  category: string;
+  monthly_limit: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Insert type for bb_budgets (id and timestamps are auto-generated)
+ */
+export interface DbBudgetInsert {
+  user_id: string;
+  category: string;
+  monthly_limit: number;
+}
+
+/**
+ * Update type for bb_budgets
+ */
+export interface DbBudgetUpdate {
+  monthly_limit?: number;
+  updated_at?: string;
+}
