@@ -1,9 +1,9 @@
 # Budget & Notification Strategy
 
-**Version:** 1.0
-**Status:** Analysis Complete
+**Version:** 1.1
+**Status:** Implemented (Task 6b)
 **Task:** 6a — Budget & Notification Feature Analysis
-**Scope:** MVP Feature Definition (No Implementation)
+**Scope:** MVP Feature Definition (Implemented)
 
 ---
 
@@ -249,7 +249,7 @@ New table required: `bb_budgets`
    /settings → lib/db/budgets.ts → bb_budgets table
 
 2. USER IMPORTS TRANSACTIONS
-   /dashboard → /api/import → bb_transactions table
+   / (dashboard) → /api/import → bb_transactions table
                     │
                     ▼
 3. BUDGET CALCULATION (after import)
@@ -403,3 +403,4 @@ Budget configuration lives in `/settings`:
 ---
 
 *Document created: Task 6a — Budget & Notification Strategy*
+*Implementation completed: Task 6b — Budget tracking, settings UI, dashboard display, ADHD-friendly notification dialogs*

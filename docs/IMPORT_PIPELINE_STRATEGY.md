@@ -1,7 +1,7 @@
 # Import Pipeline Strategy
 
-**Version:** 1.2
-**Status:** Implemented (Budget notification integration planned — Task 6)
+**Version:** 1.3
+**Status:** Implemented (including budget notification integration)
 **Scope:** MVP Manual Import Pipeline
 
 ---
@@ -40,7 +40,7 @@ This document specifies the manual transaction import and UPSERT pipeline for th
 
 | Location | Component | Action |
 |----------|-----------|--------|
-| Dashboard page | "Sync Transactions" button | Imports transactions for all linked accounts |
+| Dashboard page (`/`) | "Sync Transactions" button | Imports transactions for all linked accounts |
 
 **MVP Decision:** Single dashboard-level button only. Per-account import is Post-MVP.
 
@@ -59,7 +59,7 @@ For import to proceed, **all** of the following must be true:
 
 | Missing Precondition | UI Response |
 |---------------------|-------------|
-| Not authenticated | Redirect to `/login?redirect=/dashboard` |
+| Not authenticated | Redirect to `/login?redirect=/` |
 | No banks linked | Empty state with "Link a Bank" button |
 | Account not found | Toast: "Account not found. Please refresh." |
 | Access denied | Toast: "Unable to access this account." |

@@ -269,7 +269,7 @@ Step 1: Authentication
    User → /login → Supabase Auth → Session cookie
 
 Step 2: Navigate to Link Bank
-   /dashboard → "Link Bank" button → /link-bank
+   / (dashboard) → "Link Bank" button → /link-bank
 
 Step 3: Bank Selection
    /link-bank → GET /api/mock/banks → Display bank list
@@ -294,7 +294,7 @@ Step 5: Account Creation
      → Return success
 
 Step 6: Completion
-   Redirect to /dashboard
+   Redirect to / (dashboard)
    Toast: "Demo Bank linked successfully"
 ```
 
@@ -317,7 +317,7 @@ Step 6: Completion
 
 ### 5.4 No Consent State
 
-- `/dashboard` shows empty state with CTA to link bank
+- `/` (dashboard) shows empty state with CTA to link bank
 - Import endpoint returns error if no accounts exist
 - No data to display until user links a bank
 
@@ -373,7 +373,7 @@ Step 6: Completion
           │ Query (RLS filtered)
           ▼
    ┌──────────────┐
-   │  /dashboard  │
+   │  / (dashboard)│
    │  (UI reads   │
    │   from DB)   │
    └──────────────┘
