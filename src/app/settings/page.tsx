@@ -4,23 +4,59 @@
  * User preferences and app configuration.
  * Settings are persisted per-user in the database.
  *
- * Current status: SKELETON — no settings logic implemented yet.
+ * SECTIONS:
+ * - Budget Settings: Monthly spending limits per category (MVP)
+ * - Display Preferences: View mode, currency (placeholder)
+ * - Notifications: Budget alerts, weekly summary (placeholder)
+ * - Linked Accounts: Bank connections (placeholder)
  *
- * TODO (Task 5+):
- * - UI variant preferences (compact/comfortable view)
- * - Notification preferences
- * - Currency display settings
- * - Data export options
- * - Account management (linked banks)
+ * @see docs/BUDGET_STRATEGY.md for budget feature design
  */
 
+import { redirect } from "next/navigation";
 import { generateMetadata } from "@/lib/head";
+import { createServerSupabaseClient } from "@/lib/db/supabaseServer";
+import { getBudgets } from "@/lib/db/budgets";
+import { BudgetSettings } from "@/components/settings/BudgetSettings";
 
 export const metadata = generateMetadata({
   title: "Settings",
 });
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Auth Check
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login?redirect=/settings");
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Fetch Current Budgets
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  const currentBudgets: Record<string, number> = {};
+
+  try {
+    const dbBudgets = await getBudgets();
+    for (const budget of dbBudgets) {
+      currentBudgets[budget.category] = budget.monthly_limit;
+    }
+  } catch (error) {
+    console.error("[settings] Error fetching budgets:", error);
+    // Continue with empty budgets - user can still set new ones
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Render
+  // ─────────────────────────────────────────────────────────────────────────────
+
   return (
     <main className="flex flex-col gap-6 p-6 max-w-2xl mx-auto">
       {/* Page Header */}
@@ -31,7 +67,13 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      {/* Display Preferences */}
+      {/* Budget Settings - MVP Feature */}
+      <section className="border rounded-lg p-6">
+        <h2 className="font-semibold mb-4">Monthly Budgets</h2>
+        <BudgetSettings currentBudgets={currentBudgets} />
+      </section>
+
+      {/* Display Preferences (placeholder) */}
       <section className="border border-dashed border-muted-foreground/50 rounded-lg p-6">
         <h2 className="font-semibold mb-4">Display Preferences</h2>
         <div className="space-y-4">
@@ -42,7 +84,7 @@ export default function SettingsPage() {
                 Choose compact or comfortable layout
               </p>
             </div>
-            <div className="text-muted-foreground text-sm">[Toggle]</div>
+            <div className="text-muted-foreground text-sm">[Coming soon]</div>
           </div>
 
           <div className="flex justify-between items-center">
@@ -52,12 +94,12 @@ export default function SettingsPage() {
                 Display currency for amounts
               </p>
             </div>
-            <div className="text-muted-foreground text-sm">[Selector]</div>
+            <div className="text-muted-foreground text-sm">EUR</div>
           </div>
         </div>
       </section>
 
-      {/* Notification Preferences */}
+      {/* Notification Preferences (placeholder) */}
       <section className="border border-dashed border-muted-foreground/50 rounded-lg p-6">
         <h2 className="font-semibold mb-4">Notifications</h2>
         <div className="space-y-4">
@@ -65,10 +107,10 @@ export default function SettingsPage() {
             <div>
               <p className="font-medium">Budget Alerts</p>
               <p className="text-sm text-muted-foreground">
-                Notify when approaching budget limits
+                Notify at 80% and 100% of budget
               </p>
             </div>
-            <div className="text-muted-foreground text-sm">[Toggle]</div>
+            <div className="text-muted-foreground text-sm">On</div>
           </div>
 
           <div className="flex justify-between items-center">
@@ -78,16 +120,16 @@ export default function SettingsPage() {
                 Receive weekly spending summary
               </p>
             </div>
-            <div className="text-muted-foreground text-sm">[Toggle]</div>
+            <div className="text-muted-foreground text-sm">[Coming soon]</div>
           </div>
         </div>
       </section>
 
-      {/* Linked Accounts */}
+      {/* Linked Accounts (placeholder) */}
       <section className="border border-dashed border-muted-foreground/50 rounded-lg p-6">
         <h2 className="font-semibold mb-4">Linked Accounts</h2>
         <p className="text-muted-foreground text-sm">
-          No bank accounts linked yet.
+          Manage your connected bank accounts.
         </p>
         <div className="mt-4">
           <a
@@ -99,7 +141,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* Data Export */}
+      {/* Data Export (placeholder) */}
       <section className="border border-dashed border-muted-foreground/50 rounded-lg p-6">
         <h2 className="font-semibold mb-4">Data Export</h2>
         <p className="text-muted-foreground text-sm">

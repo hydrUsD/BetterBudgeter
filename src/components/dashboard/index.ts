@@ -19,6 +19,14 @@
  */
 export { SyncTransactionsButton } from "./SyncTransactionsButton";
 
+/**
+ * BudgetProgressSection: Displays budget progress with traffic light colors.
+ * Shows all tracked budgets with progress bars and status indicators.
+ *
+ * @see docs/BUDGET_STRATEGY.md
+ */
+export { BudgetProgressSection } from "./BudgetProgressSection";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Placeholder Exports (Future Implementation)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -42,6 +50,6 @@ export const DASHBOARD_COMPONENTS = [
  * @returns true if component is implemented
  */
 export function isComponentImplemented(name: string): boolean {
-  const implementedComponents = ["SyncTransactionsButton"];
+  const implementedComponents = ["SyncTransactionsButton", "BudgetProgress"];
   return implementedComponents.includes(name);
 }

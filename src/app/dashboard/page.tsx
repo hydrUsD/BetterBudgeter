@@ -24,8 +24,10 @@ import { generateMetadata } from "@/lib/head";
 import { getUser } from "@/lib/auth";
 import { getAccounts } from "@/lib/db/accounts";
 import { getRecentTransactions, getTransactionSummary } from "@/lib/db/transactions";
+import { calculateAllBudgetProgress } from "@/lib/budgets";
 import { SignOutButton } from "@/components/auth";
-import { SyncTransactionsButton } from "@/components/dashboard";
+import { SyncTransactionsButton, BudgetProgressSection } from "@/components/dashboard";
+import type { BudgetProgress } from "@/types/finance";
 
 export const metadata = generateMetadata({
   title: "Dashboard",
@@ -45,12 +47,14 @@ export default async function DashboardPage() {
     netChange: 0,
     transactionCount: 0,
   };
+  let budgetProgress: BudgetProgress[] = [];
   let dataError: string | null = null;
 
   try {
     accounts = await getAccounts();
     recentTransactions = await getRecentTransactions(5);
     summary = await getTransactionSummary();
+    budgetProgress = await calculateAllBudgetProgress();
   } catch (error) {
     console.error("[dashboard] Error fetching data:", error);
     dataError = error instanceof Error ? error.message : "Failed to load data";
@@ -149,6 +153,9 @@ export default async function DashboardPage() {
               </p>
             </section>
           </div>
+
+          {/* Budget Progress - Traffic Light Feedback */}
+          <BudgetProgressSection budgetProgress={budgetProgress} />
 
           {/* Linked Accounts */}
           <section className="border rounded-lg p-6 bg-card">
