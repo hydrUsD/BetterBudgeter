@@ -112,20 +112,23 @@ export async function middleware(request: NextRequest) {
  * Configure which routes the middleware should run on.
  *
  * Protected routes:
- * - /dashboard - Main dashboard (requires auth)
+ * - / - Main dashboard (requires auth) - NEW PRIMARY LANDING PAGE
  * - /settings - User settings (requires auth)
  * - /link-bank - Bank linking flow (requires auth)
  * - /api/import - Transaction import endpoint
  * - /api/mock/* - Mock banking API endpoints
  * - /api/notifications - Notification endpoints
  *
+ * Redirect-only routes (NOT protected, just redirect):
+ * - /dashboard - Redirects to / (HTTP 308)
+ *
  * Excluded from protection (public):
- * - / - Legacy home (uses PasscodeWrapper)
  * - /login - Login page
  * - /auth/* - Auth-related pages
+ * - /legacy - Legacy OopsBudgeter dashboard (for demo)
+ * - /legacy-index - Legacy navigation index
  * - /analytics - Legacy analytics (uses PasscodeWrapper)
  * - /achievements - Legacy achievements (uses PasscodeWrapper)
- * - /legacy - Legacy navigation
  * - /api/auth/* - Legacy auth API
  * - /api/transactions - Legacy transactions API
  * - /api/achievements - Legacy achievements API
@@ -134,7 +137,8 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Protected page routes
-    "/dashboard/:path*",
+    // Note: "/" must be listed explicitly (no wildcard) to protect only the root
+    "/",
     "/settings/:path*",
     "/link-bank/:path*",
     // Protected API routes
