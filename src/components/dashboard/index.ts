@@ -27,6 +27,14 @@ export { SyncTransactionsButton } from "./SyncTransactionsButton";
  */
 export { BudgetProgressSection } from "./BudgetProgressSection";
 
+/**
+ * SpendingByCategoryChart: Donut chart showing expense breakdown by category.
+ * Uses Tremor for visualization. ADHD-friendly visual overview.
+ *
+ * @see docs/DASHBOARD_STRATEGY.md Section 4.2
+ */
+export { SpendingByCategoryChart } from "./SpendingByCategoryChart";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Placeholder Exports (Future Implementation)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -50,6 +58,10 @@ export const DASHBOARD_COMPONENTS = [
  * @returns true if component is implemented
  */
 export function isComponentImplemented(name: string): boolean {
-  const implementedComponents = ["SyncTransactionsButton", "BudgetProgress"];
+  const implementedComponents = [
+    "SyncTransactionsButton",
+    "BudgetProgress",
+    "SpendingChart",
+  ];
   return implementedComponents.includes(name);
 }

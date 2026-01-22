@@ -7,15 +7,29 @@
  * Auth: Protected by middleware - only authenticated users can access.
  *
  * KEY FEATURES:
+ * - Total Balance, Income, Expenses KPIs
+ * - Budget Progress with traffic light colors
+ * - Spending by Category donut chart (Tremor)
+ * - Recent Transactions list
+ * - Linked Accounts list
  * - Sync Transactions button for manual import
- * - Account summary (placeholder)
- * - Transaction list (placeholder)
- * - Charts (placeholder)
+ *
+ * ADHD DESIGN:
+ * - Clear visual hierarchy (balance first, then details)
+ * - Traffic light budget feedback (glanceable)
+ * - Max 1 chart to reduce visual noise
+ * - Predictable behavior (manual refresh only)
  *
  * DATA FLOW:
  * - UI reads from database only (never from mock API)
  * - Manual sync triggers: UI → /api/import → mock → DB → UI refresh
  *
+ * EXTENSION POINTS (marked with comments):
+ * - Notification bell/badge (header area)
+ * - Spending Trends chart (after category chart)
+ * - UI layout settings (via bb_user_settings)
+ *
+ * @see docs/DASHBOARD_STRATEGY.md for design decisions
  * @see docs/SUPABASE_STRATEGY.md for data flow
  * @see docs/IMPORT_PIPELINE_STRATEGY.md for import behavior
  */
@@ -23,10 +37,19 @@
 import { generateMetadata } from "@/lib/head";
 import { getUser } from "@/lib/auth";
 import { getAccounts } from "@/lib/db/accounts";
-import { getRecentTransactions, getTransactionSummary } from "@/lib/db/transactions";
+import {
+  getRecentTransactions,
+  getTransactionSummary,
+  getExpensesByCategory,
+  type CategoryBreakdown,
+} from "@/lib/db/transactions";
 import { calculateAllBudgetProgress } from "@/lib/budgets";
 import { SignOutButton } from "@/components/auth";
-import { SyncTransactionsButton, BudgetProgressSection } from "@/components/dashboard";
+import {
+  SyncTransactionsButton,
+  BudgetProgressSection,
+  SpendingByCategoryChart,
+} from "@/components/dashboard";
 import type { BudgetProgress } from "@/types/finance";
 
 export const metadata = generateMetadata({
@@ -48,6 +71,7 @@ export default async function DashboardPage() {
     transactionCount: 0,
   };
   let budgetProgress: BudgetProgress[] = [];
+  let expensesByCategory: CategoryBreakdown[] = [];
   let dataError: string | null = null;
 
   try {
@@ -55,6 +79,7 @@ export default async function DashboardPage() {
     recentTransactions = await getRecentTransactions(5);
     summary = await getTransactionSummary();
     budgetProgress = await calculateAllBudgetProgress();
+    expensesByCategory = await getExpensesByCategory();
   } catch (error) {
     console.error("[dashboard] Error fetching data:", error);
     dataError = error instanceof Error ? error.message : "Failed to load data";
@@ -74,6 +99,12 @@ export default async function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {/* EXTENSION POINT: Notification Bell/Badge
+              This is where a notification indicator could be added later.
+              Would show unread count badge and link to notification panel.
+              Data source: /api/notifications (already exists as skeleton)
+              @see docs/DASHBOARD_STRATEGY.md Section 6.1 */}
+
           {/* Manual Import Trigger */}
           <SyncTransactionsButton accountCount={accounts.length} />
           <SignOutButton variant="outline" size="sm" />
@@ -221,16 +252,22 @@ export default async function DashboardPage() {
             )}
           </section>
 
-          {/* Charts Placeholder */}
-          <section className="border border-dashed border-muted-foreground/50 rounded-lg p-6">
-            <h2 className="font-semibold mb-2">Spending Trends</h2>
-            <p className="text-muted-foreground text-sm">
-              Charts will be rendered here using Tremor/Recharts (Task 5)
+          {/* Spending by Category Chart (Tremor Donut Chart)
+              ADHD-friendly: Visual overview of where money goes
+              @see docs/DASHBOARD_STRATEGY.md Section 4.2 */}
+          <section className="border rounded-lg p-6 bg-card">
+            <h2 className="font-semibold mb-4">Spending by Category</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              This month&apos;s expenses by category
             </p>
-            <div className="h-48 flex items-center justify-center text-muted-foreground/30">
-              [Chart Placeholder]
-            </div>
+            <SpendingByCategoryChart data={expensesByCategory} />
           </section>
+
+          {/* EXTENSION POINT: Spending Trends Chart (Post-MVP)
+              This is where an Income vs Expenses bar chart could be added later.
+              Would show spending patterns over time (weekly/monthly).
+              Data source: getTransactionsByPeriod() (not yet implemented)
+              @see docs/DASHBOARD_STRATEGY.md Section 4.2 Chart 2 */}
         </>
       )}
 

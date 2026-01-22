@@ -201,6 +201,74 @@ export async function getTransactionSummary(
   };
 }
 
+/**
+ * Category breakdown for charts
+ */
+export interface CategoryBreakdown {
+  category: string;
+  amount: number;
+  transactionCount: number;
+}
+
+/**
+ * Get expense breakdown by category.
+ *
+ * Used for the Spending by Category donut chart on the dashboard.
+ * Returns only expense transactions grouped by category.
+ *
+ * @param options - Optional date range filter (defaults to current month)
+ * @returns Array of category breakdowns sorted by amount (descending)
+ *
+ * @see docs/DASHBOARD_STRATEGY.md Section 4.2
+ */
+export async function getExpensesByCategory(
+  options: DateRangeOptions = {}
+): Promise<CategoryBreakdown[]> {
+  // Default to current month if no date range specified
+  const now = new Date();
+  const fromDate =
+    options.fromDate ??
+    new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+  const toDate =
+    options.toDate ??
+    new Date(now.getFullYear(), now.getMonth() + 1, 0)
+      .toISOString()
+      .split("T")[0];
+
+  // Fetch expense transactions for the period
+  const transactions = await getTransactions({ fromDate, toDate });
+  const expenses = transactions.filter((tx) => tx.type === "expense");
+
+  // Group by category
+  const categoryMap = new Map<
+    string,
+    { amount: number; transactionCount: number }
+  >();
+
+  for (const tx of expenses) {
+    const category = tx.category ?? "Other";
+    const existing = categoryMap.get(category) ?? {
+      amount: 0,
+      transactionCount: 0,
+    };
+    categoryMap.set(category, {
+      amount: existing.amount + Math.abs(tx.amount),
+      transactionCount: existing.transactionCount + 1,
+    });
+  }
+
+  // Convert to array and sort by amount (descending)
+  const breakdown: CategoryBreakdown[] = Array.from(categoryMap.entries())
+    .map(([category, data]) => ({
+      category,
+      amount: data.amount,
+      transactionCount: data.transactionCount,
+    }))
+    .sort((a, b) => b.amount - a.amount);
+
+  return breakdown;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Mutation Functions
 // ─────────────────────────────────────────────────────────────────────────────
