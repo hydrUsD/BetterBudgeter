@@ -56,6 +56,7 @@ src/
 │   ├── db/                 # Supabase database module (new)
 │   ├── import/             # Import pipeline logic (new)
 │   ├── finance/            # Financial calculations (new)
+│   ├── budgets/            # Budget calculation logic (new — Task 6)
 │   ├── notifications/      # Notification logic (new)
 │   └── ...                 # Legacy lib files (unchanged)
 │
@@ -215,11 +216,12 @@ src/
 - `src/app/api/import/route.ts`
 - `src/app/api/notifications/route.ts`
 
-### Library Modules (5 modules)
+### Library Modules (6 modules)
 - `src/lib/auth/index.ts`
 - `src/lib/db/index.ts`
 - `src/lib/import/index.ts`
 - `src/lib/finance/index.ts`
+- `src/lib/budgets/index.ts` (Task 6 — budget progress calculation)
 - `src/lib/notifications/index.ts`
 
 ### Utilities (3 modules)

@@ -95,6 +95,18 @@ This document specifies a **PSD2-like mock API** that simulates AISP (Account In
 | Mock API is for import pipeline only | Data flows: Mock → Import → DB → UI |
 | UI never calls mock endpoints | Prevents stale/inconsistent display |
 
+### 3.5 Budget Feature (Not PSD2)
+
+**Important:** The Budget feature (`bb_budgets`) is an **internal application feature**, not a PSD2 concept.
+
+| Aspect | Explanation |
+|--------|-------------|
+| Data source | User-defined limits + calculated from transactions |
+| PSD2 relationship | None — budgets are app-internal |
+| Mock API interaction | None — budgets read from `bb_transactions` only |
+
+See `docs/BUDGET_STRATEGY.md` for budget feature design.
+
 ---
 
 ## 4. Endpoint Specifications

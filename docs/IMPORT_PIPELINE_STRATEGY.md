@@ -1,7 +1,7 @@
 # Import Pipeline Strategy
 
-**Version:** 1.1
-**Status:** Implemented
+**Version:** 1.2
+**Status:** Implemented (Budget notification integration planned — Task 6)
 **Scope:** MVP Manual Import Pipeline
 
 ---
@@ -110,9 +110,15 @@ Step 5: UPSERT into Database
    })
                 │
                 ▼
-Step 6: Result Reporting
-   Return { success, imported, updated, skipped, errors }
-   UI displays toast notification
+Step 6: Budget Notification Check (Task 6)
+   lib/budgets/ calculates budget progress
+   lib/notifications/ checks for threshold crossings
+   Returns: Notification[] (if any thresholds crossed)
+                │
+                ▼
+Step 7: Result Reporting
+   Return { success, imported, updated, skipped, errors, notifications }
+   UI displays toast notification(s)
 ```
 
 ### 3.2 Step Responsibilities
@@ -177,13 +183,30 @@ Step 6: Result Reporting
 | Output | Array of `DbTransaction` (persisted) |
 | Failure modes | Database connection error, constraint violation |
 
-#### Step 6: Result Reporting
+#### Step 6: Budget Notification Check (Task 6)
+
+| Aspect | Detail |
+|--------|--------|
+| Responsibility | `lib/budgets/` + `lib/notifications/` |
+| Input | User ID, current month |
+| Output | Array of `Notification` objects for crossed thresholds |
+| Failure modes | None (non-blocking; import succeeds even if notification fails) |
+
+**Note:** This step is added by Task 6 (Budget & Notification feature). See `docs/BUDGET_STRATEGY.md` for details.
+
+**Behavior:**
+1. Calculate budget progress for all user budgets
+2. Compare to previous state (threshold not crossed → threshold crossed)
+3. Generate notifications for newly crossed thresholds (80%, 100%)
+4. Include notifications in import response
+
+#### Step 7: Result Reporting
 
 | Aspect | Detail |
 |--------|--------|
 | Responsibility | Import endpoint → UI |
-| Input | UPSERT result, error count |
-| Output | `ImportResult` object |
+| Input | UPSERT result, error count, notifications |
+| Output | `ImportResult` object (includes `notifications` array) |
 | Failure modes | None (always returns structured response) |
 
 ---
@@ -282,6 +305,7 @@ Step 6: Result Reporting
 | UPSERT idempotency | Yes |
 | Success/error toast notifications | Yes |
 | Import result summary in toast | Yes |
+| Budget threshold notifications after import (Task 6) | Yes |
 
 ### 6.2 Post-MVP (Not Implemented)
 

@@ -109,7 +109,10 @@ Example:
 - Fake-Finance-API (PSD2-style mock)
 - Import Pipeline (UPSERT-based, idempotent)
 - Dashboard & Visualizations
+- **Budget Tracking** (per-category monthly limits, ADHD-focused feedback)
 - Notifications & UI Personalization
+
+**Note:** Budget tracking is a core MVP feature. See `docs/BUDGET_STRATEGY.md` for detailed design.
 
 ### PSD2 Simulation Context (IMPORTANT)
 
@@ -204,18 +207,18 @@ If logic needs data access or decisions → it belongs in `lib/`, not `utils/`.
 
 ## Data Model (Conceptual)
 
-Key tables:
+Key tables (all prefixed with `bb_` in Supabase):
 
-- users
-- accounts
-- transactions
-- budgets
-- ui_settings
-- notification_preferences
+- `bb_accounts` — Linked bank accounts
+- `bb_transactions` — Imported transactions
+- `bb_budgets` — Per-category monthly spending limits (see `docs/BUDGET_STRATEGY.md`)
+- `bb_user_settings` — UI preferences
+- `bb_notification_prefs` — Notification settings
 
 Important constraints:
 
-- `transactions`: UNIQUE(user_id, external_id)
+- `bb_transactions`: UNIQUE(user_id, external_id)
+- `bb_budgets`: UNIQUE(user_id, category) — one budget per category per user
 
 ---
 

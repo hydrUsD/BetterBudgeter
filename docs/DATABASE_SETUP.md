@@ -91,6 +91,22 @@ CREATE TABLE IF NOT EXISTS bb_notification_prefs (
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
 
+-- ----------------------------------------------------------------------------
+-- bb_budgets: Per-category monthly spending limits (Task 6 — MVP feature)
+-- See docs/BUDGET_STRATEGY.md for detailed design
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS bb_budgets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  category TEXT NOT NULL,
+  monthly_limit DECIMAL(12,2) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+
+  -- One budget per category per user
+  UNIQUE(user_id, category)
+);
+
 -- ============================================================================
 -- 2. INDEXES
 -- ============================================================================
@@ -105,6 +121,9 @@ CREATE INDEX IF NOT EXISTS idx_bb_transactions_account_id ON bb_transactions(acc
 CREATE INDEX IF NOT EXISTS idx_bb_transactions_booking_date ON bb_transactions(booking_date);
 CREATE INDEX IF NOT EXISTS idx_bb_transactions_external_id ON bb_transactions(external_id);
 
+-- Budgets: lookup by user
+CREATE INDEX IF NOT EXISTS idx_bb_budgets_user_id ON bb_budgets(user_id);
+
 -- ============================================================================
 -- 3. ROW LEVEL SECURITY (RLS)
 -- ============================================================================
@@ -114,6 +133,7 @@ ALTER TABLE bb_accounts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bb_transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bb_user_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bb_notification_prefs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bb_budgets ENABLE ROW LEVEL SECURITY;
 
 -- ----------------------------------------------------------------------------
 -- bb_accounts policies
@@ -181,6 +201,25 @@ CREATE POLICY "Users can insert own notification prefs"
 
 CREATE POLICY "Users can update own notification prefs"
   ON bb_notification_prefs FOR UPDATE
+  USING (auth.uid() = user_id);
+
+-- ----------------------------------------------------------------------------
+-- bb_budgets policies
+-- ----------------------------------------------------------------------------
+CREATE POLICY "Users can view own budgets"
+  ON bb_budgets FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own budgets"
+  ON bb_budgets FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own budgets"
+  ON bb_budgets FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own budgets"
+  ON bb_budgets FOR DELETE
   USING (auth.uid() = user_id);
 ```
 
@@ -254,6 +293,23 @@ User notification preferences.
 | `import_notifications` | BOOLEAN | Enable import notifications (default: true) |
 | `created_at` | TIMESTAMPTZ | When created |
 
+### Table: bb_budgets
+
+Per-category monthly spending limits. See `docs/BUDGET_STRATEGY.md` for detailed design.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key (auto-generated) |
+| `user_id` | UUID | References auth.users (required) |
+| `category` | TEXT | Expense category (e.g., "Food", "Transport") |
+| `monthly_limit` | DECIMAL | Maximum spending amount per month |
+| `created_at` | TIMESTAMPTZ | When budget was created |
+| `updated_at` | TIMESTAMPTZ | Last modified |
+
+**Key Constraint:** `UNIQUE(user_id, category)` ensures one budget per category per user.
+
+**Note:** Budget progress is calculated, not stored. Progress = sum of transactions in category for current month.
+
 ---
 
 ## RLS (Row Level Security) Explanation
@@ -308,6 +364,7 @@ To remove all BetterBudget tables (WARNING: deletes all data):
 
 ```sql
 -- Drop tables (cascades to policies and indexes)
+DROP TABLE IF EXISTS bb_budgets CASCADE;
 DROP TABLE IF EXISTS bb_transactions CASCADE;
 DROP TABLE IF EXISTS bb_accounts CASCADE;
 DROP TABLE IF EXISTS bb_user_settings CASCADE;
@@ -321,7 +378,8 @@ DROP TABLE IF EXISTS bb_notification_prefs CASCADE;
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | Initial | Created bb_accounts, bb_transactions, bb_user_settings, bb_notification_prefs with RLS |
+| 1.1 | Task 6a | Added bb_budgets table for per-category monthly spending limits |
 
 ---
 
-*Document created: Task 4b — Database Setup Guide*
+*Document updated: Task 6a — Budget & Notification Strategy*

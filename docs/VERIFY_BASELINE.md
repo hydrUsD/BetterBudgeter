@@ -110,6 +110,13 @@ bun run typecheck    # Run TypeScript type checking
 - [ ] Sign out button works
 - [ ] User email displays on dashboard
 
+### Budget Features (Planned — Task 6)
+- [ ] Budget configuration available in `/settings`
+- [ ] Budget progress displays on dashboard
+- [ ] Warning notification at 80% threshold
+- [ ] Over-budget notification at 100% threshold
+- [ ] Notifications triggered after import
+
 ### Legacy Features (OopsBudgeter)
 - [ ] `/` (legacy home) loads with passcode prompt
 - [ ] Legacy passcode entry works
@@ -218,12 +225,14 @@ New tables with Row Level Security (RLS):
 |-------|-------------|
 | `bb_accounts` | Linked bank accounts |
 | `bb_transactions` | Imported transactions (idempotent via `external_id`) |
+| `bb_budgets` | Per-category monthly spending limits (MVP feature) |
 | `bb_user_settings` | User preferences (theme, currency) |
 | `bb_notification_prefs` | Notification preferences |
 
 All tables enforce `user_id = auth.uid()` via RLS policies.
 
 See `supabase/migrations/001_initial_schema.sql` for full schema.
+See `docs/BUDGET_STRATEGY.md` for budget feature design.
 
 ---
 

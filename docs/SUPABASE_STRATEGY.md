@@ -173,9 +173,24 @@ CREATE TABLE bb_notification_prefs (
   import_notifications BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Budget configuration (Task 6 — MVP feature)
+-- See docs/BUDGET_STRATEGY.md for detailed design
+CREATE TABLE bb_budgets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) NOT NULL,
+  category TEXT NOT NULL,
+  monthly_limit DECIMAL(12,2) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+
+  UNIQUE(user_id, category)  -- One budget per category per user
+);
 ```
 
 **Naming convention:** `bb_` prefix distinguishes BetterBudget tables from legacy `transactions`/`achievements` tables.
+
+**Budget note:** The `bb_budgets` table stores configuration only (limits). Budget progress is calculated from `bb_transactions` at query time.
 
 ---
 
@@ -225,6 +240,7 @@ src/lib/db/
 ├── index.ts          # Supabase client setup
 ├── accounts.ts       # bb_accounts queries
 ├── transactions.ts   # bb_transactions queries
+├── budgets.ts        # bb_budgets queries (Task 6)
 ├── settings.ts       # bb_user_settings queries
 └── types.ts          # Generated or manual types
 ```
