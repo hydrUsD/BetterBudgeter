@@ -202,6 +202,18 @@ export default async function DashboardPage() {
           {/* Budget Progress - Traffic Light Feedback */}
           <BudgetProgressSection budgetProgress={budgetProgress} />
 
+          {/* Spending by Category Chart (Tremor Donut Chart)
+              ADHD-friendly: Visual overview of where money goes
+              Adjacent to Budget Progress for related financial context.
+              @see docs/DASHBOARD_STRATEGY.md Section 4.2 */}
+          <section className="border rounded-lg p-6 bg-card">
+            <h2 className="font-semibold mb-4">Spending by Category</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              This month&apos;s expenses by category
+            </p>
+            <SpendingByCategoryChart data={expensesByCategory} />
+          </section>
+
           {/* Linked Accounts */}
           <section className="border rounded-lg p-6 bg-card">
             <h2 className="font-semibold mb-4">Linked Accounts</h2>
@@ -264,17 +276,6 @@ export default async function DashboardPage() {
                 ))}
               </div>
             )}
-          </section>
-
-          {/* Spending by Category Chart (Recharts Donut Chart)
-              ADHD-friendly: Visual overview of where money goes
-              @see docs/DASHBOARD_STRATEGY.md Section 4.2 */}
-          <section className="border rounded-lg p-6 bg-card">
-            <h2 className="font-semibold mb-4">Spending by Category</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              This month&apos;s expenses by category
-            </p>
-            <SpendingByCategoryChart data={expensesByCategory} />
           </section>
 
           {/* EXTENSION POINT: Spending Trends Chart (Post-MVP)
