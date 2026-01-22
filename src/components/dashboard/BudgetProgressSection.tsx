@@ -61,7 +61,7 @@ export function BudgetProgressSection({ budgetProgress }: BudgetProgressSectionP
         </Link>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-3">
         {budgetProgress.map((progress) => (
           <BudgetProgressCard key={progress.budget.id} progress={progress} />
         ))}
@@ -110,10 +110,10 @@ function BudgetProgressCard({ progress }: BudgetProgressCardProps) {
   const displayPercentage = Math.min(usagePercentage, 100);
 
   return (
-    <div className={`p-4 rounded-lg ${colors.bg}`}>
-      {/* Header: Category + Status */}
-      <div className="flex justify-between items-center mb-2">
-        <div className="flex items-center gap-2">
+    <div className={`p-3 rounded-lg ${colors.bg}`}>
+      {/* Header: Category + Status - compact layout */}
+      <div className="flex justify-between items-center mb-1">
+        <div className="flex items-center gap-1.5">
           <span>{icon}</span>
           <span className="font-medium">{budget.category}</span>
         </div>
@@ -123,14 +123,14 @@ function BudgetProgressCard({ progress }: BudgetProgressCardProps) {
       </div>
 
       {/* Progress Bar */}
-      <div className="h-2 bg-muted rounded-full overflow-hidden mb-2">
+      <div className="h-2 bg-muted rounded-full overflow-hidden mb-1">
         <div
           className={`h-full ${colors.bar} transition-all duration-300`}
           style={{ width: `${displayPercentage}%` }}
         />
       </div>
 
-      {/* Footer: Amounts */}
+      {/* Footer: Amounts - tighter spacing */}
       <div className="flex justify-between text-sm">
         <span className="text-muted-foreground">
           €{spentAmount.toFixed(2)} spent
@@ -144,7 +144,7 @@ function BudgetProgressCard({ progress }: BudgetProgressCardProps) {
 
       {/* Percentage indicator for over-budget */}
       {usagePercentage > 100 && (
-        <div className={`text-xs ${colors.text} mt-1`}>
+        <div className={`text-xs ${colors.text} mt-0.5`}>
           {usagePercentage.toFixed(0)}% of budget used
         </div>
       )}
