@@ -35,6 +35,15 @@ export { BudgetProgressSection } from "./BudgetProgressSection";
  */
 export { SpendingByCategoryChart } from "./SpendingByCategoryChart";
 
+/**
+ * BudgetNotificationDialogs: ADHD-friendly Alert Dialogs for budget alerts.
+ * Shows warning (80% threshold) and over-budget (100% threshold) notifications.
+ * Uses session-level acknowledgment to prevent repeated popups.
+ *
+ * @see docs/BUDGET_STRATEGY.md Section 4 (Notification Triggers)
+ */
+export { BudgetNotificationDialogs } from "./BudgetNotificationDialogs";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Placeholder Exports (Future Implementation)
 // ─────────────────────────────────────────────────────────────────────────────

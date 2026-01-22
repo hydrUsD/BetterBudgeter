@@ -49,6 +49,7 @@ import {
   SyncTransactionsButton,
   BudgetProgressSection,
   SpendingByCategoryChart,
+  BudgetNotificationDialogs,
 } from "@/components/dashboard";
 import type { BudgetProgress } from "@/types/finance";
 
@@ -90,6 +91,13 @@ export default async function DashboardPage() {
 
   return (
     <main className="flex flex-col gap-6 p-6 max-w-5xl mx-auto">
+      {/* Budget Notification Dialogs
+          ADHD-friendly Alert Dialogs for budget warnings and over-budget states.
+          Shows one dialog at a time, requires user acknowledgment.
+          Session-level memory prevents repeated popups after "OK".
+          @see docs/BUDGET_STRATEGY.md Section 4 */}
+      <BudgetNotificationDialogs budgetProgress={budgetProgress} />
+
       {/* Page Header with User Info and Actions */}
       <div className="flex justify-between items-start">
         <div>
