@@ -1,9 +1,9 @@
 # Dashboard & Visualization Strategy
 
-**Version:** 1.0
-**Status:** Analysis Complete
+**Version:** 1.1
+**Status:** Implemented
 **Task:** 5a — Dashboard & Visualization Strategy
-**Scope:** MVP Dashboard Definition (No Implementation)
+**Scope:** MVP Dashboard (Implemented)
 
 ---
 
@@ -117,23 +117,23 @@ The dashboard **never** calculates business logic directly.
 | **Limit** | 5 transactions (MVP) |
 | **Empty State** | "No transactions yet. Click 'Sync Transactions' to import." |
 
-#### Spending by Category Chart (MVP P1)
+#### Spending by Category Chart (MVP P1) — Implemented
 
 | Attribute | Value |
 |-----------|-------|
 | **Purpose** | Visual breakdown of where money goes |
-| **Chart Type** | Donut chart (Recharts PieChart) |
+| **Chart Type** | Donut chart (Tremor DonutChart) |
 | **Data Source** | Expense transactions grouped by category |
 | **Time Window** | Current month (1st to today) |
 | **Empty State** | "No expense data to display" message |
 | **ADHD Rationale** | Visual overview without reading tables |
 
-#### Spending Trend Chart (MVP P2)
+#### Spending Trend Chart (Post-MVP — Not Implemented)
 
 | Attribute | Value |
 |-----------|-------|
 | **Purpose** | Show spending patterns over time |
-| **Chart Type** | Bar chart (Recharts BarChart) |
+| **Chart Type** | Bar chart (Tremor BarChart) |
 | **Data Source** | Transactions grouped by week/month |
 | **Time Window** | Last 4 weeks or last 3 months |
 | **Empty State** | "Not enough data for trends" message |
@@ -175,28 +175,30 @@ All KPIs read from database tables via `lib/db/` functions. The dashboard never 
 
 ---
 
-## 4. Charts (Recharts)
+## 4. Charts (Tremor v4)
 
 ### 4.1 Chart Library Decision
 
-**Library:** Recharts (v2.15.1)
+**Library:** Tremor v4 (`@tremor/react@4.0.0-beta-tremor-v4.4`)
 
-**Note:** CLAUDE.md mentions Tremor, but Recharts is actually installed in the project. This strategy uses Recharts for all visualizations.
+**Note:** The project uses Tremor v4 for chart components (DonutChart). Tremor v4 uses Recharts internally and `tailwind-variants` for styling, making it compatible with both React 19 and Tailwind CSS v4.
 
-**Rationale for Recharts:**
-- Already installed and configured
-- Simpler API than Tremor
+**Rationale for Tremor v4:**
+- Compatible with React 19 and Tailwind CSS v4
+- Uses Recharts internally (already a project dependency)
+- Simple declarative API for chart components
 - Good TypeScript support
-- Sufficient for MVP chart needs
-- Existing chart utilities in `utils/charts/`
+- `tailwind-variants` avoids Tailwind v4 color class issues
+
+See `docs/TREMOR_MIGRATION_ANALYSIS.md` for migration details from Tremor v3.
 
 ### 4.2 MVP Charts (Maximum 2-3)
 
-#### Chart 1: Spending by Category (Donut)
+#### Chart 1: Spending by Category (Donut) — Implemented
 
 | Attribute | Value |
 |-----------|-------|
-| **Type** | PieChart with innerRadius (donut) |
+| **Type** | Tremor DonutChart (Recharts PieChart internally) |
 | **Data Source** | Expense transactions, current month |
 | **Grouping** | By `category` field |
 | **Colors** | From `CATEGORY_COLORS` in `utils/charts/` |
@@ -214,7 +216,7 @@ All KPIs read from database tables via `lib/db/` functions. The dashboard never 
 
 **Empty State:** Show placeholder with "No expense data for this month"
 
-#### Chart 2: Income vs Expenses (Bar)
+#### Chart 2: Income vs Expenses (Bar) — Not Implemented (Post-MVP)
 
 | Attribute | Value |
 |-----------|-------|
@@ -303,6 +305,8 @@ All KPIs read from database tables via `lib/db/` functions. The dashboard never 
 | "Set up budgets" link | /settings | Budget configuration |
 | "Sync Transactions" button | (stays on page) | Manual import |
 | Sign Out button | /login | End session |
+
+**Note:** The dashboard is now the primary landing page at `/`. The route `/dashboard` redirects to `/` via HTTP 308.
 
 ---
 
@@ -459,7 +463,7 @@ These are future hook points. **No implementation in MVP.**
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Chart library | Recharts | Already installed, sufficient for MVP |
+| Chart library | Tremor v4 (Recharts internally) | React 19 + Tailwind v4 compatible |
 | Number of charts | 1-2 max | ADHD: reduce visual noise |
 | Time range | Fixed (all time / current month) | Simplicity |
 | Budget display | Traffic light cards | Glanceable status |
@@ -536,12 +540,16 @@ For the implementation task (Task 5b), the following work items are implied:
 - [x] Empty state (no banks)
 - [x] Error state handling
 
-### To Implement
-- [ ] Spending by Category donut chart
-- [ ] `getExpensesByCategory()` query function
-- [ ] Chart empty states
-- [ ] (Optional) Income vs Expenses bar chart
+### Implemented Since Strategy Was Written
+- [x] Spending by Category donut chart (Tremor DonutChart)
+- [x] `getExpensesByCategory()` query function
+- [x] Chart empty states
+- [x] Tremor v4 migration (from v3.18.7)
+
+### Deferred to Post-MVP
+- [ ] Income vs Expenses bar chart (P2 priority)
 
 ---
 
 *Document created: Task 5a — Dashboard & Visualization Strategy*
+*Last updated: Documentation sync (reflects current implemented state)*

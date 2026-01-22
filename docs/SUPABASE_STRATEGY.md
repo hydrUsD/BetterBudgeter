@@ -69,16 +69,17 @@ src/lib/auth/
 
 | Route | Auth Required | Enforcement |
 |-------|---------------|-------------|
+| `/` | **Yes** | Middleware redirect (primary dashboard) |
 | `/login` | No | Public |
-| `/dashboard` | **Yes** | Middleware redirect |
+| `/dashboard` | Redirect | HTTP 308 to `/` (no auth check needed) |
 | `/settings` | **Yes** | Middleware redirect |
 | `/link-bank` | **Yes** | Middleware redirect |
 | `/api/import` | **Yes** | 401 response |
 | `/api/mock/*` | **Yes** | 401 response |
 | `/api/notifications` | **Yes** | 401 response |
-| `/` (legacy) | PasscodeWrapper | Unchanged |
+| `/legacy` | No | Legacy OopsBudgeter dashboard (PasscodeWrapper) |
+| `/legacy-index` | No | Legacy navigation index |
 | `/analytics` (legacy) | PasscodeWrapper | Unchanged |
-| `/legacy` | No | Navigation only |
 
 **Unauthenticated behavior:**
 - Page routes → Redirect to `/login?redirect={originalPath}`
@@ -293,7 +294,7 @@ await supabase
                                          │
                                          ▼
                                   ┌──────────────┐
-                                  │  /dashboard  │
+                                  │  / (dashboard)│
                                   └──────────────┘
 
 2. BANK LINKING (PSD2 Consent)
@@ -331,7 +332,7 @@ await supabase
 
 4. DASHBOARD DISPLAY
    ┌──────────────┐    ┌─────────────┐    ┌──────────────┐
-   │  /dashboard  │───►│  lib/db/*   │───►│ bb_* tables  │
+   │ / (dashboard)│───►│  lib/db/*   │───►│ bb_* tables  │
    │              │◄───│  (queries)  │◄───│   (DB)       │
    └──────────────┘    └─────────────┘    └──────────────┘
          │
@@ -425,26 +426,27 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
 
 ---
 
-## 6. Implementation Checklist
+## 6. Implementation Status
 
-For the implementation task that follows:
+All phases have been completed:
 
-### Phase 1: Supabase Setup
-- [ ] Add `@supabase/supabase-js` and `@supabase/ssr` packages
-- [ ] Create `lib/auth/server.ts` and `lib/auth/client.ts`
-- [ ] Add middleware for protected routes
-- [ ] Create `/login` page with shadcn/ui form
+### Phase 1: Supabase Setup — Completed
+- [x] Added `@supabase/supabase-js` and `@supabase/ssr` packages
+- [x] Created `lib/auth/` module (server + client helpers)
+- [x] Added middleware for protected routes
+- [x] Created `/login` page with shadcn/ui form
 
-### Phase 2: Database Schema
-- [ ] Create `bb_accounts` table with RLS
-- [ ] Create `bb_transactions` table with RLS
-- [ ] Create `bb_user_settings` table with RLS
-- [ ] Create `bb_notification_prefs` table with RLS
+### Phase 2: Database Schema — Completed
+- [x] Created `bb_accounts` table with RLS
+- [x] Created `bb_transactions` table with RLS
+- [x] Created `bb_user_settings` table with RLS
+- [x] Created `bb_notification_prefs` table with RLS
+- [x] Created `bb_budgets` table with RLS (Task 6)
 
-### Phase 3: Integration
-- [ ] Update `lib/db/` to use Supabase client
-- [ ] Wire up `/dashboard` to read from new tables
-- [ ] Wire up `/settings` to user settings table
+### Phase 3: Integration — Completed
+- [x] `lib/db/` uses Supabase client for all queries
+- [x] `/` (dashboard) reads from new tables
+- [x] `/settings` manages budget configuration
 
 ---
 
@@ -458,3 +460,4 @@ For the implementation task that follows:
 ---
 
 *Document created: Task 2 Analysis*
+*Last updated: Documentation sync (auth boundaries reflect routing restructure)*

@@ -113,19 +113,18 @@ Testing is NOT used for:
 | Minimal config | Works out of the box with TypeScript |
 | Ecosystem | Well-maintained; active community |
 
-### Directory Structure
+### Directory Structure (Implemented)
 
 ```
 tests/
+├── setup.ts                      # Cleanup + ResizeObserver stub
 ├── smoke/
-│   └── build.test.ts          # Verifies build stability
+│   └── imports.test.ts           # Verifies critical module imports
 ├── components/
-│   ├── dashboard.test.tsx     # Dashboard page render tests
 │   ├── budget-progress.test.tsx  # BudgetProgressSection render
 │   └── spending-chart.test.tsx   # SpendingByCategoryChart render
 └── utils/
-    ├── charts.test.ts         # Chart utility functions
-    └── mapping.test.ts        # Category mapping helpers
+    └── charts.test.ts            # Chart utility functions
 ```
 
 ### Why `tests/` (Not `__tests__` or Co-Located)
@@ -205,20 +204,21 @@ Tests are grouped by **layer**, not by feature:
 
 ---
 
-## 7. Dependencies Required (For Implementation Task)
+## 7. Dependencies (Installed)
 
 ```json
 {
   "devDependencies": {
-    "vitest": "<latest>",
-    "@vitejs/plugin-react": "<latest>",
-    "@testing-library/react": "<latest>",
-    "@testing-library/jest-dom": "<latest>"
+    "vitest": "4.0.18",
+    "@vitejs/plugin-react": "5.1.2",
+    "@testing-library/react": "16.3.2",
+    "@testing-library/jest-dom": "6.9.1",
+    "jsdom": "27.4.0"
   }
 }
 ```
 
-Note: Exact versions to be determined during implementation. Per project rules, always use the **latest compatible version**.
+All versions are the latest at time of installation. `jsdom` is required for simulating browser APIs in the test environment.
 
 ---
 
@@ -236,4 +236,4 @@ Note: Exact versions to be determined during implementation. Per project rules, 
 
 ---
 
-**Document Status**: Ready for review. Awaiting approval before implementation task begins.
+**Document Status**: Implemented. 22 tests passing across 4 test files. See `docs/MVP_TESTS_REPORT.md` for details.
