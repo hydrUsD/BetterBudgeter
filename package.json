@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 3031",
-    "build": "npx drizzle-kit push && next build",
+    "build": "next build",
+    "build:legacy": "drizzle-kit push && next build",
+    "db:push": "drizzle-kit push",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
@@ -32,7 +34,9 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.91.0",
     "@tremor/react": "4.0.0-beta-tremor-v4.4",
+    "baseline-browser-mapping": "^2.9.17",
     "better-sqlite3": "^11.8.1",
+    "caniuse-lite": "^1.0.30001766",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -68,6 +72,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.2",
