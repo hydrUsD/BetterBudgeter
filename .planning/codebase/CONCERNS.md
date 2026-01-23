@@ -1,425 +1,281 @@
 # Codebase Concerns
 
-**Analysis Date:** 2025-01-23
+**Analysis Date:** 2026-01-23
 
 ## Tech Debt
 
-### Incomplete Placeholder Implementations
+**Analytics Component Complexity:**
+- Issue: `src/components/common/Analytics.tsx` (592 lines) performs significant in-memory calculations without memoization or performance optimization
+- Files: `src/components/common/Analytics.tsx`
+- Impact: Component re-renders may cause visible lag when processing large transaction datasets; calculations include monthly trends, category breakdowns, net worth tracking, and 30-day predictions all computed on every render
+- Fix approach: Implement `useMemo` for expensive calculations; consider moving calculations to server-side or separating into smaller memoized sub-components; profile rendering performance with large datasets
 
-**Finance Module Stubs:**
-- Issue: `src/lib/finance/index.ts` exports placeholder functions with TODO comments and empty implementations
-- Files: `src/lib/finance/index.ts` (lines 10-124)
-  - `calculateDashboardSummary()` - returns basic totals only
-  - `calculateCategoryBreakdown()` - placeholder implementation
-  - `calculateTrendData()` - returns empty array
-  - `calculateBudgetProgress()` - returns hardcoded zero values
-- Impact: Dashboard aggregation logic and trend charts cannot be properly implemented until these are filled in. Currently blocking advanced reporting features.
-- Fix approach: Implement real aggregation logic based on database queries. See `docs/DASHBOARD_STRATEGY.md` for specifications.
+**Unfinished Finance Module:**
+- Issue: `src/lib/finance/index.ts` contains skeleton functions with TODO comments indicating incomplete implementation
+- Files: `src/lib/finance/index.ts`
+- Impact: Functions like `calculateTrendData` return empty arrays; placeholder implementations may mask logic gaps if code is accidentally called in production
+- Fix approach: Either remove unused skeleton functions or implement them fully; consolidate financial calculations currently scattered across Analytics component into this module
 
-**Notifications Skeleton:**
-- Issue: `src/lib/notifications/index.ts` has eslint-disable for unused vars and incomplete functions
-- Files: `src/app/api/notifications/route.ts` (lines 1-84)
-  - GET endpoint returns hardcoded placeholder data
-  - POST endpoint is unimplemented (returns dummy response)
-  - PATCH endpoint is unimplemented (mark as read not functional)
-- Impact: Notification persistence and retrieval is not functional. Users will always see the same placeholder notification.
-- Fix approach: Implement database query layer for notifications table once persistence schema is available.
+**Incomplete Notifications Endpoint:**
+- Issue: `/api/notifications` route returns placeholder responses with `_meta.skeleton: true` flag
+- Files: `src/app/api/notifications/route.ts`
+- Impact: Endpoint provides no actual functionality; returns hardcoded placeholder data; blocks future notification features
+- Fix approach: Implement full endpoint with database queries for notification retrieval and marking as read; or remove endpoint if not needed for MVP
 
-### Dependency Conflicts
+**Account Balance Calculation:**
+- Issue: Account balance is updated via `updateAccountBalance()` which applies a delta, but there's no reconciliation against actual transaction sums
+- Files: `src/lib/db/accounts.ts`, `src/lib/import/index.ts` (line 319)
+- Impact: Inconsistency possible if multiple imports occur simultaneously or if balances are manually adjusted; no audit trail
+- Fix approach: Consider implementing a recalculation function that derives balance from transaction sum instead of storing separate balance; add transaction count validation
 
-**Package Manager Inconsistency:**
-- Issue: `package.json` uses npm scripts and npm version commands, but CLAUDE.md mandates bun-only usage
-- Files: `package.json` (lines 5-16)
-- Impact: Team members may inadvertently use npm, bypassing bun-specific optimizations. CI/CD scripts will fail if npm is invoked.
-- Fix approach: Replace all npm scripts with bun equivalents. Update CI/CD to enforce `bun` only.
+**Category Mapping Simplicity:**
+- Issue: `src/lib/import/index.ts` `mapCategory()` function (lines 71-117) uses simple string matching on German merchant names
+- Files: `src/lib/import/index.ts`
+- Impact: Miscategorization likely for non-German merchants or unfamiliar descriptions; users cannot configure or override mappings; no learning from corrections
+- Fix approach: Expand merchant patterns database; add user-defined category rules; implement ML-based categorizer for post-MVP
 
-**Multiple Database Drivers Installed:**
-- Issue: package.json includes multiple database packages that may conflict
-- Files: `package.json` (lines 35, 47-48, 52)
-  - `better-sqlite3` v11.8.1 (local SQLite)
-  - `mongoose` v8.12.1 (MongoDB ORM)
-  - `mysql2` v3.13.0 (MySQL driver)
-  - `pg` v8.14.0 (PostgreSQL driver)
-- Impact: Code confusion about which database is authoritative. Supabase (PostgreSQL) is the canonical source, but having SQLite, MongoDB, and MySQL drivers in dependencies creates ambiguity.
-- Fix approach: Remove `better-sqlite3`, `mongoose`, and `mysql2`. Keep only `pg` and `@supabase/supabase-js`. These are likely legacy dependencies from OopsBudgeter.
+## Known Bugs
 
-### Disabled ESLint Rules
+**Date Parsing in BudgetContext:**
+- Symptoms: Potential timezone issues when parsing transaction dates in `BudgetContext`
+- Files: `src/contexts/BudgetContext.tsx` (line 130)
+- Trigger: Transactions created in different timezones; parsing ISO string with `parseISO()` without explicit timezone handling
+- Workaround: Ensure all transaction dates are stored as UTC ISO strings in database
 
-**Unused Variables Suppression:**
-- Issue: Two files disable the `@typescript-eslint/no-unused-vars` rule entirely
-- Files:
-  - `src/lib/finance/index.ts` (line 1) - because functions are stubs
-  - `src/lib/notifications/index.ts` (line 1) - incomplete implementation
-- Impact: Future developers may not notice when new code introduces unused variables. Makes codebase harder to maintain.
-- Fix approach: Remove these disables once functions are implemented. Use inline `// eslint-disable-next-line` only when necessary.
+**Exchange Rate Fetching Silent Failure:**
+- Symptoms: Exchange rates fail to load but no error is shown to user
+- Files: `src/components/transactions/NewTransaction.tsx` (lines 63-69)
+- Trigger: `fetchExchangeRates()` API call fails; `setExchangeRates` gets empty object but no user feedback
+- Workaround: Check browser console for network errors; rates default to empty (no conversion happens)
 
-**React Hooks Dependency Bypass:**
-- Issue: `src/contexts/BudgetContext.tsx` disables exhaustive-deps check
-- Files: `src/contexts/BudgetContext.tsx` (line 97)
-- Impact: Effect dependencies may be incomplete, leading to stale closures or missed updates.
-- Fix approach: Review the dependency array and either include proper dependencies or document why skipping is safe.
+**Sorting Logic Edge Case:**
+- Symptoms: Filter by "recurring" in Analytics applies incorrect logic
+- Files: `src/contexts/BudgetContext.tsx` (lines 127-128)
+- Trigger: When `sortKey === "recurring"`, filter shows only recurring OR non-recurring based on that key, but logic inverts based on sort state
+- Workaround: Don't rely on "recurring" filter until logic is reviewed
 
----
+**Empty Transaction List Handling:**
+- Symptoms: Components may render placeholders or blank states unexpectedly
+- Files: `src/lib/api.ts` (line 30)
+- Trigger: API fetch fails; function returns empty array with only toast error; calling code may not distinguish between "no data" and "error"
+- Workaround: Check Sonner toast notifications for error messages
 
 ## Security Considerations
 
-### Exposed Credentials in Repository
+**Environment Variable Validation at Runtime:**
+- Risk: Missing or invalid Supabase environment variables cause runtime exceptions instead of fail-fast startup validation
+- Files: `src/lib/db/supabaseServer.ts` (lines 60-71)
+- Current mitigation: Error thrown with helpful message; checks happen in `createServerSupabaseClient()`
+- Recommendations: Add startup validation in middleware or app initialization; prevent server from starting if env vars missing
 
-**Critical: .env.local Committed to Git:**
-- Risk: All sensitive values are stored in `.env.local` and checked into version control
-- Files: `.env.local` (lines 1-7)
-  - `PASSCODE=123456` - trivial auth code
-  - `JWT_SECRET=ermyouneeda32tokencodeherefrfr` - weak secret exposed
-  - `DATABASE_URL` - Supabase connection string with password visible
-  - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - JWT token visible
-  - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` - API key visible
-- Current mitigation: This is noted as a demo/development environment, but credentials should still be protected
-- Recommendations:
-  1. Add `.env.local` to `.gitignore` immediately
-  2. Rotate all exposed credentials in Supabase console
-  3. Use `.env.example` template instead
-  4. For production: use environment secrets through deployment platform
+**RLS Policy Reliance:**
+- Risk: Security depends entirely on Supabase RLS policies being correctly configured in database
+- Files: All database query files (`src/lib/db/*.ts`), import pipeline (`src/lib/import/index.ts`)
+- Current mitigation: Code includes comments about RLS; double-check on account ownership (line 257-267 in import)
+- Recommendations: Add integration tests that verify RLS blocks unauthorized access; document exact RLS policy rules required; implement server-side ownership validation before critical operations
 
-### Missing CSRF Protection
+**Mock API Hardcoded in Production:**
+- Risk: If code accidentally calls mock API endpoints in production instead of real banking APIs
+- Files: `src/lib/mock/index.ts`, `src/app/api/mock/*` endpoints
+- Current mitigation: Import pipeline uses generator directly (not HTTP); UI should never call mock API
+- Recommendations: Add assertion that mock API is never called from client code; implement feature flag to disable mock endpoints in production; document that mock API is development-only
 
-**Issue: No CSRF token validation on state-changing requests**
-- Files: `src/app/api/import/route.ts`, `src/app/api/budgets/route.ts`
-- Risk: POST endpoints accept requests without verifying origin. Cross-site requests could import transactions or modify budgets.
-- Current mitigation: Authentication check (Supabase session) provides some protection
-- Recommendations:
-  1. Validate Origin and Referer headers
-  2. Implement SameSite cookie attribute (check Supabase configuration)
-  3. For sensitive operations, require additional verification (e.g., re-authentication)
+**No Rate Limiting on Import:**
+- Risk: User could repeatedly trigger `/api/import` causing database load or duplicating notifications
+- Files: `src/app/api/import/route.ts`
+- Current mitigation: UNIQUE constraint on `external_id` prevents duplicate transactions; idempotent design
+- Recommendations: Implement rate limiting on import endpoint (e.g., max 1 import per minute); add request throttling; log import attempts for audit
 
-### Weak Mock Data Determinism vs. Realism
-
-**Issue: Deterministic hashing used for generating transaction IDs**
+**Deterministic Mock Data Not Cryptographically Random:**
+- Risk: Mock transaction IDs and balances are predictable (intentional for MVP, but creates false sense of realism)
 - Files: `src/lib/mock/index.ts` (lines 73-88)
-- Risk: Using simple djb2 hash instead of cryptographic hash. While documented as non-secure (line 71), it could create hash collisions for adversarial seeds.
-- Impact: Low for MVP, but if mock API is ever exposed to real users, collisions could cause duplicate imports.
-- Fix approach: Use `crypto.subtle.digest()` for hash generation instead of manual djb2 algorithm, even if not cryptographically required.
-
----
+- Current mitigation: Documented in comments that hash is not cryptographically secure
+- Recommendations: In production migration, replace with real banking API; if mock stays, document its non-randomness clearly to prevent false assumptions
 
 ## Performance Bottlenecks
 
-### Unoptimized Analytics Component
+**Large Transaction List Rendering:**
+- Problem: `src/components/transactions/TransactionsList.tsx` and Analytics render all transactions in memory without virtualization
+- Files: `src/components/common/Analytics.tsx`, `src/components/transactions/TransactionsList.tsx`
+- Cause: Multiple `.map()` calls over full transaction array; no pagination or windowing
+- Improvement path: Implement react-window or similar for virtualized lists; add pagination; lazy-load older months
 
-**Issue: Large Analytics component with inline calculations and no memoization**
-- Files: `src/components/common/Analytics.tsx` (592 lines)
-- Problem:
-  - Line 44: Calls `getMonthlyTrends(transactions)` on every render
-  - Lines 47-62: Recalculates category totals without caching
-  - Lines 72-93: Rebuilds net worth trend data on every render
-  - No React.memo() or useMemo() to prevent re-renders
-- Impact: With 1000+ transactions, component becomes sluggish. Switching date ranges or filters causes full recalculation.
-- Improvement path:
-  1. Wrap calculation logic in `useMemo()` with transaction list as dependency
-  2. Extract chart data generation into separate, memoized functions
-  3. Consider pagination if transaction list grows beyond 5000 items
+**Monthly Trends Calculation on Every Render:**
+- Problem: `getMonthlyTrends()` iterates full transaction list to build trend data structure
+- Files: `src/components/common/Analytics.tsx` (line 45), `src/lib/monthlyTrends.ts`
+- Cause: No caching; called on every component render
+- Improvement path: Move calculation to server; memoize; implement incremental updates instead of full recalc
 
-### N+1 Query Pattern in Budget Calculations
+**Analytics Component Renders Multiple Charts:**
+- Problem: Component renders 8+ separate Recharts instances in single page
+- Files: `src/components/common/Analytics.tsx` (multiple Recharts components)
+- Cause: No lazy loading; all charts rendered immediately
+- Improvement path: Implement tabs or accordion to show one chart at a time; lazy-load chart data; consider pagination
 
-**Issue: `calculateMonthlySpending()` fetches all transactions, then calculates in-memory**
-- Files: `src/lib/budgets/index.ts` (lines 122-149)
-- Problem:
-  - Calls `getTransactions({ fromDate, toDate })` which fetches entire month's data
-  - Then iterates through ALL transactions to sum by category
-  - No database-side aggregation (GROUP BY in SQL)
-- Impact: If user has 50,000 transactions in a month, all are fetched to memory and recalculated on each request
-- Improvement path:
-  1. Add SQL aggregation function to `src/lib/db/transactions.ts` that groups by category server-side
-  2. Return only category summaries, not full transaction rows
-  3. Example: `SELECT category, SUM(amount), COUNT(*) FROM bb_transactions WHERE user_id = ? AND booking_date BETWEEN ? AND ?`
+**Exchange Rate API Called on Every Component Mount:**
+- Problem: `fetchExchangeRates()` called without caching in NewTransaction component
+- Files: `src/components/transactions/NewTransaction.tsx` (lines 63-69)
+- Cause: No cache; no request deduplication; called every time component mounts
+- Improvement path: Move to global context or React Query; cache with sensible TTL (e.g., 1 hour)
 
-### Large NewTransaction Component
-
-**Issue: Complex form component (468 lines) with all UI and logic tightly coupled**
-- Files: `src/components/transactions/NewTransaction.tsx` (468 lines)
-- Problem:
-  - Form state management, validation, submission all in one component
-  - No separation of concerns
-  - Likely causes full component re-renders on field changes
-- Impact: Slow form interactions, especially with many categories or accounts
-- Improvement path:
-  1. Extract form state to a custom hook (`useTransactionForm`)
-  2. Split into smaller sub-components (FormFields, CategorySelect, DatePicker)
-  3. Memoize expensive sub-components
-
----
+**No Database Query Caching:**
+- Problem: Each server component/route handler re-queries same data
+- Files: Multiple files in `src/lib/db/*`
+- Cause: Supabase queries don't use caching; no Next.js revalidation/caching strategy defined
+- Improvement path: Implement Next.js `revalidateTag()` strategy; add Redis caching layer for frequently accessed data
 
 ## Fragile Areas
 
-### BudgetContext Global State Complexity
+**Import Pipeline Account Reconstruction:**
+- Files: `src/lib/import/index.ts` (lines 353-357, `constructMockAccountId()`)
+- Why fragile: Mock account ID reconstructed from `bank_id` and `account_type` by assuming "001" index; if index changes or multiple accounts per type exist, reconstruction fails silently
+- Safe modification: Validate reconstructed ID matches account before use; consider storing original mock account ID in database instead of deriving it
+- Test coverage: No tests verify this reconstruction works correctly; import test (if exists) doesn't validate account ID matching
 
-**Issue: Context manages 13+ state values with complex filter/sort logic**
-- Files: `src/contexts/BudgetContext.tsx` (394 lines)
-- Why fragile:
-  - Multiple interdependent state variables (transactions, filteredTransactions, sortKey, sortOrder, etc.)
-  - Filtering logic depends on multiple state variables (lines 80-98)
-  - Missing dependency in useEffect (line 97 disables exhaustive-deps check)
-  - Cached state with useRef but unclear invalidation strategy (line 77)
-- Safe modification:
-  1. Run full test suite after any changes to this file
-  2. Test all filter/sort combinations
-  3. Verify BudgetContext still provides consistent data to child components
-- Test coverage: No unit tests for context logic. Only end-to-end tests via components.
+**Budget Threshold Hardcoded:**
+- Files: `src/lib/budgets/index.ts` (lines 44-49)
+- Why fragile: Thresholds (80% warning, 100% over) are constants; users cannot customize; if requirements change, must modify and redeploy
+- Safe modification: Add budget customization to user settings table; migrate constants to database
+- Test coverage: No tests verify threshold behavior; need test for each status (on_track, warning, over_budget)
 
-### Import Pipeline with External ID Dependency
+**Transaction Type Filter Logic:**
+- Files: `src/contexts/BudgetContext.tsx` (lines 127-132)
+- Why fragile: Filter combines multiple conditions (recurring check AND date range AND type); logic is unclear and may have edge cases
+- Safe modification: Extract filter logic to named function with clear parameter names; add test cases for each combination
+- Test coverage: No tests for context filtering; need unit tests for each filter type
 
-**Issue: Import idempotency relies entirely on external_id uniqueness**
-- Files: `src/lib/import/index.ts`, `src/lib/db/transactions.ts`
-- Why fragile:
-  - `transformMockTransaction()` extracts external_id from mock API (line 142)
-  - Database has UNIQUE(user_id, external_id) constraint
-  - If external_id generation changes, duplicate imports will fail
-  - If external_id is null/missing, upsert behaves as insert (creates duplicates)
-- Safe modification:
-  1. Never change external_id generation logic without migration plan
-  2. Add validation that external_id is always present before upsert
-  3. Write tests that verify same import twice = same result
-- Test coverage: Import logic tested in `tests/smoke/imports.test.ts`, but idempotency edge cases not covered
+**Date Range Calculations:**
+- Files: `src/lib/budgets/index.ts` (lines 58-76, month start/end functions)
+- Why fragile: Manual date arithmetic to get month boundaries; timezone not explicitly handled; DST transitions not considered
+- Safe modification: Use date-fns `startOfMonth()` and `endOfMonth()` consistently instead of manual calculation
+- Test coverage: No tests for edge dates (Dec 31, Jan 1, Feb 28/29); need test matrix for leap years
 
-### Mixed Legacy and New Code Patterns
-
-**Issue: Codebase contains both OopsBudgeter legacy code and new BetterBudget code with different patterns**
-- Files: Multiple locations
-  - Legacy: Uses drizzle-orm schemas (not visible in exploration but referenced in package.json)
-  - New: Direct Supabase client calls
-  - Legacy: Classes and inheritance-based components
-  - New: Functional components with hooks
-- Why fragile:
-  - Developers may follow the wrong pattern by copying existing code
-  - Two authentication systems coexist (legacy PasscodeWrapper + new Supabase)
-  - Database queries inconsistent (drizzle vs. raw Supabase)
-- Safe modification:
-  1. Document which pattern to follow (new Supabase + functional components)
-  2. When touching legacy code, consider whether to migrate or leave as-is
-  3. Keep legacy and new code separate (legacy/* routes, new/* routes)
-
----
-
-## Database & Data Flow Concerns
-
-### Account Balance Not Updated After Import
-
-**Issue: `updateAccountBalance()` is called but balance calculation may not reflect actual imported transactions**
-- Files: `src/lib/import/index.ts` (function exists but implementation unclear), `src/lib/db/accounts.ts`
-- Risk:
-  - Imported transactions update bb_transactions table
-  - But bb_accounts.balance is manually updated (not calculated from transactions)
-  - If import fails mid-way, balance becomes stale
-  - No transaction/rollback mechanism if partial import occurs
-- Fix approach:
-  1. Calculate balance as: `SUM(amount) WHERE account_id = ? AND type = 'income'` - `SUM(ABS(amount)) WHERE account_id = ? AND type = 'expense'`
-  2. Trigger balance recalculation after successful import completion
-  3. Add database transaction wrapper around entire import process
-
-### Missing Error Recovery in Import
-
-**Issue: Import endpoint aggregates errors but doesn't roll back partial imports**
-- Files: `src/app/api/import/route.ts` (lines 151-180)
-- Problem:
-  - Loop imports each account
-  - If account N fails, accounts 1 to N-1 are already imported
-  - No way to rollback those imports
-  - Error details collected but not actionable for retry
-- Impact: If import fails halfway, database is left in inconsistent state
-- Fix approach:
-  1. Wrap import in database transaction
-  2. Either all accounts succeed or all fail
-  3. Return clearer error indicating which specific account failed and why
-
-### Notification Persistence Not Implemented
-
-**Issue: Notifications are generated but not stored (MVP design choice)**
-- Files: `src/lib/notifications/index.ts`, `src/app/api/notifications/route.ts`
-- Risk:
-  - Notifications exist only in memory (Sonner toast)
-  - If user refreshes page, all notifications disappear
-  - No notification history
-  - Budget alerts can't be tracked to verify they were shown
-- Current mitigation: MVP choice noted in comments
-- Post-MVP fix: Implement `bb_notifications` table with read/unread status, creation timestamp, and soft-delete
-
----
+**RLS Policy Assumptions:**
+- Files: All database query files assume RLS handles filtering
+- Why fragile: Security depends on external database configuration; no in-code verification
+- Safe modification: Add server-side user_id validation for critical operations; log access attempts; implement deny-by-default pattern
+- Test coverage: No integration tests verifying RLS; need E2E tests that confirm RLS blocks cross-user access
 
 ## Scaling Limits
 
-### Fixed Category List Not Extensible
+**No Pagination on Transactions:**
+- Current capacity: Renders all transactions in Analytics component; DOM includes every transaction element
+- Limit: ~1000 transactions becomes noticeable lag; analytics page becomes unusable; bundle includes all transaction data
+- Scaling path: Implement server-side pagination with cursor or offset; lazy-load data as user scrolls; aggregate old transactions (e.g., "March 2025: $X")
 
-**Issue: Expense and income categories are hardcoded constants**
-- Files: `src/utils/mapping/index.ts`, `src/constants/` (referenced in budgets validation)
-- Current capacity: Fixed set of ~15 categories
-- Limit: Users cannot add custom categories. Reports using unmapped merchants as "Other".
-- Scaling path:
-  1. Add `bb_categories` table with user-defined categories
-  2. Allow users to create and customize categories
-  3. Implement category mapping rules (merchant → category)
+**In-Memory Filter/Sort/Calculate:**
+- Current capacity: All filtering, sorting, and calculations happen in BudgetContext in-memory
+- Limit: With ~10,000 transactions, each context update triggers full recalculation; filter/sort/calculation O(n) operations
+- Scaling path: Move filtering/sorting to server API layer; implement database indexes on date, category, type; use SQL aggregations instead of client-side
 
-### Mock API Data Volume Limits
+**Single Account Balance Field:**
+- Current capacity: Account balance stored as single number; no transaction reconciliation
+- Limit: Cannot audit balance changes; no history; if balance becomes incorrect, no way to rebuild without manual intervention
+- Scaling path: Implement balance history table; derive balance from transaction sum; add reconciliation job
 
-**Issue: Mock transaction generation is deterministic but not paginated**
-- Files: `src/lib/mock/index.ts` (line 39 calculates all dates, no limit)
-- Current capacity: Generates ~90 days of transactions per account
-- Limit: For large account histories (5+ years), retrieval becomes slow
-- Scaling path:
-  1. Add pagination to mock API endpoints
-  2. Support date range limiting in `generateMockTransactions()`
-  3. Consider caching generated data
+**No Analytics Caching:**
+- Current capacity: Each Analytics page load recalculates all trends, categories, predictions
+- Limit: With 10K transactions, analytics page takes seconds to load; predictions inefficient
+- Scaling path: Pre-calculate and cache analytics on import; store as materialized views; implement incremental updates instead of full recalc
 
-### No Batch Processing for Imports
+## Dependencies at Risk
 
-**Issue: Import processes one account at a time in sequence**
-- Files: `src/app/api/import/route.ts` (lines 151-180)
-- Current capacity: 2-3 accounts import ~5-10 seconds
-- Limit: With 10+ accounts, import takes 30+ seconds. Can timeout.
-- Scaling path:
-  1. Implement parallel import with Promise.all() (but careful with database limits)
-  2. Add import queue/background job system
-  3. Return import status ID and poll for completion
+**Drizzle + Supabase Mismatch:**
+- Risk: Legacy code uses Drizzle ORM + Postgres driver; new code uses Supabase JS SDK; two database access patterns in same codebase create confusion
+- Impact: Code duplication; inconsistent error handling; migration path unclear
+- Migration plan: Standardize on Supabase SDK for all new code; gradually migrate legacy queries to Supabase; document when each is used
 
----
+**Old npm Scripts with npx drizzle-kit:**
+- Risk: `package.json` uses `npx drizzle-kit` but project should use `bun` exclusively per CLAUDE.md
+- Impact: Inconsistency in dependency management; npm may be used accidentally
+- Migration plan: Update build script to use `bunx drizzle-kit` instead of `npx`; document bun-only policy
+
+**Multiple ORM/Query Systems:**
+- Risk: Project uses Drizzle, Supabase SDK, raw query functions, and fetch() in different layers
+- Impact: Inconsistent error handling; hard to add features; junior devs confused about which tool to use
+- Migration plan: Document which system to use for each layer; plan consolidation to single access pattern
+
+**mongoose Dependency Unused:**
+- Risk: `package.json` includes mongoose but it's not used in codebase
+- Impact: Unnecessary bundle size; confusion about database choice; maintenance burden
+- Migration plan: Remove mongoose; verify no hidden imports
+
+**quick.db Dependency Unused:**
+- Risk: `package.json` includes quick.db but no usage found
+- Impact: Unnecessary bundle size; legacy dependency
+- Migration plan: Remove quick.db if not used; document why Supabase was chosen instead
 
 ## Missing Critical Features
 
-### No Rate Limiting on API Endpoints
+**No Persistent Notification State:**
+- Problem: Notifications are toast-only; no persistence in database; user can't view history or snooze
+- Blocks: Notification preferences, notification history, smart alerts
+- Implementation path: Add `bb_notifications` table; implement mark-as-read; add notification center UI
 
-**Issue: Import, budget, and transaction endpoints have no rate limiting**
-- Files: `src/app/api/import/route.ts`, `src/app/api/budgets/route.ts`, etc.
-- Risk: User could spam import endpoint 1000x in rapid succession, causing database load
-- Fix: Implement rate limiting middleware (e.g., `Ratelimit` package or Vercel's middleware)
+**No User Settings UI:**
+- Problem: Settings table exists (`bb_user_settings`, `bb_notification_prefs`) but no UI to edit them
+- Blocks: Theme customization, notification preferences, currency selection
+- Implementation path: Create `/settings` page; implement form for preferences; add validation
 
-### No Input Validation on Budget Limits
+**No Recurring Transaction Scheduling:**
+- Problem: Transactions marked `is_recurring` but no background job executes them
+- Blocks: Automatic recurring expense creation, recurring income tracking
+- Implementation path: Add cron job for recurring transaction execution; implement schedule table
 
-**Issue: Budget limits not validated for reasonable ranges**
-- Files: `src/app/api/budgets/route.ts` (lines 69-74)
-- Current check: `budget.limit <= 0`
-- Missing:
-  - Maximum limit (prevent billion-dollar budgets)
-  - Currency-aware validation (e.g., USD vs. JPY have different ranges)
-  - Fraction validation (no -1.50 limits)
-- Fix: Add validation for min/max per currency
+**No Multi-Currency Support:**
+- Problem: Currency field exists but no conversion logic; exchange rates fetched but unused
+- Blocks: Multi-currency accounts, currency conversion
+- Implementation path: Implement exchange rate fetching on import; convert all amounts to base currency; add currency indicator in UI
 
-### No Automatic Transaction Categorization Training
-
-**Issue: Category mapping is hardcoded rules (see `src/lib/import/index.ts` lines 71-117)**
-- Risk: New merchants won't be recognized. All unmapped transactions go to "Other"
-- MVP approach: Acceptable (hardcoded rules sufficient for demo)
-- Post-MVP: Implement user feedback loop where users can correct categories, and system learns
-
----
+**No Transaction Attachments:**
+- Problem: No way to attach receipts, documents, or images to transactions
+- Blocks: Receipt management, audit trail
+- Implementation path: Add attachment column; implement S3 file storage; add file upload UI
 
 ## Test Coverage Gaps
 
-### Missing Integration Tests for Import Pipeline
+**No Import Pipeline Integration Tests:**
+- What's not tested: Full import flow (mock API → transform → UPSERT); idempotency verification; error handling
+- Files: `src/lib/import/index.ts`, `src/app/api/import/route.ts`
+- Risk: Imports could silently fail or create duplicates; regression on import changes undetected
+- Priority: High - import is core MVP feature; needs end-to-end test
 
-**What's not tested:**
-- Files: `src/lib/import/index.ts`, `src/lib/db/transactions.ts`
-- Specific gaps:
-  - Idempotency (running import twice produces same result)
-  - Transaction rollback on partial failure
-  - Balance updates after import
-  - Category mapping for edge cases (empty description, special characters)
-- Risk: Importer could be broken and not caught until user runs it
-- Priority: **High** - import is critical path
-
-### No Tests for Budget Calculation Logic
-
-**What's not tested:**
+**No Budget Calculation Tests:**
+- What's not tested: Budget status determination (on_track/warning/over_budget); threshold boundary conditions; multiple categories
 - Files: `src/lib/budgets/index.ts`
-- Gaps:
-  - `calculateMonthlySpending()` with various transaction patterns
-  - Budget status transitions (on_track → warning → over_budget)
-  - Edge cases (negative amounts, zero budget, no transactions)
-- Risk: Budget alerts could display wrong status
-- Priority: **Medium** - affects UX but not data integrity
+- Risk: Budget feedback could be incorrect without detection; edge cases (exactly 80%, over 100%) untested
+- Priority: High - users rely on accurate budget feedback; need comprehensive test matrix
 
-### Analytics Component Render Tests Limited
+**No Context/Hook Tests:**
+- What's not tested: BudgetContext filter/sort logic; AppContext state management; data consistency across operations
+- Files: `src/contexts/BudgetContext.tsx`, `src/contexts/AppContext.tsx`
+- Risk: Complex state transformations have no verification; context bugs affect entire app
+- Priority: Medium - context changes are high-impact but currently unguarded
 
-**What's not tested:**
-- Files: `src/components/common/Analytics.tsx`
-- Gaps:
-  - Actual chart rendering (tests mock Recharts)
-  - Pie chart data correctness
-  - Net worth trend calculation
-  - Empty state handling (no transactions)
-- Risk: Charts could show wrong data without breaking tests
-- Priority: **Medium** - visual correctness not validated
+**No Database Query Error Tests:**
+- What's not tested: Error handling in DB functions; RLS policy blocking; missing data cases
+- Files: `src/lib/db/*.ts`
+- Risk: Silent failures; unhandled errors; security policy violations undetected
+- Priority: Medium - security-critical; need RLS verification tests
 
-### No End-to-End Tests
+**No Component Snapshot Tests:**
+- What's not tested: UI rendering with different data states; visual regressions; prop combinations
+- Files: Large components like `Analytics.tsx`, `Dashboard`, `NewTransaction`
+- Risk: UI bugs go unnoticed; refactors break rendering without detection
+- Priority: Low - nice-to-have; existing smoke tests provide some coverage
 
-**What's missing:**
-- Complete user flows (login → link bank → import → set budget → view dashboard)
-- Multi-account scenarios
-- Session persistence and refresh
-- Current state: 22 unit tests passing, but no E2E coverage
-- Risk: Regressions in user-facing flows not caught
-- Priority: **High** - critical for production release
+**No Performance/Load Tests:**
+- What's not tested: Rendering large transaction lists; analytics calculation speed; import with large transaction batch
+- Files: Analytics, BudgetContext, import pipeline
+- Risk: Performance degradation undetected until user reports slowness
+- Priority: Medium - important as data grows; need load test suite
 
----
-
-## Known Limitations & Workarounds
-
-### Recharts Warnings in JSDOM
-
-**Issue: Recharts emits width/height warnings when running tests in jsdom**
-- Cause: jsdom has no layout engine, so SVG elements have no dimensions
-- Workaround: Warnings suppressed in `tests/setup.ts` (acceptable for MVP)
-- Impact: No visual validation of charts, only that they render without errors
-- Fix: Use visual regression testing tool (Percy, Chromatic) in CI/CD
-
-### Dashboard Page Not Directly Testable
-
-**Issue: Dashboard is an async server component with cookie access**
-- Files: `src/app/dashboard/page.tsx`
-- Why: Next.js server components can't be rendered in jsdom
-- Workaround: Test child components (BudgetProgressSection, SpendingByCategoryChart) separately
-- Limitation: Page-level integration not tested
-- Fix: Use Playwright or Cypress for E2E tests instead
-
-### Legacy OopsBudgeter Code Still in Use
-
-**Issue: Codebase contains legacy code that conflicts with new architecture**
-- Files:
-  - `src/lib/monthlyTrends.ts` - legacy calculation logic
-  - `src/lib/my1DollarAI.ts` - legacy analytics
-  - `src/contexts/AppContext.tsx` - legacy context
-- Why kept: Removing would break existing routes (/legacy, /analytics, /achievements)
-- Migration plan needed: Document which legacy code is deprecated vs. reusable
+**No E2E/User Flow Tests:**
+- What's not tested: Full user journeys (link bank → import → view budget → set budget → get alert); cross-feature interactions
+- Files: Entire app
+- Risk: Integration bugs between features; routing issues; data flow problems
+- Priority: High - MVP-critical; need E2E test scenarios
 
 ---
 
-## Recommendations by Priority
-
-### Critical (Fix Before Production)
-
-1. **Remove .env.local from version control** - Rotate all credentials
-2. **Implement import transaction wrapping** - Prevent partial imports
-3. **Add rate limiting** - Protect API endpoints
-4. **Add E2E tests** - Validate complete user flows
-
-### High (Fix in Next Phase)
-
-1. **Remove unused database drivers** - Clean up dependencies
-2. **Complete finance module** - Implement dashboard aggregations
-3. **Implement notification persistence** - Allow users to see notification history
-4. **Fix eslint disables** - Remove global disables once code is complete
-
-### Medium (Improve Code Quality)
-
-1. **Optimize Analytics component** - Add memoization
-2. **Refactor BudgetContext** - Better state management
-3. **Add budget calculation tests** - Improve confidence in calculations
-4. **Remove package manager scripts conflict** - Enforce bun-only
-
-### Low (Post-MVP Enhancements)
-
-1. **Implement custom categories** - Allow user-defined categories
-2. **Add category learning** - Train on user corrections
-3. **Implement parallel imports** - Speed up multi-account import
-4. **Add batch transaction processing** - Support large imports
-
----
-
-*Concerns audit: 2025-01-23*
+*Concerns audit: 2026-01-23*

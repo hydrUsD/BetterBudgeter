@@ -5,131 +5,208 @@
 ## Languages
 
 **Primary:**
-- TypeScript 5.x - Core application logic, type-safe components and utilities
-- JSX/TSX - React component definitions and UI rendering
+- TypeScript 5.x - Full codebase (Next.js App Router, React components, API routes)
+- JavaScript (ES2020+) - Build tooling and configuration files
 
 **Secondary:**
-- JavaScript - Configuration files (eslint.config.mjs, postcss.config.mjs, next.config.ts)
+- SQL - PostgreSQL database queries (via Drizzle ORM)
+- CSS - Tailwind CSS for styling
 
 ## Runtime
 
 **Environment:**
-- Node.js 25.4.0 (used for npm tasks and build chain)
-- Bun 1.3.3 (primary package manager and runtime for development/build)
+- Node.js - Server-side runtime (version not pinned; uses compatible range)
+- Bun - Package manager and alternative runtime (as per `CLAUDE.md` requirements)
 
 **Package Manager:**
-- Bun 1.3.3 - All dependency installation, script execution, and build commands
-- Lockfile: `bun.lockb` (present)
+- Bun (mandatory for this project)
+  - All dependencies installed via `bun install`
+  - Lockfile: `bun.lockb` (generated)
 
 ## Frameworks
 
 **Core:**
 - Next.js 15.2.1 - Full-stack React framework with App Router
-  - Server Components and Server Actions
-  - API Routes (handled by `/api/` directory)
-  - Built-in middleware support
-  - Turbopack for fast dev server
+  - `next dev --turbopack -p 3031` - Development server with Turbopack bundler
+  - `next build` - Production builds
 
-**UI & Components:**
-- React 19.0.0 - Component library and state management
-- Radix UI 1.x - Unstyled, accessible UI primitives (`@radix-ui/*` packages)
-  - Alert dialogs, context menus, modals, labels, popovers, selects, switches, tooltips
-- Tremor 4.0.0-beta - React charting library for financial visualizations
-- Recharts 2.15.1 - Alternative charting library for data visualization
+**Frontend UI:**
+- React 19.0.0 - Component library
+- Radix UI (multiple packages) - Unstyled, accessible UI primitives
+  - `@radix-ui/react-dialog`, `@radix-ui/react-select`, `@radix-ui/react-switch`, etc.
+- Tremor 4.0.0-beta - Charts and data visualization (`@tremor/react`)
+- Recharts 2.15.1 - Alternative charting library
+- Sonner 2.0.1 - Toast notifications
+- Tailwind CSS 4.x - Utility-first CSS framework
+- Lucide React 0.479.0 - Icon library (SVG icons)
+- Iconify React 5.2.0 - Extended icon support
 
-**Forms & Validation:**
-- React Hook Form 7.54.2 - Form state management and submission
-- Hookform/resolvers 4.1.3 - Zod integration for form validation
-- Zod 3.24.2 - Runtime schema validation for TypeScript
+**Forms & Input:**
+- React Hook Form 7.54.2 - Form state management
+- Zod 3.24.2 - Schema validation
+- @hookform/resolvers 4.1.3 - Integration between RHF and Zod
+- Input OTP 1.4.2 - OTP input component
+- Timescape 0.7.1 - Date/time input
 
-**Styling:**
-- Tailwind CSS 4.0+ - Utility-first CSS framework
-- Class Variance Authority (CVA) 0.7.1 - Component variant patterns
-- Tailwind Merge 3.0.2 - Intelligent class merging for dynamic Tailwind
-- Tailwind Animate 1.0.7 - Animation utilities
+**Utilities:**
+- Date-fns 4.1.0 - Date manipulation and formatting
+- Class Variance Authority 0.7.1 - Conditional className merging
+- clsx 2.1.1 - Conditional className utility
+- Tailwind Merge 3.0.2 - Tailwind class conflict resolution
+- React Day Picker 8.10.1 - Date picker component
+- React to Print 3.0.5 - PDF/print functionality
+- Vaul 1.1.2 - Drawer/modal component
+- File Saver 2.0.5 - Download file utilities
 
-**Date & Time:**
-- date-fns 4.1.0 - Date formatting, parsing, and manipulation utilities
-- React Day Picker 8.10.1 - Calendar component for date selection
+**Theme & UI:**
+- Next Themes 0.4.6 - Light/dark mode support
 
-**Testing:**
-- Vitest 4.0.18 - Fast unit testing framework
-- Testing Library/React 16.3.2 - React component testing utilities
-- Testing Library/Jest-DOM 6.9.1 - Custom Jest matchers for DOM testing
-- jsdom 27.4.0 - Simulated browser environment for testing
+## Database
 
-**Build/Dev:**
-- Drizzle ORM 0.40.0 - TypeScript ORM for database queries
-- Drizzle Kit 0.30.5 - Database migration tooling
-- Drizzle Zod 0.7.0 - Zod validation integration for Drizzle schemas
-- TSX 4.19.3 - Execute TypeScript files directly
-- Next PWA 10.2.9 - Progressive Web App support (offline capability)
+**Primary:**
+- PostgreSQL - Hosted on Supabase
+- Connection: Via `DATABASE_URL` env var (pooled connection)
+
+**ORM & Migration:**
+- Drizzle ORM 0.40.0 - Type-safe ORM for PostgreSQL
+  - `drizzle-kit push` - Database migrations
+  - Schema: `src/schema/dbSchema.ts`
+- Drizzle Kit 0.30.5 - Migration and introspection tooling
+- `pg` 8.14.0 - PostgreSQL client driver
+
+**Legacy Database Support:**
+- Better SQLite3 11.8.1 - Local SQLite for legacy features
+- MySQL2 3.13.0 - MySQL driver (may be legacy OopsBudgeter)
+- Mongoose 8.12.1 - MongoDB driver (may be legacy)
+- quick.db 9.1.7 - Simple JSON database (legacy)
+
+## Authentication
+
+**Provider:**
+- Supabase Auth - Self-hosted via PostgreSQL
+  - `@supabase/supabase-js` 2.91.0 - JavaScript client
+  - `@supabase/ssr` 0.8.0 - Server-side auth support (cookie handling)
+
+**Auth Methods:**
+- Email/Password - Implemented
+- Magic Link - Supported by Supabase (optional)
+
+**Session Management:**
+- Cookie-based sessions (via Supabase middleware)
+- JWT tokens from Supabase Auth
 
 ## Key Dependencies
 
 **Critical:**
-- `@supabase/supabase-js` 2.91.0 - Client SDK for Supabase auth and database
-- `@supabase/ssr` 0.8.0 - SSR utilities for cookie-based session management
-- `pg` 8.14.0 - PostgreSQL client for Drizzle ORM queries
-- `better-sqlite3` 11.8.1 - SQLite client (may be legacy from OopsBudgeter)
+- `@supabase/supabase-js` 2.91.0 - All auth and realtime communication
+- `drizzle-orm` 0.40.0 - Database access layer
+- `next` 15.2.1 - Framework and routing
+- `react` 19.0.0 - UI rendering
+- `@tremor/react` 4.0.0-beta - Dashboard visualizations
 
-**Infrastructure & Utilities:**
-- Sonner 2.0.1 - Toast notification library
-- Iconify/React 5.2.0 - Icon library integration
-- Lucide React 0.479.0 - SVG icon components
-- Input OTP 1.4.2 - OTP input component
-- Vaul 1.1.2 - Dialog/drawer UI component
-- Timescape 0.7.1 - Time input component
-- File Saver 2.0.5 - Download file utilities
-- React to Print 3.0.5 - Print functionality
-- Write File Atomic 6.0.0 - Atomic file writing
-- JOSE 6.1.3 - JWT signing and verification
-- Node Cron 3.0.3 - Scheduled task execution
-- Dotenv 16.4.7 - Environment variable loading
-- Clsx 2.1.1 - Conditional class name utility
-- Next Themes 0.4.6 - Dark mode/theme management
+**Development & Compilation:**
+- TypeScript 5.x - Type checking and compilation
+- TSX 4.19.3 - TypeScript/JSX execution
+- ESLint 9.x - Code linting
+- Tailwind CSS 4.x - CSS compilation (with @tailwindcss/postcss)
 
-**Deprecated/Legacy (from OopsBudgeter):**
-- Mongoose 8.12.1 - MongoDB ODM (likely not used, can be removed)
-- MySQL2 3.13.0 - MySQL client (likely not used, should be pg only)
-- Quick.db 9.1.7 - Simple database (likely not used, superseded by Supabase)
-
-## Configuration
-
-**Environment:**
-- Loaded from `.env.local` (Git-ignored)
-- All Supabase variables are public (`NEXT_PUBLIC_` prefix) except service role key
-- Key required variables:
-  - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
-  - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
-  - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` - Alternative key format
-  - `DATABASE_URL` - PostgreSQL connection string (for Drizzle migrations)
-  - `SUPABASE_SERVICE_ROLE_KEY` - Server-only admin key (optional, for admin operations)
-  - `JWT_SECRET` - For custom JWT operations (32+ char required)
-  - `NEXT_PUBLIC_CURRENCY` - Default currency code (e.g., "USD")
-  - `PASSCODE` - Legacy passcode for OopsBudgeter features
+## Build & Development Tools
 
 **Build:**
-- `tsconfig.json` - TypeScript strict mode, ES2017 target, path aliases (`@/*` → `./src/*`)
-- `next.config.ts` - PWA support via `next-pwa`, caching and reload-on-online configured
-- `drizzle.config.ts` - PostgreSQL dialect, schema at `./src/schema/dbSchema.ts`
-- `vitest.config.ts` - jsdom environment, path aliases, test files in `tests/**/*.test.ts`
-- `eslint.config.mjs` - Next.js core and TypeScript rules via flat config
-- `postcss.config.mjs` - Tailwind CSS integration
+- Next.js Turbopack - High-performance bundler (in dev mode)
+- PostCSS 4.x with @tailwindcss/postcss - CSS processing
+
+**Testing:**
+- Vitest 4.0.18 - Unit/component test runner
+  - Environment: jsdom (simulated browser)
+  - Config: `vitest.config.ts`
+  - Command: `bun run test`
+- @testing-library/react 16.3.2 - React component testing utilities
+- @testing-library/jest-dom 6.9.1 - DOM matchers
+- jsdom 27.4.0 - DOM simulation for tests
+
+**Type Checking:**
+- TypeScript 5.x strict mode
+- Command: `bun run typecheck`
+
+**Linting:**
+- ESLint 9.x with Next.js preset
+- Command: `bun run lint`
+
+**PWA & Offline:**
+- @ducanh2912/next-pwa 10.2.9 - Progressive Web App support
+  - Disabled in development
+  - Service worker caching in production
+
+## Configuration Files
+
+**TypeScript:**
+- `tsconfig.json` - Compiler options with path aliases (`@/*` → `./src/*`)
+
+**Build:**
+- `next.config.ts` - Next.js configuration with PWA plugin
+- `postcss.config.mjs` - PostCSS plugins for Tailwind
+- `drizzle.config.ts` - Drizzle ORM migration config
+- `vitest.config.ts` - Test runner configuration
+- `eslint.config.mjs` - ESLint rules
+
+## Environment Configuration
+
+**Required Environment Variables:**
+```
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL              # Your Supabase project URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY         # Supabase anonymous API key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY  # Alternative anon key (optional)
+
+# Database
+DATABASE_URL                          # PostgreSQL connection string (pooled)
+
+# Auth (optional)
+SUPABASE_SERVICE_ROLE_KEY            # Admin/service role key (optional, for migrations)
+
+# Application
+NEXT_PUBLIC_CURRENCY                  # Default currency (e.g., USD, EUR)
+JWT_SECRET                            # JWT signing secret (legacy, 32+ chars required)
+PASSCODE                              # Passcode for legacy routes (if used)
+```
+
+**Notes:**
+- `NEXT_PUBLIC_*` variables are embedded in client bundle
+- `DATABASE_URL` contains pooled connection credentials
+- Sensitive keys (`JWT_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`) never exposed to client
 
 ## Platform Requirements
 
 **Development:**
-- Node.js 25.x or Bun 1.3.x
-- PostgreSQL 12+ (via Supabase or local connection)
-- Bun package manager (mandatory per CLAUDE.md)
-- All dependencies installable via `bun install`
+- Node.js compatible runtime (Node 18+ or Bun equivalent)
+- PostgreSQL 12+ (via Supabase)
+- Bun package manager
 
 **Production:**
-- Vercel (typical Next.js deployment platform)
-- Supabase PostgreSQL database
-- PWA-capable browser for offline functionality
-- Build process: `bun run build` (runs drizzle migrations then Next.js build)
+- Node.js 18+ compatible runtime
+- PostgreSQL database (Supabase)
+- Server-side rendering support (Next.js)
+- HTTPS required for Supabase Auth
+
+## Deployment Readiness
+
+**Entry Point:**
+- `src/app/layout.tsx` - Root layout component
+- `src/middleware.ts` - Authentication middleware
+- `next.config.ts` - PWA and build configuration
+
+**Build Process:**
+```bash
+bun install                 # Install dependencies
+bun run typecheck          # Type check
+bun run build              # Build with Drizzle migrations + Next.js
+```
+
+**Start Command:**
+```bash
+bun start                  # Start production server
+```
 
 ---
 

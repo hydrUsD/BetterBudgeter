@@ -7,112 +7,104 @@
 **Runner:**
 - Vitest 4.0.18
 - Config: `vitest.config.ts`
-- Environment: jsdom (simulates browser for React component testing)
+- Environment: jsdom (browser simulation for React components)
 
 **Assertion Library:**
-- Vitest built-in expect()
+- Vitest native expect() API (Jest-compatible)
 - @testing-library/jest-dom matchers for DOM assertions
 - @testing-library/react for component rendering
 
 **Run Commands:**
 ```bash
-bun run test              # Run all tests (single run)
-bun run test --watch     # Watch mode (re-run on file changes)
-bun run test --coverage  # Generate coverage report
+bun run test                    # Run all tests (one pass)
+bun run test:watch            # Watch mode (re-run on file change)
+bun run test -- --coverage    # Generate coverage report (not enforced)
 ```
 
-Note: Package.json `test` script runs `vitest run` (single execution, no watch).
+Note: `test:watch` command not in package.json; use `vitest --watch` directly if needed.
 
 ## Test File Organization
 
 **Location:**
-- Centralized in `tests/` directory at project root
-- Not co-located with source files (separate from implementation)
+- All tests in `tests/` directory (not co-located with source)
+- Organized by layer: `tests/smoke/`, `tests/components/`, `tests/utils/`
 
 **Naming:**
-- Convention: `*.test.ts` or `*.test.tsx`
-- Example: `charts.test.ts`, `spending-chart.test.tsx`
+- Test files: `{subject}.test.ts` or `{subject}.test.tsx`
+- Examples: `budget-progress.test.tsx`, `charts.test.ts`, `imports.test.ts`
 
 **Structure:**
 ```
 tests/
-├── setup.ts                      # Global test setup
+├── setup.ts                        # Environment setup
 ├── smoke/
-│   └── imports.test.ts           # Module import smoke tests
-├── utils/
-│   └── charts.test.ts            # Utility function tests
-└── components/
-    ├── spending-chart.test.tsx    # Component render tests
-    └── budget-progress.test.tsx   # Component render tests
+│   └── imports.test.ts            # Critical module imports
+├── components/
+│   ├── budget-progress.test.tsx   # Component render tests
+│   └── spending-chart.test.tsx    # Component render tests
+└── utils/
+    └── charts.test.ts             # Pure function tests
 ```
 
 ## Test Structure
 
 **Suite Organization:**
+
 ```typescript
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-describe("Module or Component Name", () => {
-  it("does something specific", () => {
-    // Arrange
-    const input = ...;
+// ─────────────────────────────────────────────────────────────────────────────
+// Mock Data
+// ─────────────────────────────────────────────────────────────────────────────
 
-    // Act
-    const result = ...;
+const mockBudgetProgress = [
+  {
+    budget: { id: "1", category: "Food", monthlyLimit: 500 },
+    spentAmount: 250,
+    remainingAmount: 250,
+    usagePercentage: 50,
+    status: "on_track",
+  },
+];
 
-    // Assert
-    expect(result).toBe(...);
+// ─────────────────────────────────────────────────────────────────────────────
+// Tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe("BudgetProgressSection", () => {
+  it("renders without crashing with budget data", () => {
+    const { container } = render(
+      <BudgetProgressSection budgetProgress={mockBudgetProgress} />
+    );
+    expect(container).toBeTruthy();
   });
 
-  it("handles edge case", () => {
-    // Test code
+  it("renders empty state when no budgets exist", () => {
+    render(<BudgetProgressSection budgetProgress={[]} />);
+    expect(screen.getByText("Budget Tracking")).toBeTruthy();
   });
 });
 ```
 
 **Patterns:**
-- Organize tests by logical feature (one describe per function/component)
-- Use nested describe blocks for related test groups
-- Descriptive test names starting with lowercase: `it("renders without crashing with category data")`
-- Three-phase pattern: Arrange → Act → Assert
 
-Example from `charts.test.ts`:
+- Describe blocks organize tests by component/function name
+- Arrange-Act-Assert pattern in each test (minimal setup, clear assertion)
+- Mock data blocks at top of file for readability
+- Section dividers (`// ───────`) separate logical groups
+
+## Mocking
+
+**Framework:**
+- Vitest native `vi` module for stubs and spies
+- @testing-library/react for component rendering mocks
+
+**Patterns:**
+
+**ResizeObserver Stub** (required by Recharts):
 ```typescript
-describe("getCategoryColor", () => {
-  it("returns correct color for known expense categories", () => {
-    expect(getCategoryColor("Food")).toBe("#ef4444");
-    expect(getCategoryColor("Rent")).toBe("#f97316");
-  });
-
-  it("returns fallback color for unknown categories", () => {
-    expect(getCategoryColor("NonExistent")).toBe(CATEGORY_COLORS.Other);
-  });
-});
-```
-
-## Setup and Teardown
-
-**Global Setup:**
-- File: `tests/setup.ts`
-- Runs before all tests
-- Configures:
-  - jest-dom matchers for DOM assertions
-  - DOM cleanup between tests (prevents state leakage)
-  - ResizeObserver stub (required by Recharts, not available in jsdom)
-
-Setup code:
-```typescript
-import { cleanup } from "@testing-library/react";
-import { afterEach, vi } from "vitest";
-import "@testing-library/jest-dom/vitest";
-
-// Clean up DOM after each test
-afterEach(() => {
-  cleanup();
-});
-
-// Stub ResizeObserver (not available in jsdom)
+// From tests/setup.ts
 vi.stubGlobal(
   "ResizeObserver",
   class ResizeObserver {
@@ -123,26 +115,43 @@ vi.stubGlobal(
 );
 ```
 
-## Test Data and Mocks
-
-**Fixtures:**
-- Defined inline within test files
-- No separate fixture files yet
-
-**Mock Data Pattern:**
+**Component Props with Mock Data:**
 ```typescript
-const mockCategoryData = [
-  { category: "Food", amount: 250, transactionCount: 10 },
-  { category: "Rent", amount: 800, transactionCount: 1 },
+const mockBudgetProgress = [
+  {
+    budget: { id: "1", category: "Food", monthlyLimit: 500 },
+    spentAmount: 250,
+    usagePercentage: 50,
+    status: "on_track",
+  },
 ];
+
+render(<BudgetProgressSection budgetProgress={mockBudgetProgress} />);
 ```
 
-**Component Mocks:**
-- For complex dependencies, mock data is placed at top of test file
-- Budget progress tests use representative mock data showing all three status states
+**What to Mock:**
+- Environment globals (ResizeObserver, window APIs)
+- Data props to components (fixtures passed as props)
+- External dependencies (only if unavoidable)
 
-Example from `budget-progress.test.tsx`:
+**What NOT to Mock:**
+- DOM methods (use testing-library instead)
+- Internal component behavior (test through rendered output)
+- Pure utility functions (test directly, don't mock)
+- Supabase/database calls (avoid in tests; unit test business logic separately if needed)
+
+**Database/API Calls:**
+- NOT mocked in component tests (components use props instead)
+- Data is passed as mock fixtures through props
+- Example: `BudgetProgressSection` receives pre-computed `budgetProgress` array
+- Server-side data fetching happens outside tests (in Next.js server components)
+
+## Fixtures and Factories
+
+**Test Data:**
+
 ```typescript
+// From tests/components/budget-progress.test.tsx
 const mockBudgetProgress: BudgetProgress[] = [
   {
     budget: {
@@ -159,132 +168,89 @@ const mockBudgetProgress: BudgetProgress[] = [
     status: "on_track",
     transactionCount: 10,
   },
-  // ... more test data
 ];
 ```
 
-## Mocking Patterns
+**Fixture Location:**
+- Defined at top of test file (in "Mock Data" section)
+- Not in separate factory files (too simple for MVP)
+- Include all required fields to match type signatures
+- Vary fixture data to test different scenarios (on_track, warning, over_budget)
 
-**Framework:** Vitest's built-in `vi` for stubbing
+## Coverage
 
-**Patterns:**
-- Use `vi.stubGlobal()` for browser APIs (e.g., ResizeObserver)
-- Stubs are global and set up once in `tests/setup.ts`
-- Component mocks use direct props instead of complex setup
-
-**What to Mock:**
-- Browser APIs not available in jsdom (ResizeObserver, localStorage, etc.)
-- External libraries that can't run in test environment
-
-**What NOT to Mock:**
-- User auth (use smoke tests for import verification instead)
-- Supabase/database calls (test utility functions independently, use component render tests)
-- Component prop behavior (verify with rendered output)
-
-## Fixture and Factory Patterns
-
-**Test Data Location:**
-- Inline in test files under "Mock Data" section
-- Separated from test cases with comments
-
-**Pattern:**
-- Constants for reusable mock data at top of describe block
-- Data structured to match domain types exactly
-
-Example:
-```typescript
-// ─────────────────────────────────────────────────────────────────────────────
-// Mock Data
-// ─────────────────────────────────────────────────────────────────────────────
-
-const mockCategoryData = [...];
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Tests
-// ─────────────────────────────────────────────────────────────────────────────
-
-describe("SpendingByCategoryChart", () => {
-  it("renders", () => { ... });
-});
-```
-
-## Coverage Requirements
-
-**Target:** Not enforced (no CI/CD checks configured)
+**Requirements:**
+- No minimum coverage threshold enforced
+- Coverage is tracked locally only (not CI-enforced)
+- MVP focuses on preventing regressions, not coverage metrics
 
 **View Coverage:**
 ```bash
-bun run test --coverage
+bun run test -- --coverage
 ```
 
-**Current Focus:**
-- MVP covers smoke tests (imports work) and utility functions
-- Component render tests cover critical dashboard components
-- No coverage enforcement to allow rapid development
+**Philosophy:**
+- Coverage percentage is not a goal for MVP
+- Testing exists to prevent demo-breaking bugs
+- Business logic bugs are caught during manual testing
+- Infrastructure (imports, rendering) is tested; complex logic is manually verified
 
 ## Test Types
 
-**Unit Tests:**
-- Scope: Pure utility functions (no side effects, no I/O)
-- Example: `tests/utils/charts.test.ts` tests color mapping and chart data transformation
-- No mocking needed (unless testing error handling)
-- Fast execution
+**Unit Tests (Pure Functions):**
 
-Example unit test:
+From `tests/utils/charts.test.ts`:
 ```typescript
-describe("toPieChartData", () => {
-  it("transforms category breakdown to pie chart format", () => {
-    const input = [
-      { category: "Food", amount: 250 },
-      { category: "Rent", amount: 800 },
-    ];
+describe("getCategoryColor", () => {
+  it("returns correct color for known expense categories", () => {
+    expect(getCategoryColor("Food")).toBe("#ef4444");
+    expect(getCategoryColor("Rent")).toBe("#f97316");
+  });
 
-    const result = toPieChartData(input);
-
-    expect(result).toHaveLength(2);
-    expect(result[0]).toEqual({
-      name: "Food",
-      value: 250,
-      fill: "#ef4444",
-    });
+  it("returns fallback color for unknown categories", () => {
+    expect(getCategoryColor("NonExistent")).toBe(CATEGORY_COLORS.Other);
   });
 });
 ```
 
-**Integration Tests:**
-- Scope: Component rendering with mock data
-- Example: `tests/components/spending-chart.test.tsx`
-- Uses `@testing-library/react` to render components
-- Verifies component mounts and displays expected content
+- Scope: Pure utility functions with no side effects
+- No setup required; direct function calls
+- Assertions are simple: input → expected output
+- Examples: `getCategoryColor()`, `toPieChartData()`, `formatAxisCurrency()`
 
-Example integration test:
+**Component Render Tests:**
+
+From `tests/components/budget-progress.test.tsx`:
 ```typescript
-describe("SpendingByCategoryChart", () => {
-  it("renders without crashing with category data", () => {
+describe("BudgetProgressSection", () => {
+  it("renders without crashing with budget data", () => {
     const { container } = render(
-      <SpendingByCategoryChart data={mockCategoryData} />
+      <BudgetProgressSection budgetProgress={mockBudgetProgress} />
     );
     expect(container).toBeTruthy();
   });
 
-  it("displays category names in legend", () => {
-    render(<SpendingByCategoryChart data={mockCategoryData} />);
+  it("renders empty state when no budgets exist", () => {
+    render(<BudgetProgressSection budgetProgress={[]} />);
+    expect(screen.getByText("Budget Tracking")).toBeTruthy();
+  });
+
+  it("displays category names", () => {
+    render(<BudgetProgressSection budgetProgress={mockBudgetProgress} />);
     expect(screen.getByText("Food")).toBeTruthy();
+    expect(screen.getByText("Entertainment")).toBeTruthy();
   });
 });
 ```
 
-**E2E Tests:**
-- Not implemented (out of MVP scope)
-- Would require Playwright or Cypress
-- Would test full user flows (link bank → import → view dashboard)
+- Scope: Client components render with mock data
+- Setup: Mock data fixtures, render with props
+- Assertions: Check text content, existence of elements
+- Does NOT test: Database calls, user interactions, navigation
 
 **Smoke Tests:**
-- Scope: Verify critical modules can be imported without errors
-- Example: `tests/smoke/imports.test.ts`
-- Catches broken imports, circular dependencies, config issues
 
-Example smoke test:
+From `tests/smoke/imports.test.ts`:
 ```typescript
 describe("Smoke: Critical Module Imports", () => {
   it("imports BudgetProgressSection without errors", async () => {
@@ -302,141 +268,125 @@ describe("Smoke: Critical Module Imports", () => {
 });
 ```
 
-## Common Testing Patterns
+- Scope: Verify application builds and critical modules import
+- No rendering or execution of logic
+- Catches: Broken imports, circular dependencies, syntax errors
+- Examples: Module import validation, API route existence checks
+
+## Common Patterns
 
 **Async Testing:**
-```typescript
-// Using async/await
-it("imports module", async () => {
-  const module = await import("@/utils/charts");
-  expect(module.getCategoryColor).toBeDefined();
-});
 
-// Vitest automatically handles Promise returns
-it("async function works", async () => {
-  const result = await someAsyncFunction();
-  expect(result).toBeTruthy();
+```typescript
+// From tests/smoke/imports.test.ts
+it("imports BudgetProgressSection without errors", async () => {
+  const module = await import(
+    "@/components/dashboard/BudgetProgressSection"
+  );
+  expect(module.BudgetProgressSection).toBeDefined();
 });
 ```
+
+- Use `async` on test function and `await` on async operations
+- Async imports: `await import("@/path")`
+- Async functions: `await functionName()`
 
 **Error Testing:**
-- Not yet used in MVP tests
-- Would use try/catch or expect().rejects pattern when needed
 
-**Component Rendering Edge Cases:**
+Error testing is minimal in MVP. When needed:
 ```typescript
-// Empty state
-it("renders empty state when no data exists", () => {
-  render(<SpendingByCategoryChart data={[]} />);
-  expect(screen.getByText(/No expense data/)).toBeTruthy();
-});
-
-// Data validation
-it("displays total expenses", () => {
-  render(<SpendingByCategoryChart data={mockCategoryData} />);
-  expect(screen.getByText("Total Expenses")).toBeTruthy();
+it("returns validation errors for missing fields", () => {
+  const result = validateTransaction({});
+  expect(result.valid).toBe(false);
+  expect(result.errors).toContain("Missing external_id");
 });
 ```
 
-## Testing Limitations and Known Issues
+- Test validation logic that returns error arrays
+- NOT testing thrown exceptions (avoids complex try/catch in tests)
+- NOT testing API error responses (requires mocking)
 
-**jsdom SVG Support:**
-- jsdom has limited SVG rendering support
-- Tremor DonutChart (which uses Recharts internally) renders SVG
-- Tests verify component mounts and text content, NOT chart SVG accuracy
-- Visual verification of chart colors is manual
+**Conditional Rendering:**
 
-From `spending-chart.test.tsx` comments:
 ```typescript
-/**
- * Note: The Tremor DonutChart uses Recharts internally which renders SVG.
- * jsdom has limited SVG support, so we only test that the component
- * mounts and renders its non-chart elements (legend, totals).
- *
- * Does NOT test:
- * - Chart SVG rendering accuracy
- * - Color correctness (visual verification only)
- * - Tooltip behavior
- */
+it("renders empty state when no budgets exist", () => {
+  render(<BudgetProgressSection budgetProgress={[]} />);
+  expect(screen.getByText("Set monthly budgets")).toBeTruthy();
+});
+
+it("renders budget cards when budgets exist", () => {
+  render(<BudgetProgressSection budgetProgress={mockBudgetProgress} />);
+  expect(screen.getByText("Food")).toBeTruthy();
+});
 ```
 
-**Server Components:**
-- Dashboard page is a server component with async DB calls
-- Cannot be rendered in tests without mocking Supabase
-- Workaround: Test child components (which can accept mock props) instead
-- Smoke tests verify child component imports work
+- Test both branches: empty state and data state
+- Pass different prop values to trigger conditionals
 
-**Styling:**
-- Component tests don't verify CSS/Tailwind classes
-- Tests verify structure and text content, not visual appearance
-- Color and layout verified manually
+## Environment Setup
 
-## Test Documentation Pattern
+**Setup File:** `tests/setup.ts`
 
-All test files include:
-1. File-level header comment explaining scope
-2. Reference to testing strategy documentation
-3. Clear description of what is and isn't tested
-
-Example from `budget-progress.test.tsx`:
 ```typescript
-/**
- * BudgetProgressSection Render Tests
- *
- * Verifies that the BudgetProgressSection component renders
- * without crashing with various mock data scenarios.
- *
- * Does NOT test:
- * - Database calls
- * - Real budget calculations
- * - User interactions
- *
- * @see docs/TESTING_STRATEGY.md
- */
+import { cleanup } from "@testing-library/react";
+import { afterEach, vi } from "vitest";
+import "@testing-library/jest-dom/vitest";
+
+// Clean up DOM after each test to prevent state leakage
+afterEach(() => {
+  cleanup();
+});
+
+// Stub ResizeObserver (not available in jsdom, required by Recharts)
+vi.stubGlobal(
+  "ResizeObserver",
+  class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+);
 ```
 
-## Running Tests
+**Vitest Config:** `vitest.config.ts`
 
-**Single run:**
-```bash
-bun run test
+```typescript
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./tests/setup.ts"],
+    include: ["tests/**/*.test.{ts,tsx}"],
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+});
 ```
 
-**Watch mode (development):**
-```bash
-bun run test --watch
-```
+- `jsdom` simulates browser DOM
+- `setupFiles` runs cleanup and mocks
+- `include` pattern finds all test files
+- `alias` provides `@/` path mapping
 
-**Specific test file:**
-```bash
-bun run test tests/utils/charts.test.ts
-```
+## What Is NOT Tested
 
-**Specific test case:**
-```bash
-bun run test -t "getCategoryColor"
-```
+**Explicitly Out of Scope (by design):**
+- Database access (lib/db/*) — Requires Supabase test environment
+- API routes (/api/*) — Requires request mocking; low ROI
+- Import pipeline — Complex async; tested manually
+- Auth flows — Requires Supabase Auth mocking
+- UI interactions — No user-event tests (manual testing sufficient)
+- Legacy OopsBudgeter pages — Assumed stable
+- Tremor/Recharts rendering — Visual verification only
+- Integration tests — Not configured
 
-**With coverage:**
-```bash
-bun run test --coverage
-```
-
-## Integration with Build
-
-**Build command:**
-```bash
-bun run build
-```
-
-Does NOT run tests (testing is separate from build in this project).
-
-**Type checking:**
-```bash
-bun run typecheck
-```
-
-Runs TypeScript compiler to catch type errors (separate from test runner).
+**Rationale:**
+- MVP has fixed time budget
+- Testing serves to prevent demo-breaking regressions only
+- Manual testing during development catches business logic bugs
+- Build verification (`bun run build`) catches type/import errors
+- RLS and database constraints enforce data integrity
 
 ---
 

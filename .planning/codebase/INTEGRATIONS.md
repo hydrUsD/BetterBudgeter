@@ -4,151 +4,213 @@
 
 ## APIs & External Services
 
-**Fake-Finance API (Mock PSD2):**
-- Mock Banking Service - Simulates PSD2-compliant banking API for development/demo
-  - SDK/Client: Built-in Next.js API routes (no external package)
-  - Endpoints:
-    - `GET /api/mock/banks` - List available mock banks
-    - `GET /api/mock/accounts` - Get accounts for linked bank (returns `MockAccountsResponse`)
-    - `GET /api/mock/transactions` - Get transactions for account (returns `MockTransactionsResponse`)
-  - Auth: Requires Supabase session (checked by middleware)
-  - Purpose: Provides deterministic, reproducible transaction data for demo and testing
-  - Location: `src/app/api/mock/` routes, types in `src/lib/mock/types.ts`
+**Mock Banking API (PSD2-Compliant):**
+- **Endpoint:** `/api/mock/*` (internal)
+- **Purpose:** Simulates PSD2-compliant banking data without real banking integration
+- **Components:**
+  - `/api/mock/banks` - Returns list of mock banks (GET)
+  - `/api/mock/accounts` - Returns accounts for a given bankId (GET)
+  - `/api/mock/transactions` - Returns transactions for an account (GET)
+- **Implementation:** `src/lib/mock/index.ts` generates deterministic mock data
+- **Auth:** Requires Supabase authentication
+- **Data Format:** PSD2-style structures (transactionId, bookingDate, transactionAmount, etc.)
 
-**Data Format (PSD2 Simulation):**
-- Transaction format mimics real PSD2 AISP (Account Information Services)
-- Key fields: `transactionId`, `bookingDate`, `valueDate`, `transactionAmount`, `creditorName`/`debtorName`, `remittanceInformationUnstructured`
-- Hybrid seed strategy: Same transaction content for all users per bank, unique IDs per user
+**Import Pipeline:**
+- **Endpoint:** `/api/import` (internal)
+- **Purpose:** Fetches mock transactions and UPSERTs to database
+- **Flow:** Mock API → Transform → Database UPSERT
+- **Idempotency:** Uses external_id as conflict key (UNIQUE constraint)
+- **Implementation:** `src/lib/import/index.ts`
+- **Auth:** Requires authentication
+
+**Transactions API (Legacy):**
+- **Endpoint:** `/api/transactions` (legacy OopsBudgeter)
+- **Purpose:** Legacy transaction CRUD operations
+- **Auth:** Public (uses passcode wrapper)
+
+**Budgets API:**
+- **Endpoint:** `/api/budgets` (new BetterBudget)
+- **Purpose:** Create, read, update budget limits per category
+- **Implementation:** Route handlers in `src/app/api/budgets/route.ts`
+- **Auth:** Requires authentication
+- **Data Model:** Per-user, per-category monthly limits
+
+**Achievements API (Legacy):**
+- **Endpoint:** `/api/achievements` (legacy)
+- **Purpose:** Track user achievements/milestones
+- **Implementation:** `src/app/api/achievements/route.ts`
+- **Auth:** Public (uses passcode wrapper)
 
 ## Data Storage
 
-**Primary Database:**
-- PostgreSQL (via Supabase)
-  - Connection: `DATABASE_URL` environment variable (for Drizzle migrations)
-  - Client: Drizzle ORM 0.40.0 with PostgreSQL driver (`pg`)
-  - Tables (prefixed `bb_`):
-    - `bb_accounts` - Linked bank accounts (legacy schema may vary)
-    - `bb_transactions` - Imported transactions with stable `external_id`
-    - `bb_budgets` - Per-category monthly spending limits
-    - `bb_user_settings` - UI preferences and personalization
-    - `bb_notification_prefs` - Notification settings
-  - Row Level Security (RLS): Enabled on all tables for user data isolation
-  - Schema location: `src/schema/dbSchema.ts` (Drizzle schema definition)
-  - Migrations: Managed via Drizzle Kit (`drizzle-kit push`)
+**Databases:**
 
-**Legacy/Supplementary Storage (May be unused):**
-- SQLite via `better-sqlite3` 11.8.1 (from OopsBudgeter, likely not used)
-- MongoDB via Mongoose 8.12.1 (from OopsBudgeter, likely not used)
-- Quick.db 9.1.7 (from OopsBudgeter, likely not used)
+**PostgreSQL (Primary):**
+- **Provider:** Supabase (managed PostgreSQL)
+- **Connection:** Pooled connection via `DATABASE_URL`
+- **Client:** Drizzle ORM
+- **Schema Location:** `src/schema/dbSchema.ts`
+- **Tables:**
+  - `transactions` - Imported financial transactions
+  - `achievements` - User achievement records
+  - Additional tables managed by Supabase Auth
+
+**SQLite (Legacy):**
+- **Provider:** better-sqlite3 (local file-based)
+- **Purpose:** Legacy OopsBudgeter compatibility
+- **Not used in BetterBudget core**
+
+**MongoDB (Legacy):**
+- **Provider:** Mongoose ORM
+- **Purpose:** Legacy OopsBudgeter compatibility
+- **Not used in BetterBudget core**
 
 **File Storage:**
-- Local filesystem only - No S3 or cloud storage integration
-- File saver for client-side downloads (CSV exports, print)
-- Location: Uses `file-saver` package for browser-side file operations
+- **Local filesystem only** - No cloud storage integration
+- **File Download:** Via react-to-print and file-saver for exports
 
 **Caching:**
-- None explicitly configured - Relies on:
-  - Next.js built-in caching (static generation, revalidation)
-  - Browser cache via PWA service worker
-  - No Redis or external cache layer
+- **No caching layer** detected in dependencies
+- **Browser caching:** PWA service worker (via next-pwa)
 
 ## Authentication & Identity
 
 **Auth Provider:**
-- Supabase Auth (Primary)
-  - Implementation: Email/Password authentication with session management
-  - Auth methods: `signInWithPassword()`, `signUp()`, `signOut()`
-  - Session persistence: Cookie-based (handled by `@supabase/ssr`)
-  - Session scope: Protected routes verified via middleware (`src/middleware.ts`)
-  - Location: `src/lib/auth/index.ts` (auth helpers), `src/lib/db/supabase.ts` (client creation)
+- **Service:** Supabase Auth (self-hosted)
+- **Implementation:** Email/Password authentication
+- **Packages:**
+  - `@supabase/supabase-js` - Client SDK
+  - `@supabase/ssr` - Server-side session management
 
 **Session Management:**
-- Cookies set by Supabase Auth (SSR-compatible)
-- Middleware reads cookies and refreshes session on each request
-- Server Components access session via `createServerSupabaseClient()`
-- Client Components access session via `createBrowserSupabaseClient()`
+- **Type:** Cookie-based with JWT tokens
+- **Middleware:** `src/middleware.ts` enforces auth on protected routes
+- **Cookie Handling:** via `next/headers` in App Router
+- **Session Refresh:** Automatic via Supabase middleware
 
-**Protected Routes (via middleware):**
-- Page routes: `/`, `/settings`, `/link-bank` - Redirect to `/login` if not authenticated
-- API routes: `/api/import`, `/api/mock/*`, `/api/notifications` - Return 401 if not authenticated
-- Public routes: `/login`, `/auth/*`, legacy routes `/legacy`, `/analytics` (use PasscodeWrapper for legacy access)
+**Protected Routes:**
+- `/` - Main dashboard (requires auth)
+- `/settings` - User settings (requires auth)
+- `/link-bank` - Bank linking (requires auth)
+- `/api/import/*` - Import endpoint (requires auth)
+- `/api/mock/*` - Mock API (requires auth)
 
-**User Identification:**
-- Supabase `user.id` (UUID) is the primary user identifier
-- Passed through to DB queries via RLS policies
-- All user data scoped by `user_id` column
+**Public Routes:**
+- `/login` - Login page
+- `/auth/*` - Auth callback pages
+- `/legacy`, `/legacy-index` - Legacy OopsBudgeter (uses passcode wrapper)
+- `/achievements`, `/analytics` - Legacy (uses passcode wrapper)
 
 ## Monitoring & Observability
 
 **Error Tracking:**
-- None configured - No Sentry, LogRocket, or external error service
+- **Not detected** - No Sentry, Rollbar, or Datadog integration
 
-**Logs:**
-- Console logging only:
-  - `console.warn()` for Supabase configuration issues (middleware)
-  - `console.error()` for failed imports or API errors
-  - Location: Ad-hoc throughout codebase, no centralized logging
+**Logging:**
+- **Approach:** Console logging only
+  - Server logs: `console.log()`, `console.error()`
+  - Client logs: Browser console
+  - Examples: `[api/import]`, `[dashboard]`, `[notifications]` prefixes in logs
+- **Structured Logging:** Not implemented
+
+**Performance Monitoring:**
+- **Not detected** - No performance monitoring tools
 
 ## CI/CD & Deployment
 
 **Hosting:**
-- Vercel (typical deployment for Next.js)
-- Supabase (database and auth hosting)
+- **Deployment Platform:** Not specified in codebase
+- **Expected:** Vercel (compatible with Next.js), or self-hosted Node.js
+
+**Build & Deploy:**
+- **Build Command:** `bun run build`
+  - Runs Drizzle migrations: `npx drizzle-kit push`
+  - Builds Next.js: `next build`
+- **Start Command:** `bun start`
 
 **CI Pipeline:**
-- None explicitly configured in repository
-- Manual deployment expected (or Vercel Git integration)
-- Build command: `bun run build` (runs `drizzle-kit push` then `next build`)
-- Start command: `bun start` (Next.js production server)
-- Dev command: `bun dev --turbopack -p 3031` (Turbopack-enabled dev server on port 3031)
-
-**Type Checking & Linting:**
-- TypeScript: `bun typecheck` (strict mode)
-- ESLint: `bun lint` (Next.js + TypeScript rules)
-- No pre-commit hooks configured in repository
+- **Not detected** - No GitHub Actions, GitLab CI, or Jenkins config
 
 ## Environment Configuration
 
-**Required env vars (for core functionality):**
-- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Public auth key
-- `DATABASE_URL` - PostgreSQL connection string (for migrations)
+**Required Environment Variables:**
 
-**Optional env vars (for features):**
-- `SUPABASE_SERVICE_ROLE_KEY` - Admin operations (if needed)
-- `JWT_SECRET` - Custom JWT operations (32+ chars)
-- `NEXT_PUBLIC_CURRENCY` - Default currency (defaults to "USD")
-- `PASSCODE` - Legacy OopsBudgeter passcode protection
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` - Alternative Supabase key format
+```ini
+# Supabase (Required)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=sb_publishable_...
 
-**Secrets location:**
-- `.env.local` (Git-ignored, local development only)
-- Vercel Environment Variables (for production)
-- Supabase Project Settings > API > Keys (for configuration)
+# Database (Required)
+DATABASE_URL=postgresql://user:password@host:port/database
+
+# Application (Required)
+NEXT_PUBLIC_CURRENCY=USD                 # Display currency (e.g., USD, EUR)
+
+# Legacy / Optional
+JWT_SECRET=your-secret-key-here          # 32+ character JWT signing key
+PASSCODE=123456                          # Passcode for legacy routes
+SUPABASE_SERVICE_ROLE_KEY=...            # Optional: for admin operations
+```
+
+**Secrets Location:**
+- Development: `.env.local` (git-ignored)
+- Production: Platform-managed secrets (Vercel, Docker, etc.)
+- Never commit `.env.local` or keys to git
 
 ## Webhooks & Callbacks
 
-**Incoming:**
-- None configured - No Stripe webhooks, Supabase webhooks, or external webhook consumers
+**Incoming Webhooks:**
+- **None detected** - No external services triggering actions in BetterBudget
 
-**Outgoing:**
-- None configured - No API calls to external services for callbacks
-- In-app notifications only: Sonner toasts for user feedback
+**Outgoing Webhooks:**
+- **None detected** - No external service notifications
 
-## Legacy OopsBudgeter APIs (Deprecated but preserved)
+**Auth Callbacks:**
+- Supabase Auth redirects to `/auth/callback` after login (implied by SSR setup)
 
-**Routes still present:**
-- `/legacy` - Legacy dashboard
-- `/legacy-index` - Legacy navigation
-- `/analytics` - Legacy analytics (uses PasscodeWrapper)
-- `/achievements` - Legacy achievements (uses PasscodeWrapper)
+## Third-Party Services Summary
 
-**API Routes (legacy, may still work):**
-- `/api/auth/*` - Legacy auth endpoints
-- `/api/transactions` - Legacy transactions endpoint
-- `/api/achievements` - Legacy achievements endpoint
+**In Use:**
+- Supabase - Authentication and PostgreSQL hosting
+- Next.js Vercel deployment-ready (but not required)
 
-**Purpose:** Preserve existing functionality and allow gradual migration to new Supabase/BetterBudget architecture
+**Not Used:**
+- Real banking APIs (Plaid, Wise, etc.) - Simulated with mock API
+- Payment processors (Stripe, PayPal)
+- Email service (SendGrid, AWS SES)
+- Push notification services
+- Analytics services (Google Analytics, Mixpanel)
+- Error tracking (Sentry, Rollbar)
+- APM (DataDog, New Relic)
+
+## Integration Patterns
+
+**Internal Data Flow:**
+
+1. **Import Flow:**
+   - `POST /api/import` (client initiates)
+   - Middleware: Auth check
+   - Handler fetches mock transactions via `generateMockTransactions()`
+   - Transforms to `DbTransactionInsert` format
+   - UPSERT via `upsertTransactions()` with `external_id` conflict key
+   - Returns import result summary
+   - Client displays toast notification via Sonner
+
+2. **Authentication Flow:**
+   - User submits login form
+   - Handler calls `signInWithEmail()` via Supabase
+   - Supabase returns JWT token, stored in httpOnly cookies
+   - Middleware refreshes session on each request
+   - Protected routes redirect to `/login` if no session
+
+3. **Budget Notifications:**
+   - Import completes successfully
+   - `checkBudgetThresholds()` queries database
+   - Compares spending vs limits per category
+   - Returns list of `BudgetAlert` objects
+   - Converted to Sonner toast notifications
+   - Non-blocking: if budget check fails, import still succeeds
 
 ---
 
