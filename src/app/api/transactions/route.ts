@@ -15,44 +15,62 @@
  *   limitations under the License.
  */
 
+/**
+ * Transactions API Route
+ *
+ * Handles CRUD operations for transactions. Uses Supabase Auth for authentication.
+ *
+ * Auth: Requires valid Supabase session (checked via createServerSupabaseClient)
+ *
+ * Endpoints:
+ * - GET: Fetch all transactions for authenticated user
+ * - POST: Create new transaction
+ * - PATCH: Update existing transaction
+ * - DELETE: Remove transaction
+ */
+
 import { db } from "@/lib/db";
 import { transactions } from "@/schema/dbSchema";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { expenseCategories, incomeCategories } from "@/lib/categories";
-import { cookies } from "next/headers";
 import { selectTransactionType } from "@/schema/transactionForm";
-import { jwtVerify } from "jose";
+import { createServerSupabaseClient } from "@/lib/db/supabaseServer";
 
-const SECRET = new TextEncoder().encode(process.env.JWT_SECRET as string);
-
-async function verifyToken(req: NextRequest) {
-  const cookieStore = await cookies();
-  const tokenFromCookie = cookieStore.get("authToken")?.value;
-
-  const authHeader = req.headers.get("Authorization");
-  const tokenFromHeader =
-    authHeader && authHeader.startsWith("Bearer ")
-      ? authHeader.split(" ")[1]
-      : null;
-
-  const token = tokenFromHeader || tokenFromCookie;
-
-  if (!token) return { authorized: false, error: "Unauthorized" };
-
+/**
+ * Verify user is authenticated via Supabase Auth.
+ *
+ * Uses the server-side Supabase client which reads session from cookies.
+ * Returns the authenticated user or an error response.
+ */
+async function verifyAuth() {
   try {
-    const { payload } = await jwtVerify(token, SECRET);
-    return { authorized: true, user: payload };
+    const supabase = await createServerSupabaseClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error || !user) {
+      return {
+        authorized: false,
+        error: "Unauthorized - please log in",
+        user: null,
+      };
+    }
+
+    return { authorized: true, user, error: null };
   } catch (err) {
     return {
       authorized: false,
-      error: `Invalid or expired token, ${(err as Error).message}`,
+      error: `Auth error: ${(err as Error).message}`,
+      user: null,
     };
   }
 }
 
-export async function GET(req: NextRequest) {
-  const { authorized, error } = await verifyToken(req);
+export async function GET() {
+  const { authorized, error } = await verifyAuth();
   if (!authorized) {
     return NextResponse.json({ message: error }, { status: 401 });
   }
@@ -74,7 +92,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { authorized, user, error } = await verifyToken(req);
+  const { authorized, user, error } = await verifyAuth();
 
   if (!authorized) {
     return NextResponse.json({ message: error }, { status: 401 });
@@ -142,7 +160,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const { authorized, user, error } = await verifyToken(req);
+  const { authorized, user, error } = await verifyAuth();
 
   if (!authorized) {
     return NextResponse.json({ message: error }, { status: 401 });
@@ -184,7 +202,7 @@ export async function DELETE(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const { authorized, user, error } = await verifyToken(req);
+  const { authorized, user, error } = await verifyAuth();
 
   if (!authorized) {
     return NextResponse.json({ message: error }, { status: 401 });
