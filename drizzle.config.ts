@@ -14,8 +14,21 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-import "dotenv/config";
+/**
+ * Drizzle Kit Configuration
+ *
+ * This config is used by drizzle-kit for database migrations and schema push.
+ *
+ * Note: We explicitly load .env.local because that's where Next.js stores
+ * environment variables locally. The default dotenv/config only loads .env.
+ */
+import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
+
+// Load .env.local for local development (Next.js convention)
+// Falls back to .env if .env.local doesn't exist
+config({ path: ".env.local" });
+config({ path: ".env" });
 
 export default defineConfig({
   out: "./drizzle",
