@@ -1,7 +1,7 @@
 {
-  "name": "OopsBudgeter",
-  "short_name": "OopsBudgeter",
-  "description": "Track your budget effortlessly with OopsBudgeter.",
+  "name": "BetterBudgeter",
+  "short_name": "BetterBudgeter",
+  "description": "Track your budget effortlessly with BetterBudgeter.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A0A0A",

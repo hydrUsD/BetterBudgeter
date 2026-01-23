@@ -27,32 +27,32 @@ export async function generateMetadata({
   description,
 }: MetadataProps): Promise<Metadata> {
   return {
-    title: title || "OopsBudgeter",
+    title: title || "BetterBudgeter",
     description:
-      description || "Track your budget effortlessly with OopsBudgeter.",
+      description || "Track your budget effortlessly with BetterBudgeter.",
     authors: [{ name: "Laith aka Sleepyico", url: "https://iconical.dev" }],
     keywords: ["budget", "personal finance", "money tracker", "budgeting app"],
     manifest: "/manifest.json",
     openGraph: {
       type: "website",
-      url: "https://budget.oopsapps.tech",
-      title: title || "OopsBudgeter",
-      description: "Track your budget effortlessly with OopsBudgeter.",
+      url: "https://better-budgeter.vercel.app/",
+      title: title || "BetterBudgeter",
+      description: "Track your budget effortlessly with BetterBudgeter.",
       images: [
         {
-          url: "https://budget.oopsapps.tech/logo.png",
+          url: "https://better-budgeter.vercel.app/logo.png",
           width: 500,
           height: 500,
-          alt: "OopsBudgeter Logo",
+          alt: "BetterBudgeter Logo",
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
       site: "@sleepyiconical",
-      title: title || "OopsBudgeter",
-      description: "Track your budget effortlessly with OopsBudgeter.",
-      images: ["https://budget.oopsapps.tech/logo.png"],
+      title: title || "BetterBudgeter",
+      description: "Track your budget effortlessly with BetterBudgeter.",
+      images: ["https://better-budgeter.vercel.app/logo.png"],
     },
     robots: "index, follow",
     icons: [
@@ -65,7 +65,7 @@ export async function generateMetadata({
     ],
     appleWebApp: {
       capable: true,
-      title: title || "OopsBudgeter",
+      title: title || "BetterBudgeter",
       statusBarStyle: "default",
     },
   };
