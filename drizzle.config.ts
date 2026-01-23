@@ -37,4 +37,7 @@ export default defineConfig({
   dbCredentials: {
     url: process.env.DATABASE_URL!,
   },
+  // Only manage the "legacy" schema - ignore public schema (bb_* tables)
+  // This prevents drizzle-kit from trying to delete BetterBudget tables
+  schemaFilter: ["legacy"],
 });
