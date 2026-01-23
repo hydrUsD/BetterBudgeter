@@ -4,11 +4,20 @@ services:
     ports:
       - "3333:3000"
     environment:
+      # Core app settings
       - NODE_ENV=production
-      - NEXT_PUBLIC_CURRENCY=USD # Set your preferred currency
-      - PASSCODE=123456 # 6-digit passcode for app security
-      - JWT_SECRET=your-secure-jwt-secret # Secret key for JWT authentication
-      - DATABASE_URL=your-postgresql-url # PostgreSQL database connection URL
+      - NEXT_PUBLIC_CURRENCY=${NEXT_PUBLIC_CURRENCY:-EUR}
+
+      # Database
+      - DATABASE_URL=${DATABASE_URL}
+
+      # Legacy auth (passcode-based) - still required for legacy routes
+      - PASSCODE=${PASSCODE}
+      - JWT_SECRET=${JWT_SECRET}
+
+      # Supabase Auth (primary auth system)
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
 
     networks:
       - oops-budgeter-network

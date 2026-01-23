@@ -1,8 +1,56 @@
 @import "tailwindcss";
-
 @plugin "tailwindcss-animate";
+@plugin "@tailwindcss/forms";
+
+/* Include Tremor's classes so Tailwind generates the required utilities */
+@source "../../node_modules/@tremor/react/dist/**/*.js";
 
 @custom-variant dark (&:is(.dark *));
+
+/*
+ * Tremor Chart Color Utilities
+ * These fill/stroke classes are needed for Tremor charts but aren't in source code,
+ * so Tailwind v4 doesn't generate them automatically. We force their generation here.
+ */
+@utility fill-red-500 {
+  fill: var(--color-red-500, #ef4444);
+}
+@utility fill-rose-500 {
+  fill: var(--color-rose-500, #f43f5e);
+}
+@utility fill-orange-500 {
+  fill: var(--color-orange-500, #f97316);
+}
+@utility fill-amber-500 {
+  fill: var(--color-amber-500, #f59e0b);
+}
+@utility fill-yellow-500 {
+  fill: var(--color-yellow-500, #eab308);
+}
+@utility fill-emerald-500 {
+  fill: var(--color-emerald-500, #10b981);
+}
+@utility fill-green-500 {
+  fill: var(--color-green-500, #22c55e);
+}
+@utility fill-teal-500 {
+  fill: var(--color-teal-500, #14b8a6);
+}
+@utility fill-cyan-500 {
+  fill: var(--color-cyan-500, #06b6d4);
+}
+@utility fill-sky-500 {
+  fill: var(--color-sky-500, #0ea5e9);
+}
+@utility fill-blue-500 {
+  fill: var(--color-blue-500, #3b82f6);
+}
+@utility fill-violet-500 {
+  fill: var(--color-violet-500, #8b5cf6);
+}
+@utility fill-gray-500 {
+  fill: var(--color-gray-500, #6b7280);
+}
 
 @theme inline {
   --color-background: var(--background);

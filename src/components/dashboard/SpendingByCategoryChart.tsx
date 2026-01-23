@@ -79,8 +79,8 @@ export function SpendingByCategoryChart({
   const total = data.reduce((sum, item) => sum + item.amount, 0);
 
   // Get colors for each category
-  // Tremor uses color names (not hex), so we map categories to Tremor's palette
-  const colors = data.map((item) => getCategoryTremorColor(item.category));
+  // Use Tremor's predefined color names (not HEX) for Tailwind v4 compatibility
+  const colors = data.map((item) => getTremorColor(item.category));
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Render
@@ -146,22 +146,26 @@ function formatCurrency(value: number): string {
 }
 
 /**
- * Map category to Tremor color name.
- * Tremor has a predefined set of color names.
+ * Map category to Tremor's predefined color names.
  *
- * @see https://www.tremor.so/docs/visualizations/donut-chart
+ * Tremor supports these colors: blue, cyan, sky, teal, emerald, green, lime,
+ * yellow, amber, orange, red, rose, pink, fuchsia, purple, violet, indigo,
+ * gray, slate, zinc, neutral, stone.
+ *
+ * Note: HEX colors don't work with Tailwind v4 because the classes aren't generated.
  */
-function getCategoryTremorColor(category: string): string {
+function getTremorColor(category: string): string {
   const colorMap: Record<string, string> = {
+    // Expense categories
     Food: "red",
     Rent: "orange",
-    Utilities: "yellow",
-    Transport: "green",
+    Utilities: "amber",
+    Transport: "emerald",
     Entertainment: "blue",
     Shopping: "violet",
     Other: "gray",
-    // Income categories (in case they're ever used)
-    Salary: "emerald",
+    // Income categories
+    Salary: "green",
     Freelance: "teal",
     Investment: "cyan",
     Bonus: "sky",
@@ -169,3 +173,4 @@ function getCategoryTremorColor(category: string): string {
 
   return colorMap[category] ?? "gray";
 }
+

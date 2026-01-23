@@ -16,7 +16,7 @@
  */
 
 import {
-  pgTable,
+  pgSchema,
   serial,
   text,
   timestamp,
@@ -25,6 +25,16 @@ import {
   boolean,
   integer,
 } from "drizzle-orm/pg-core";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Legacy Schema (OopsBudgeter)
+// ─────────────────────────────────────────────────────────────────────────────
+// OopsBudgeter tables live in the "legacy" schema to isolate them from
+// BetterBudget tables (bb_*) which live in the "public" schema.
+// This prevents drizzle-kit from accidentally modifying BetterBudget tables.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const legacySchema = pgSchema("legacy");
 
 export const TypeEnum = pgEnum("TransactionType", ["income", "expense"]);
 
@@ -53,7 +63,7 @@ export const FrequencyEnum = pgEnum("Frequency", [
   "yearly",
 ]);
 
-export const transactions = pgTable("transactions", {
+export const transactions = legacySchema.table("transactions", {
   id: serial("id").primaryKey(),
   type: TypeEnum("type"),
   amount: real("amount").notNull(),
@@ -71,7 +81,7 @@ export const transactions = pgTable("transactions", {
   status: text("status").default("active").notNull(),
 });
 
-export const achievements = pgTable("achievements", {
+export const achievements = legacySchema.table("achievements", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
