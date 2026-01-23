@@ -4,11 +4,20 @@ services:
     ports:
       - "3333:3000"
     environment:
+      # Core app settings
       - NODE_ENV=production
-      - NEXT_PUBLIC_CURRENCY=USD # Set your preferred currency
+      - NEXT_PUBLIC_CURRENCY=EUR # Set your preferred currency
+
+      # Database
+      - DATABASE_URL=your-postgresql-url # PostgreSQL database connection URL
+
+      # Legacy auth (passcode-based) - still required for legacy routes
       - PASSCODE=123456 # 6-digit passcode for app security
       - JWT_SECRET=your-secure-jwt-secret # Secret key for JWT authentication
-      - DATABASE_URL=your-postgresql-url # PostgreSQL database connection URL
+
+      # Supabase Auth (primary auth system)
+      - NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url # e.g., https://xxx.supabase.co
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key # Public anon key from Supabase dashboard
 
     networks:
       - oops-budgeter-network
