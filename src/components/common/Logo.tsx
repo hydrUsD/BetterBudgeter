@@ -37,7 +37,7 @@ export default function Logo() {
         className="h-9 w-9"
         draggable={false}
       />
-      <h2 className="text-2xl font-semibold">OopsBudgeter</h2>
+      <h2 className="text-2xl font-semibold">BetterBudgeter</h2>
     </span>
   );
 }
