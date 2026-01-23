@@ -20,7 +20,7 @@
 "use client";
 
 import { DonutChart } from "@tremor/react";
-import { CATEGORY_COLORS } from "@/utils/charts";
+import { CATEGORY_COLORS, getCategoryColor } from "@/utils/charts";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -79,8 +79,8 @@ export function SpendingByCategoryChart({
   const total = data.reduce((sum, item) => sum + item.amount, 0);
 
   // Get colors for each category
-  // Tremor uses color names (not hex), so we map categories to Tremor's palette
-  const colors = data.map((item) => getCategoryTremorColor(item.category));
+  // Tremor v4 supports HEX colors directly - use our consistent color palette
+  const colors = data.map((item) => getCategoryColor(item.category));
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Render
@@ -145,27 +145,3 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
-/**
- * Map category to Tremor color name.
- * Tremor has a predefined set of color names.
- *
- * @see https://www.tremor.so/docs/visualizations/donut-chart
- */
-function getCategoryTremorColor(category: string): string {
-  const colorMap: Record<string, string> = {
-    Food: "red",
-    Rent: "orange",
-    Utilities: "yellow",
-    Transport: "green",
-    Entertainment: "blue",
-    Shopping: "violet",
-    Other: "gray",
-    // Income categories (in case they're ever used)
-    Salary: "emerald",
-    Freelance: "teal",
-    Investment: "cyan",
-    Bonus: "sky",
-  };
-
-  return colorMap[category] ?? "gray";
-}
