@@ -15,7 +15,7 @@
  *   limitations under the License.
  */
 
-import { formatCurrency } from "@/components/common/Currency";
+import { formatCurrency } from "@/components/legacy/common/Currency";
 import { selectTransactionType } from "@/schema/transactionForm";
 import { format } from "date-fns";
 

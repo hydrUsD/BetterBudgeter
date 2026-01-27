@@ -18,7 +18,7 @@
 import {
   fetchExchangeRates,
   formatCurrency,
-} from "@/components/common/Currency";
+} from "@/components/legacy/common/Currency";
 import { selectTransactionType } from "@/schema/transactionForm";
 import { saveAs } from "file-saver";
 

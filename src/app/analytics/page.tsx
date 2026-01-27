@@ -15,7 +15,7 @@
  *   limitations under the License.
  */
 import React from "react";
-import AnalyticsWrapper from "@/components/common/Analytics";
+import AnalyticsWrapper from "@/components/legacy/common/Analytics";
 import { generateMetadata } from "@/lib/head";
 
 export const metadata = generateMetadata({

@@ -16,7 +16,7 @@
  */
 import React from "react";
 import { generateMetadata } from "@/lib/head";
-import AchievementsWrapper from "@/components/common/AchievementsWrapper";
+import AchievementsWrapper from "@/components/legacy/common/AchievementsWrapper";
 
 export const metadata = generateMetadata({
   title: "Achievements",

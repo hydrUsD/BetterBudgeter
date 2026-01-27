@@ -9,12 +9,12 @@
  * @see /legacy-index for navigation to all legacy routes
  */
 
-import BalanceCard from "@/components/cards/BalanceCard";
-import Expense from "@/components/categories/Expense";
-import Income from "@/components/categories/Income";
-import DateRangePicker from "@/components/common/DatePicker";
-import NewTransaction from "@/components/transactions/NewTransaction";
-import TransactionsList from "@/components/transactions/TransactionsList";
+import BalanceCard from "@/components/legacy/cards/BalanceCard";
+import Expense from "@/components/legacy/categories/Expense";
+import Income from "@/components/legacy/categories/Income";
+import DateRangePicker from "@/components/legacy/common/DatePicker";
+import NewTransaction from "@/components/legacy/transactions/NewTransaction";
+import TransactionsList from "@/components/legacy/transactions/TransactionsList";
 import { generateMetadata } from "@/lib/head";
 
 export const metadata = generateMetadata({

@@ -17,17 +17,17 @@
 import type { Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import PasscodeWrapper from "@/components/security/PasscodeWrapper";
-import GoToTop from "@/components/helpers/GoToTop";
+import { ThemeProvider } from "@/components/legacy/providers/ThemeProvider";
+import PasscodeWrapper from "@/components/legacy/security/PasscodeWrapper";
+import GoToTop from "@/components/legacy/helpers/GoToTop";
 import { BudgetProvider } from "@/contexts/BudgetContext";
-import Toaster from "@/components/effects/Sonner";
-import { ThemeToggle } from "@/components/common/ThemeToggle";
+import Toaster from "@/components/legacy/effects/Sonner";
+import { ThemeToggle } from "@/components/legacy/common/ThemeToggle";
 import Logo from "@/components/common/Logo";
 import { generateMetadata } from "@/lib/head";
-import { Settings } from "@/components/common/Settings";
-import PageLayout from "@/components/helpers/PageLayout";
-import { Achievements } from "@/components/common/Achievements";
+import { Settings } from "@/components/legacy/common/Settings";
+import PageLayout from "@/components/legacy/helpers/PageLayout";
+import { Achievements } from "@/components/legacy/common/Achievements";
 import { AppProvider } from "@/contexts/AppContext";
 
 const geistSans = Geist({
