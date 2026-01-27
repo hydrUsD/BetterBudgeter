@@ -13,6 +13,12 @@
 ### Phase 1: Legacy Component Isolation
 **Goal:** Structurally separate legacy OopsBudgeter components from BetterBudgeter components.
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Move 48 legacy components to components/legacy/ and restore original Logo.tsx
+- [ ] 01-02-PLAN.md — Rewire all imports to legacy/ paths and verify build
+
 **Deliverables:**
 - `components/legacy/` directory with all legacy components
 - Updated imports throughout codebase
@@ -79,7 +85,7 @@
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| 1. Legacy Component Isolation | Not Started | |
+| 1. Legacy Component Isolation | Planned | 2 plans in 2 waves |
 | 2. Tremor Migration Strategy | Not Started | |
 | 3. Tremor Migration Execution | Not Started | Depends on Phase 2 |
 | 4. Library Consolidation | Not Started | Depends on Phase 3 |
