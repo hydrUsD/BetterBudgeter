@@ -30,9 +30,10 @@ Structurally separate legacy OopsBudgeter components from BetterBudgeter compone
 - Full separation: legacy routes use legacy components, new routes use new components
 - Shared `utils/` and `lib/` imports remain shared — only UI components are isolated
 
-### BetterBudgeter reorganization
-- After legacy components are moved out, freed BetterBudgeter components should be reorganized into the new structure (e.g. `dashboard/`, `auth/`, `finance/`)
+### BetterBudgeter reorganization (DEFERRED)
+- After legacy components are moved out, freed BetterBudgeter components could be reorganized into the new structure (e.g. `dashboard/`, `auth/`, `finance/`)
 - Follows the pattern already established by `components/dashboard/` and `components/auth/`
+- **Deferred:** Not in ROADMAP deliverables for Phase 1 (which is file moves + import rewiring only). Can be a follow-up task.
 
 ### Claude's Discretion
 - Determining which specific components fall into each bucket (legacy, modified, new)
