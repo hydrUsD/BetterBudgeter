@@ -22,18 +22,18 @@ import {
   DrawerContent,
   DrawerTitle,
   DrawerTrigger,
-} from "../ui/drawer";
+} from "@/components/ui/drawer";
 import HoverEffect from "../effects/HoverEffect";
 import { Icon } from "@iconify/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   insertTransactionSchema,
   insertTransactionType,
 } from "@/schema/transactionForm";
-import { Form, FormItem, FormField, FormLabel } from "../ui/form";
+import { Form, FormItem, FormField, FormLabel } from "@/components/ui/form";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useBudget } from "@/contexts/BudgetContext";
@@ -43,10 +43,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "@/components/ui/select";
 import { expenseCategories, incomeCategories } from "@/lib/categories";
 import { fetchExchangeRates } from "../common/Currency";
-import { ScrollArea } from "../ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useApp } from "@/contexts/AppContext";
 
 export default function NewTransaction() {

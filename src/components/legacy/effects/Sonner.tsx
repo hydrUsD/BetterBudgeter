@@ -17,7 +17,7 @@
 
 import React from "react";
 import { Icon } from "@iconify/react";
-import { Toaster as Sonner } from "../ui/sonner";
+import { Toaster as Sonner } from "@/components/ui/sonner";
 
 export default function Toaster() {
   return (

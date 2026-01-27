@@ -22,7 +22,7 @@ import {
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
-} from "../ui/input-otp";
+} from "@/components/ui/input-otp";
 import HoverEffect from "../effects/HoverEffect";
 import { ThemeToggle } from "../common/ThemeToggle";
 import { useIsClient } from "@/hooks/useclient";

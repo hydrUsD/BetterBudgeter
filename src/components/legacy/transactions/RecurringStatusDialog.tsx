@@ -24,7 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
+} from "@/components/ui/dialog";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { selectTransactionType } from "@/schema/transactionForm";
 import {
@@ -33,8 +33,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Label } from "../ui/label";
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useBudget } from "@/contexts/BudgetContext";
 

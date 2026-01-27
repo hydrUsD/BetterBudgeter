@@ -24,10 +24,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
+} from "@/components/ui/dialog";
 import { Icon } from "@iconify/react";
 import { selectTransactionType } from "@/schema/transactionForm";
-import { Input } from "../ui/input";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useBudget } from "@/contexts/BudgetContext";
 import {
@@ -36,7 +36,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "@/components/ui/select";
 import { expenseCategories, incomeCategories } from "@/lib/categories";
 
 export default function EditTransactionDialog({

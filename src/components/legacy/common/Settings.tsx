@@ -29,7 +29,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useBudget } from "@/contexts/BudgetContext";
-import { Input } from "../ui/input";
+import { Input } from "@/components/ui/input";
 import { useApp } from "@/contexts/AppContext";
 import {
   Select,
@@ -39,7 +39,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { supportedCurrencies } from "@/constants/currencies";
-import pkg from "../../../package.json";
+import pkg from "../../../../package.json";
 import Link from "next/link";
 
 export function Settings() {

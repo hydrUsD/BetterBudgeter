@@ -24,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { useBudget } from "@/contexts/BudgetContext";
 import { toast } from "sonner";
