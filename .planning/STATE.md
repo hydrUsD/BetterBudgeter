@@ -10,12 +10,12 @@
 ## Current Position
 
 **Milestone:** 1 of 1 — UI Cleanup & Redesign Preparation
-**Phase:** 2 of 5 — Tremor Migration Strategy
-**Plan:** 1 of 1 in current phase
-**Status:** Phase complete
-**Last activity:** 2026-01-27 - Completed 02-01-PLAN.md
+**Phase:** 2 of 5 — UI Library Strategy
+**Plan:** 0 of ? in current phase
+**Status:** Phase restarted — needs planning
+**Last activity:** 2026-01-28 - Roadmap updated with new library strategy decisions
 
-**Progress:** [████░░░░░░] 40%
+**Progress:** [██░░░░░░░░] 20%
 
 ---
 
@@ -24,14 +24,16 @@
 | Decision | Choice | Date |
 |----------|--------|------|
 | Project scope | UI/UX only, no backend/routing | 2026-01-24 |
-| Tremor version target | ~~v1.0.0 stable~~ → v4.0.0-beta (only React 19 compatible version) | 2026-01-27 |
 | Legacy isolation approach | Structural (components/legacy/) | 2026-01-24 |
-| Library consolidation | Tremor for charts, RadixUI for primitives, shadcn minimal | 2026-01-24 |
 | File move strategy | git mv to preserve history | 2026-01-27 |
 | Dual Logo strategy | Maintain both OopsBudgeter and BetterBudgeter versions | 2026-01-27 |
 | Import path pattern | Absolute paths (@/components/*) over relative | 2026-01-27 |
-| Phase 3 execution | SKIP (no migration needed — already on appropriate version) | 2026-01-27 |
-| Tremor monitoring | Quarterly checks for v4 stable release (next: 2026-04-27) | 2026-01-27 |
+| Tremor decision | Remove entirely — unmaintained (no commits in 1+ year) | 2026-01-28 |
+| Primary UI framework | shadcn/ui (copy/paste model, actively maintained) | 2026-01-28 |
+| New BB primitives | Base UI (modern successor to Radix, v1.0 stable Dec 2025) | 2026-01-28 |
+| Legacy primitives | Radix UI stays for legacy OopsBudgeter only | 2026-01-28 |
+| Charts | shadcn/ui charts (Recharts under the hood) | 2026-01-28 |
+| animate-ui | Deferred to redesign phase (foundation first) | 2026-01-28 |
 
 ---
 
@@ -43,15 +45,16 @@ _None yet_
 
 ## Blockers / Concerns
 
-- ~~Tremor v4 beta → v1.0.0 may have significant API changes (to be assessed in Phase 2)~~ (RESOLVED: v1.0.0 npm package doesn't exist; v4 beta is appropriate version for React 19 stack)
-- ~~Analytics.tsx is complex legacy code — need to decide if it moves to legacy or gets special handling~~ (RESOLVED: Moved to legacy with other components)
+- ~~Tremor v4 beta → v1.0.0 may have significant API changes~~ (SUPERSEDED: Tremor being removed entirely)
+- ~~Analytics.tsx is complex legacy code~~ (RESOLVED: Moved to legacy with other components)
+- Radix UI maintenance risk — same team left after WorkOS acquisition (long-term concern, not blocking)
 
 ---
 
 ## Session Continuity
 
-**Last session:** 2026-01-27 20:40 UTC
-**Stopped at:** Completed 02-01-PLAN.md — Phase 2 complete
+**Last session:** 2026-01-28
+**Stopped at:** Roadmap updated — Phases 2-4 rewritten for new library strategy
 **Resume file:** None
 
 ---
@@ -61,10 +64,10 @@ _None yet_
 ```
 Milestone: UI Cleanup & Redesign Preparation
 ├── Phase 1: Legacy Component Isolation ✅ COMPLETE
-├── Phase 2: Tremor Migration Strategy ✅ COMPLETE
-├── Phase 3: Tremor Migration Execution (SKIP — no migration needed)
-├── Phase 4: Library Consolidation ← NEXT
+├── Phase 2: UI Library Strategy ← RESTARTED (needs planning)
+├── Phase 3: UI Library Migration
+├── Phase 4: Library Consolidation & Cleanup
 └── Phase 5: Documentation & Handoff
 ```
 
-**Next action:** Plan Phase 4 (/gsd:plan-phase 4) OR update roadmap to reflect Phase 3 skip
+**Next action:** Discuss Phase 2 context (/gsd:discuss-phase 2) then plan

@@ -29,53 +29,59 @@ Plans:
 
 ---
 
-### Phase 2: Tremor Migration Strategy
-**Goal:** Audit current Tremor v4 beta usage, document API state, and create stability/rollback strategy.
+### Phase 2: UI Library Strategy
+**Goal:** Audit current UI library usage, decide replacement strategy for Tremor, and establish the new component system.
 
-**Status:** COMPLETE (2026-01-27)
+**Status:** RESTARTED (2026-01-28) — Previous Phase 2 (Tremor audit) findings preserved but scope changed.
 
-**Plans:** 1 plan
-
-Plans:
-- [x] 02-01-PLAN.md — Audit all Tremor usage and create stability/rollback strategy
+**Previous work (02-01-PLAN.md):** Tremor audit completed 2026-01-27. Found only 1 Tremor component (DonutChart). This audit remains valid and informs the new strategy.
 
 **Deliverables:**
-- ✅ Complete Tremor usage audit (1 component: DonutChart)
-- ✅ API difference documentation (v3 stable vs v4 beta with code examples)
-- ✅ Stability monitoring plan and rollback procedures (recharts PieChart)
-- ✅ Risk assessment and recommendation for Phase 3 (SKIP Phase 3)
+- Audit of all current UI library usage (Tremor, Radix, shadcn, Recharts)
+- Decision document: new library architecture
+- Migration risk assessment
 
-**Key Finding:** "v1.0.0 stable" npm package doesn't exist. Project is already on v4.0.0-beta (only React 19 compatible version). Migration unnecessary.
+**Key Decisions (locked 2026-01-28):**
+- Tremor removed entirely (unmaintained — no commits in over a year)
+- shadcn/ui = primary UI framework for BetterBudgeter
+- Base UI = headless primitives for new BetterBudgeter components
+- Radix UI = stays for legacy OopsBudgeter only (do not touch)
+- Charts = shadcn/ui charts (Recharts under the hood)
+- animate-ui = deferred to redesign phase (foundation first)
 
-**Why second:** Planning before execution prevents breaking changes. User needs docs to match code.
-
-**Note:** Research revealed @tremor/react v1.0.0 does not exist. Phase adapted from "migration planning" to "current state audit + stability strategy."
+**Why second:** Must decide the library architecture before any migration work.
 
 ---
 
-### Phase 3: Tremor Migration Execution
-**Goal:** Safely migrate all Tremor components to v1.0.0 stable API.
+### Phase 3: UI Library Migration
+**Goal:** Replace Tremor with shadcn/ui charts, set up Base UI as the primitive layer for new components, and remove Tremor dependency.
 
 **Deliverables:**
-- Updated `@tremor/react` to v1.0.0
-- All DonutChart (and other Tremor) components using v1.0.0 API
-- Verification that charts render correctly
-- Commit after each component migration
+- shadcn/ui initialized with Base UI primitives (for new components)
+- DonutChart replaced with shadcn/ui chart equivalent (Recharts)
+- `@tremor/react` removed from dependencies
+- Verification that all charts render correctly
+- Legacy components remain untouched on Radix
+- Commit after each migration step
 
-**Why third:** Depends on migration strategy from Phase 2.
+**Why third:** Depends on library strategy from Phase 2.
 
 ---
 
-### Phase 4: Library Consolidation
-**Goal:** Establish clear library responsibilities and remove unused code.
+### Phase 4: Library Consolidation & Cleanup
+**Goal:** Remove unused code, establish clear library boundaries, document the new system.
 
 **Deliverables:**
-- Remove unused shadcn chart utilities (if confirmed unused)
-- Document library responsibilities in code comments
+- Remove unused shadcn chart utilities and old Tremor-related code
+- Document library responsibilities in code comments:
+  - **shadcn/ui + Base UI** = all new BetterBudgeter components
+  - **Radix UI** = legacy OopsBudgeter only
+  - **Recharts (via shadcn/ui)** = all charts
+  - **Sonner** = notifications
 - Verify Sonner integration still works
-- Clean up any duplicate color definitions
+- Clean up duplicate color definitions or unused dependencies
 
-**Why fourth:** After Tremor migration, we can see what's actually used vs unused.
+**Why fourth:** After migration, we can see what's actually used vs unused.
 
 ---
 
@@ -97,9 +103,9 @@ Plans:
 | Phase | Status | Notes |
 |-------|--------|-------|
 | 1. Legacy Component Isolation | Complete | 2 plans, verified ✓ |
-| 2. Tremor Migration Strategy | Complete | 1 plan, verified ✓ |
-| 3. Tremor Migration Execution | Not Started | Depends on Phase 2 |
-| 4. Library Consolidation | Not Started | Depends on Phase 3 |
+| 2. UI Library Strategy | Restarted | Previous Tremor audit valid, scope changed to full library strategy |
+| 3. UI Library Migration | Not Started | Depends on Phase 2 |
+| 4. Library Consolidation & Cleanup | Not Started | Depends on Phase 3 |
 | 5. Documentation & Handoff | Not Started | |
 
 ---
