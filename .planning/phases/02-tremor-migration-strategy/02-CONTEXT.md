@@ -1,58 +1,58 @@
-# Phase 2: Tremor Migration Strategy - Context
+# Phase 2: UI Library Strategy - Context
 
-**Gathered:** 2026-01-27
+**Gathered:** 2026-01-28
 **Status:** Ready for planning
 
 <domain>
 ## Phase Boundary
 
-Create a safe migration plan from Tremor v4 beta to v1.0.0 stable. This phase produces strategy documentation — no code changes. Deliverables: usage audit, API difference docs, step-by-step migration plan, risk assessment. Phase 3 executes the migration.
+Audit current UI library usage across the codebase, document the new library architecture (shadcn/ui + Base UI replacing Tremor), and produce a strategy document with component inventory, boundary rules, and migration risk assessment. This phase produces documentation and decisions — Phase 3 executes the migration.
 
 </domain>
 
 <decisions>
 ## Implementation Decisions
 
-### Audit depth
-- Full prop mapping: every Tremor component, every prop used, every value passed
-- Check both legacy and BetterBudgeter components (expectation: legacy doesn't use Tremor, but verify)
-- Include utility/type imports from @tremor/react, not just visual components
-- Map each Tremor component to the page/route where it renders
-- Include side-by-side API comparison: current v4 beta vs target version
-- Audit Tremor's transitive dependencies (Recharts, Tailwind, etc.) to catch upstream changes
+### Audit scope (from session 1)
+- Full component inventory: every UI component mapped to its library
+- Separate sections for legacy OopsBudgeter vs BetterBudgeter components
+- Flag components that are candidates for shadcn/ui replacement
+- Include existing shadcn/ui components too (full picture)
+- Previous Tremor audit (02-01-PLAN.md) remains valid: only 1 Tremor component found (DonutChart)
 
-### Migration risk tolerance
-- Claude assesses risk per component and decides grouping (one-at-a-time for high-risk, batched for low-risk)
-- Verification standard: build + typecheck passes (visual check is manual, separate)
-- Direct rewrite preferred over adapter patterns — update consuming code to new API directly
-- Rollback documentation: Claude's discretion per step
+### Library boundary rules
+- **shadcn/ui first**: default choice for all new BetterBudgeter components
+- **Base UI**: only when shadcn/ui doesn't cover the need (headless primitives)
+- **Radix UI**: legacy OopsBudgeter only — strict separation, no mixing into BB components
+- **Strict import rule**: BetterBudgeter components must never import from `@radix-ui` directly
+- **Legacy frozen**: legacy OopsBudgeter pages stay on Radix only, no shadcn/ui adoption
+- **Charts**: only new BetterBudgeter charts use shadcn/ui charts. If legacy happens to use Tremor charts, do NOT change them (legacy stays frozen)
 
-### Documentation format
-- Claude decides document structure (single doc vs multiple files)
-- API differences must include before/after code examples (not just tables) — junior dev audience
-- Strategy docs live in `.planning/phases/02-tremor-migration-strategy/`
-- Must include recommended migration ORDER (sequenced by risk, dependencies, complexity)
+### Tremor removal criteria
+- **Scope**: Claude's discretion — remove component usage, and determine whether types/utils/configs should also go based on what's actually imported
+- **Tailwind config**: remove all Tremor-specific entries (clean slate)
+- **DonutChart replacement**: data match is sufficient, visual appearance can change (will be redesigned later)
+- **Verification**: build + typecheck only. No visual screenshot comparison required
 
-### Fallback approach
-- If a component is dropped in target version: find Tremor alternative first (stay in ecosystem)
-- If behavior changes fundamentally: accept new v1.0.0 behavior (aligning to stable is the goal)
-- Tremor version viability is a research deliverable — investigate whether v1.0.0 actually exists and is stable
-- If no suitable stable Tremor version exists: FLAG AND PAUSE — stop Phase 2, revisit roadmap decision
-- NOT open to switching chart libraries within this phase — that would be a roadmap-level decision
+### Decision document format
+- **Audience**: developer (me) and Claude only — no junior-dev explanations needed
+- **Content**: include full component inventory (every component → which library)
+- **Location**: `.planning/` (internal planning artifact)
+- **CLAUDE.md update**: yes, add library boundary rules to CLAUDE.md once strategy is finalized
 
 ### Claude's Discretion
+- Tremor removal depth (full vs partial) based on actual imports found
 - Document structure (single vs multiple files)
-- Rollback documentation per migration step
-- Component grouping strategy (batch vs individual)
+- Component grouping in the inventory
 
 </decisions>
 
 <specifics>
 ## Specific Ideas
 
-- Junior dev audience is critical — code examples over abstract tables
-- The team has never worked with Tremor before, so migration docs double as learning material
-- Tremor v4 beta to v1.0.0 might be a significant version jump — the research must establish whether the target version is actually viable before planning migration steps
+- Project is now a personal project (no longer school project) — audience is just developer and Claude
+- Previous Tremor audit from 02-01-PLAN.md is still valid and should be incorporated
+- Library rules should be enforced via CLAUDE.md update, not just documented in strategy
 
 </specifics>
 
@@ -65,5 +65,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 02-tremor-migration-strategy*
-*Context gathered: 2026-01-27*
+*Phase: 02-ui-library-strategy*
+*Context gathered: 2026-01-28*
