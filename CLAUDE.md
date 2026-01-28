@@ -74,8 +74,9 @@ The goal is that a junior developer can:
 - Next.js (App Router)
 - TypeScript
 - Supabase (PostgreSQL + Auth)
-- Tremor (Charts)
-- Radix UI (UI primitives)
+- shadcn/ui (UI components)
+- Recharts (Charts, via shadcn/ui)
+- Radix UI (Legacy UI primitives only)
 - Sonner (In-app notifications)
 - **bun (Package Manager & Runtime)**
 
@@ -93,6 +94,25 @@ Example:
 - `bun install`
 - `bun dev`
 - `bun run build`
+
+### UI Library Boundaries
+
+The project uses multiple UI libraries with strict separation rules:
+
+| Library | Scope | Status |
+|---------|-------|--------|
+| shadcn/ui | All new BetterBudgeter components | Primary framework |
+| Base UI (@base-ui/react) | Headless primitives when shadcn/ui lacks coverage | Secondary (new BB only) |
+| Radix UI | Legacy OopsBudgeter components only | Frozen — do not extend |
+| Recharts (via shadcn/ui charts) | All new charts | Active |
+| Sonner | Notifications | Active |
+
+**Strict rules:**
+- BetterBudgeter components must NEVER import from `@radix-ui` directly
+- Legacy OopsBudgeter pages stay on Radix only — no shadcn/ui adoption
+- New charts must use shadcn/ui chart components (Recharts under the hood)
+- Base UI is only used when shadcn/ui does not provide the needed primitive
+- Tremor is removed — do not reintroduce
 
 ### Authentication
 
@@ -190,7 +210,7 @@ Allowed in `utils/`:
 
 - formatting helpers (dates, currency, numbers)
 - small deterministic calculations
-- Tremor-related helpers (chart config, color mapping)
+- chart helpers (config, color mapping)
 - mapping helpers (e.g. category → color/label)
 
 Explicitly NOT allowed in `utils/`:
