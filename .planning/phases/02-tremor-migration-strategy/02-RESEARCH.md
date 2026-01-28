@@ -1,387 +1,531 @@
-# Phase 2: Tremor Migration Strategy - Research
+# Phase 02: UI Library Strategy - Research
 
-**Researched:** 2026-01-27
-**Domain:** React chart library version management and migration
+**Researched:** 2026-01-28
+**Domain:** UI component libraries (Tremor, shadcn/ui, Base UI, Radix UI, Recharts)
 **Confidence:** HIGH
 
 ## Summary
 
-This research investigates the Tremor library ecosystem to plan a safe migration strategy. **Critical finding: The project is already running Tremor v4.0.0-beta-tremor-v4.4**, having migrated from v3.18.7 in earlier commits. The target "v1.0.0 stable" mentioned in phase context appears to reference the Tremor Raw (copy-paste) component versioning system, not the @tremor/react npm package.
+This phase is a **documentation-only phase** that defines the new UI library architecture for BetterBudgeter. The goal is to produce a complete component inventory mapping every UI component to its library, establish library boundary rules, and assess migration risks.
 
-Tremor exists in two distinct forms:
-1. **@tremor/react (npm package)**: v3.18.7 stable, v4.0.0-beta for React 19 + Tailwind v4
-2. **Tremor Raw (tremor.so)**: Copy-paste components, all released as individual v1.0.0 components (April 2025)
+**Current state:**
+- Project uses 4 UI library ecosystems: Tremor (1 component), Radix UI (11 shadcn/ui components using Radix primitives), shadcn/ui (21 components installed), and Recharts (via Tremor + legacy Analytics)
+- Tremor v4.0.0-beta-tremor-v4.4 is installed for React 19 + Tailwind v4 compatibility
+- shadcn/ui is already initialized (components.json exists, 21 components in src/components/ui/)
+- Previous audit (02-01-PLAN.md) found only 1 Tremor component: DonutChart
 
-The project uses the npm package approach and is currently on the v4 beta track due to React 19 and Tailwind v4 requirements. No stable v1.0.0 @tremor/react package exists—the latest stable npm package is v3.18.7 (incompatible with current stack).
+**Locked decisions (from CONTEXT.md):**
+- Tremor removed entirely (unmaintained, no commits in over a year)
+- shadcn/ui = primary UI framework for BetterBudgeter
+- Base UI = headless primitives for gaps shadcn/ui doesn't cover
+- Radix UI = legacy OopsBudgeter only (strict separation)
+- Charts = shadcn/ui charts (Recharts wrapper)
 
-**Primary recommendation:** Document the CURRENT state (v4 beta) and establish a watching strategy for when v4 reaches stable release. The migration has already occurred; this phase should audit what was done and create a stability monitoring plan.
+**Primary recommendation:** Create a full component inventory documenting all 21 shadcn/ui components, all Radix UI direct imports (legacy only), Tremor usage (1 component), and Recharts usage (legacy Analytics). Document strict boundary rules: BetterBudgeter components must NEVER import from @radix-ui directly, only via shadcn/ui wrappers.
 
 ## Standard Stack
 
-### Current Installation (Already Migrated)
+### Core Libraries
 
-| Library | Version | Purpose | Status |
-|---------|---------|---------|--------|
-| @tremor/react | 4.0.0-beta-tremor-v4.4 | Chart visualization components | **INSTALLED** (beta) |
-| recharts | ^2.15.1 | Underlying chart rendering (Tremor dependency) | Installed |
-| react | ^19.0.0 | UI framework | Required for v4 beta |
-| tailwindcss | ^4.0.11 | Styling framework | Required for v4 beta |
+| Library | Version | Purpose | Why Standard |
+|---------|---------|---------|--------------|
+| shadcn/ui | Latest (via CLI) | Primary UI component system for BetterBudgeter | Copy-paste components, full control, Tailwind CSS styled, accessibility built-in |
+| Base UI | 1.1.0 (@base-ui/react) | Headless primitives for custom components | From creators of Radix/Material UI, accessible, unstyled, for gaps shadcn doesn't cover |
+| Radix UI | Various (legacy) | Legacy OopsBudgeter only | Already in project, battle-tested, must NOT be imported in new BB code |
+| Recharts | 2.15.1 | Chart rendering engine | Used by shadcn/ui charts and legacy Analytics component |
 
-### Tremor Ecosystem Versions
+### Supporting Libraries
 
-| Version Track | Package Version | React | Tailwind | Status |
-|---------------|----------------|-------|----------|--------|
-| **v3 Stable** | 3.18.7 | ^18.2.0 | ^3.4+ | INCOMPATIBLE with current stack |
-| **v4 Beta** | 4.0.0-beta-tremor-v4.x | ^19.0.0 | v4+ (via tailwind-variants) | **CURRENT** |
-| **v4 Stable** | Not yet released | TBD | TBD | Target when available |
-| **Tremor Raw** | Individual component v1.0.0 | ^18.2.0+ | ^4.0+ | Different distribution model |
+| Library | Version | Purpose | When to Use |
+|---------|---------|---------|-------------|
+| lucide-react | 0.479.0 | Icon library | shadcn/ui's default icon library |
+| class-variance-authority | 0.7.1 | Variant styling | Used by shadcn/ui for component variants |
+| tailwind-merge | 3.0.2 | Tailwind class merging | Used by shadcn/ui's cn() utility |
+| sonner | 2.0.1 | Toast notifications | Already integrated via shadcn/ui sonner component |
 
-### Tremor Distribution Models
+### Libraries to Remove
 
-| Model | Source | Versioning | Installation | Current Use |
-|-------|--------|------------|--------------|-------------|
-| **NPM Package** | npm.tremor.so | Package-level (3.18.7, 4.0.0-beta) | `bun install @tremor/react` | **ACTIVE** |
-| **Copy-Paste (Raw)** | tremor.so | Component-level (all v1.0.0) | Copy source from website | Not used |
+| Library | Current Version | Reason for Removal |
+|---------|----------------|-------------------|
+| @tremor/react | 4.0.0-beta-tremor-v4.4 | Unmaintained (last npm publish ~1 year ago), beta-only React 19 support, only 1 component in use |
 
-**Installation (current):**
+**Installation (Base UI only - shadcn/ui uses CLI):**
 ```bash
-bun install @tremor/react@4.0.0-beta-tremor-v4.4
+bun add @base-ui/react
+```
+
+**shadcn/ui component installation:**
+```bash
+# Already initialized (components.json exists)
+bunx shadcn@latest add [component-name]
 ```
 
 ## Architecture Patterns
 
-### Current Usage Pattern (Already Implemented)
+### Current Project Structure
 
 ```
-src/
-├── components/
-│   └── dashboard/
-│       └── SpendingByCategoryChart.tsx    # DonutChart consumer
-└── utils/
-    └── charts/
-        └── index.ts                        # Color mapping helpers
+src/components/
+├── ui/                    # shadcn/ui components (21 files)
+│   ├── alert-dialog.tsx  # Uses @radix-ui/react-alert-dialog
+│   ├── button.tsx        # Uses @radix-ui/react-slot
+│   ├── chart.tsx         # Uses recharts
+│   ├── dialog.tsx        # Uses @radix-ui/react-dialog
+│   └── ...               # 17 more shadcn components
+├── legacy/               # OopsBudgeter components (frozen)
+│   ├── common/
+│   ├── transactions/
+│   └── ...               # Uses Radix UI directly, Recharts
+├── dashboard/            # BetterBudgeter components
+│   └── SpendingByCategoryChart.tsx  # Uses Tremor DonutChart
+├── finance/              # BetterBudgeter components
+├── settings/             # BetterBudgeter components
+└── auth/                 # BetterBudgeter components
 ```
 
-**Component count:** 1 Tremor component used (DonutChart only)
+### Pattern 1: shadcn/ui Component Usage (BetterBudgeter)
 
-### Pattern 1: Tremor Chart Component Usage
+**What:** Use shadcn/ui components for all new BetterBudgeter UI needs.
 
-**What:** Importing and configuring Tremor chart components with typed props
+**When to use:** Default choice for buttons, forms, dialogs, cards, etc.
 
-**When to use:** Visualizing aggregated financial data in dashboard
-
-**Current implementation:**
+**Example:**
 ```typescript
-// Source: src/components/dashboard/SpendingByCategoryChart.tsx (project file)
-import { DonutChart } from "@tremor/react";
+// ✓ CORRECT: BetterBudgeter component using shadcn/ui
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
-<DonutChart
-  data={chartData}           // { name: string, value: number }[]
-  category="value"           // quantitative data key
-  index="name"               // categorical data key
-  colors={colors}            // Tremor color names: ["red", "blue", "orange"]
-  valueFormatter={formatCurrency}
-  showAnimation={true}
-  animationDuration={300}
-  className="h-64"
-  showTooltip={true}
-/>
-```
-
-### Pattern 2: Tremor Color Name Mapping
-
-**What:** Converting category identifiers to Tremor's named color palette
-
-**When to use:** Ensuring consistent colors across Tremor components and custom UI
-
-**Current implementation:**
-```typescript
-// Source: src/components/dashboard/SpendingByCategoryChart.tsx:157-175
-function getTremorColor(category: string): string {
-  const colorMap: Record<string, string> = {
-    Food: "red",           // Tremor named colors
-    Rent: "orange",
-    Utilities: "amber",
-    Transport: "emerald",
-    Entertainment: "blue",
-    Shopping: "violet",
-    Other: "gray",
-  };
-  return colorMap[category] ?? "gray";
+export function BudgetSettings() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Budget Settings</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Button>Save</Button>
+      </CardContent>
+    </Card>
+  );
 }
 ```
 
-**Tremor supported color names (v4 beta):**
-`blue, cyan, sky, teal, emerald, green, lime, yellow, amber, orange, red, rose, pink, fuchsia, purple, violet, indigo, gray, slate, zinc, neutral, stone`
+### Pattern 2: Radix UI Direct Usage (Legacy Only)
 
-### Pattern 3: Parallel Color Systems
+**What:** Direct @radix-ui imports allowed ONLY in legacy OopsBudgeter components.
 
-**What:** Maintaining HEX colors for non-Tremor components, Tremor names for Tremor components
+**When to use:** Only when editing existing legacy components. NEVER in new code.
 
-**Current implementation:**
+**Example:**
 ```typescript
-// Source: src/utils/charts/index.ts:18-33
-export const CATEGORY_COLORS = {
-  Food: "#ef4444",        // HEX for custom components
-  Rent: "#f97316",
-  // ... (used for legend rendering, non-Tremor UI)
-};
+// ✓ CORRECT: Legacy component can use Radix directly
+// File: src/components/legacy/transactions/OldTransactionDialog.tsx
+import * as Dialog from "@radix-ui/react-dialog";
 
-// Separate mapping for Tremor (in component file)
-// getTremorColor() returns "red", "orange", etc.
+// ✗ INCORRECT: New BetterBudgeter component must NOT import Radix directly
+// File: src/components/dashboard/NewFeature.tsx
+import * as Dialog from "@radix-ui/react-dialog"; // FORBIDDEN
 ```
 
-**Why:** Tremor v4 beta with Tailwind v4 uses `tailwind-variants` internally; HEX values don't work reliably in `colors` prop.
+### Pattern 3: shadcn/ui Charts (Recharts Wrapper)
+
+**What:** Use shadcn/ui chart components for all new charts.
+
+**When to use:** Replacing Tremor DonutChart, adding new charts to BetterBudgeter.
+
+**Example:**
+```typescript
+// Source: https://ui.shadcn.com/docs/components/chart
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Pie, PieChart } from "recharts";
+
+const chartConfig = {
+  food: { label: "Food", color: "hsl(var(--chart-1))" },
+  rent: { label: "Rent", color: "hsl(var(--chart-2))" },
+};
+
+export function SpendingChart({ data }: { data: ChartData[] }) {
+  return (
+    <ChartContainer config={chartConfig} className="h-64">
+      <PieChart>
+        <Pie
+          data={data}
+          dataKey="amount"
+          nameKey="category"
+          innerRadius={60}
+          outerRadius={100}
+        />
+        <ChartTooltip content={<ChartTooltipContent />} />
+      </PieChart>
+    </ChartContainer>
+  );
+}
+```
+
+### Pattern 4: Base UI for Custom Primitives
+
+**What:** Use Base UI when shadcn/ui doesn't provide the needed component.
+
+**When to use:** Rare cases where you need a headless primitive not covered by shadcn/ui.
+
+**Example:**
+```typescript
+// Hypothetical: shadcn/ui doesn't have a Tree component
+import { Tree, TreeItem } from "@base-ui/react";
+
+export function FileTree() {
+  return (
+    <Tree>
+      <TreeItem>Folder 1</TreeItem>
+      <TreeItem>Folder 2</TreeItem>
+    </Tree>
+  );
+}
+```
 
 ### Anti-Patterns to Avoid
 
-- **HEX colors in Tremor `colors` prop**: Causes Tailwind v4 class generation issues (see git commit `13e23ac`)
-- **Mixing Tremor v3 with React 19**: Peer dependency mismatch causes runtime errors
-- **Assuming npm package versions match Tremor Raw component versions**: Completely different versioning schemes
+- **Mixing libraries in one component:** Never use both Radix direct imports AND shadcn/ui in the same BetterBudgeter component
+- **Bypassing shadcn/ui:** Don't install Radix components directly when shadcn/ui provides them
+- **Legacy leakage:** Don't refactor legacy components to use shadcn/ui (legacy stays frozen)
 
 ## Don't Hand-Roll
 
+Problems that look simple but have existing solutions:
+
 | Problem | Don't Build | Use Instead | Why |
 |---------|-------------|-------------|-----|
-| Chart component library | Custom Recharts wrappers | Tremor's pre-built components | Handles responsive sizing, theming, tooltips, animations out-of-box |
-| Color palette mapping | Manual Tailwind class strings | Tremor named colors | Tremor manages Tailwind v4 class generation internally via `tailwind-variants` |
-| Chart data transformation | Complex mappers | Tremor's expected data format | `{ [index]: string, [category]: number }[]` is simple and well-documented |
+| Accessible dialogs | Custom modal with focus trap | shadcn/ui Dialog or AlertDialog | Keyboard navigation, focus management, ESC handling, backdrop clicks all handled |
+| Form validation UI | Custom error messages | shadcn/ui Form (with react-hook-form) | Accessible error announcements, proper labeling, ARIA attributes |
+| Toast notifications | Custom notification system | shadcn/ui Sonner | Queue management, positioning, animations, dismiss handling |
+| Chart tooltips | Custom hover overlays | shadcn/ui ChartTooltip | Positioned correctly, responsive, themeable |
+| Dropdown menus | Custom popover + click outside | shadcn/ui DropdownMenu or ContextMenu | Keyboard navigation, submenus, disabled states, separators |
+| Date pickers | Calendar UI from scratch | shadcn/ui Calendar + DatePicker | Locale support, timezone handling, keyboard navigation |
 
-**Key insight:** Tremor abstracts Recharts complexity and Tailwind v4 styling challenges. For this project's single chart use case, the beta is stable enough and saves significant implementation time.
+**Key insight:** Accessibility is hard. shadcn/ui (via Radix primitives) handles ARIA attributes, focus management, keyboard navigation, and screen reader announcements. Custom solutions almost always miss edge cases.
 
 ## Common Pitfalls
 
-### Pitfall 1: Confusing Tremor Distribution Models
+### Pitfall 1: Importing Radix Directly in BetterBudgeter Components
 
-**What goes wrong:** Developer assumes "v1.0.0" refers to npm package version and tries to install `@tremor/react@1.0.0`
+**What goes wrong:** Developer imports `@radix-ui/react-dialog` directly in a new BetterBudgeter component instead of using `@/components/ui/dialog`.
 
-**Why it happens:** Tremor has two products with different versioning:
-- Tremor Raw (tremor.so): Individual components at v1.0.0 (April 2025)
-- @tremor/react (npm.tremor.so): Package at v3.18.7 stable / v4.0.0-beta
+**Why it happens:** Familiarity with Radix from legacy code, or not understanding the library boundary rules.
 
 **How to avoid:**
-- Check which distribution model is in use (`package.json` shows npm package)
-- Verify versions on npm.tremor.so, NOT tremor.so
-- v1.0.0 doesn't exist as an npm package version
+- Document the import rule in CLAUDE.md: "BetterBudgeter components must NEVER import from @radix-ui directly"
+- Use ESLint rule to forbid @radix-ui imports outside components/legacy/
+- Code review checklist: verify no direct Radix imports in new code
 
-**Warning signs:** Installation fails with "version not found" error
+**Warning signs:**
+- `import * as Dialog from "@radix-ui/react-dialog"` in non-legacy files
+- TypeScript errors about Radix component props in BetterBudgeter code
 
-### Pitfall 2: Beta Version Stability Assumptions
+### Pitfall 2: Tremor Color Format Confusion
 
-**What goes wrong:** Treating beta version as unstable/unusable for production
+**What goes wrong:** Using HEX colors with Tremor v4 causes charts to render with incorrect colors.
 
-**Why it happens:** General software convention that "beta" = risky
-
-**How to avoid:**
-- For Tremor v4 specifically, the beta is the ONLY version compatible with React 19 + Tailwind v4
-- The current stable (v3.18.7) is actually MORE broken for this stack
-- Beta stability varies by component; DonutChart is confirmed working (verified in TREMOR_MIGRATION_ANALYSIS.md)
-
-**Warning signs:** Attempting to downgrade to v3 causes peer dependency errors
-
-### Pitfall 3: Color Format Incompatibility
-
-**What goes wrong:** Using HEX color values in Tremor v4's `colors` prop causes charts to render with default colors or fail
-
-**Why it happens:** Tremor v4 uses `tailwind-variants` library which expects Tailwind color names, not HEX
+**Why it happens:** Tremor v4 uses tailwind-variants which expects Tailwind color names, not HEX values.
 
 **How to avoid:**
-- Always use Tremor's named color palette: `["red", "blue", "emerald"]`
-- Maintain separate HEX palette for non-Tremor components
-- Check git history: commits `d4f0139`, `13e23ac`, `b5cfbf8` document this exact issue and fix
+- Remove Tremor entirely (already planned)
+- shadcn/ui charts use CSS variables (no HEX issues)
+- Document in migration plan: DonutChart replacement must use CSS variables
 
-**Warning signs:** Chart renders but all segments are same color, or console warnings about unrecognized color values
+**Warning signs:**
+- Chart renders but all segments are the same color
+- Tailwind v4 not generating fill-* utilities
 
-### Pitfall 4: Missing Migration Has Already Occurred
+### Pitfall 3: shadcn/ui and Radix Version Conflicts
 
-**What goes wrong:** Planning a migration that already happened, duplicating work
+**What goes wrong:** Upgrading Radix packages manually causes version mismatches with shadcn/ui's expected versions.
 
-**Why it happens:** Outdated roadmap documents don't reflect recent implementation commits
+**Why it happens:** Developer sees Radix update, runs `bun update @radix-ui/*`, breaks shadcn/ui components.
 
 **How to avoid:**
-- Check `git log --grep="tremor"` before planning migration
-- Verify `package.json` current version
-- Read existing docs/TREMOR_MIGRATION_ANALYSIS.md if present
+- Let shadcn/ui manage Radix versions (don't manually update)
+- If Radix security update needed, check shadcn/ui GitHub for compatibility
+- Document in CLAUDE.md: "Do not manually upgrade @radix-ui packages"
 
-**Warning signs:** Phase deliverable asks to "plan migration to v1.0.0" but package.json shows v4.0.0-beta
+**Warning signs:**
+- shadcn/ui components throw TypeScript errors after Radix update
+- Props no longer match expected types
+
+### Pitfall 4: Tailwind v4 Class Generation with Tremor
+
+**What goes wrong:** Tremor-specific utilities (fill-*, stroke-*) not generated by Tailwind v4.
+
+**Why it happens:** Tailwind v4 only generates classes found in source code. Tremor uses runtime class generation.
+
+**How to avoid:**
+- Remove Tremor (already planned)
+- Clean up globals.css after Tremor removal (remove @source directive and @utility definitions)
+
+**Warning signs:**
+- Charts render but colors missing
+- Browser console shows unknown Tailwind classes
+
+### Pitfall 5: Legacy Component Refactoring Scope Creep
+
+**What goes wrong:** While adding new BetterBudgeter features, developer "improves" legacy components to use shadcn/ui.
+
+**Why it happens:** Good intentions - seeing old Radix code and wanting to modernize it.
+
+**How to avoid:**
+- Document in CLAUDE.md: "Legacy components stay frozen on Radix UI"
+- Separate legacy/ directory visually signals "do not touch"
+- Code review: flag any changes to components/legacy/ not explicitly requested
+
+**Warning signs:**
+- PR includes both new feature AND legacy component changes
+- Removal of @radix-ui imports from legacy files
 
 ## Code Examples
 
-### DonutChart Implementation (Current)
+Verified patterns from official sources and existing codebase:
+
+### shadcn/ui Button Usage
 
 ```typescript
-// Source: src/components/dashboard/SpendingByCategoryChart.tsx
-"use client";
+// Source: src/components/auth/LoginForm.tsx
+import { Button } from "@/components/ui/button";
 
-import { DonutChart } from "@tremor/react";
-import { CATEGORY_COLORS } from "@/utils/charts";
-
-interface CategoryData {
-  category: string;
-  amount: number;
-  transactionCount: number;
-}
-
-export function SpendingByCategoryChart({ data }: { data: CategoryData[] }) {
-  // Transform to Tremor's expected format
-  const chartData = data.map((item) => ({
-    name: item.category,     // index key
-    value: item.amount,      // category key
-  }));
-
-  // Map categories to Tremor color names
-  const colors = data.map((item) => getTremorColor(item.category));
-
+export function LoginForm() {
   return (
-    <DonutChart
-      data={chartData}
-      category="value"
-      index="name"
-      colors={colors}
-      valueFormatter={(val) => `€${val.toFixed(2)}`}
-      showAnimation={true}
-      animationDuration={300}
-      showTooltip={true}
-      className="h-64"
-    />
+    <form>
+      <Button type="submit" variant="default" size="default">
+        Log In
+      </Button>
+      <Button type="button" variant="outline" size="sm">
+        Cancel
+      </Button>
+    </form>
   );
-}
-
-function getTremorColor(category: string): string {
-  const map: Record<string, string> = {
-    Food: "red",
-    Rent: "orange",
-    Utilities: "amber",
-    Transport: "emerald",
-    Other: "gray",
-  };
-  return map[category] ?? "gray";
 }
 ```
 
-### TypeScript Type Definitions (v4 Beta)
+### shadcn/ui Dialog Usage
 
 ```typescript
-// Source: node_modules/@tremor/react/dist/index.d.ts
-interface DonutChartProps {
-  data: any[];                          // Required: chart data array
-  category?: string;                    // Optional: data key (default: "value")
-  index?: string;                       // Optional: label key (default: "name")
-  colors?: (Color | string)[];          // Optional: Tremor color names
-  variant?: "donut" | "pie";            // Optional: chart style
-  valueFormatter?: ValueFormatter;      // Optional: format function
-  label?: string;                       // Optional: center text
-  showLabel?: boolean;                  // Optional: show center label
-  showAnimation?: boolean;              // Optional: enable animation
-  animationDuration?: number;           // Optional: animation timing (ms)
-  showTooltip?: boolean;                // Optional: enable tooltips
-  noDataText?: string;                  // Optional: empty state message
-  className?: string;                   // Optional: Tailwind classes
-  onValueChange?: (value: EventProps) => void;
-  customTooltip?: React.ComponentType<CustomTooltipProps>;
+// Source: src/components/legacy/transactions/EditTransactionDialog.tsx
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+
+export function EditDialog({ open, onOpenChange }) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Transaction</DialogTitle>
+        </DialogHeader>
+        {/* Form content */}
+        <DialogFooter>
+          <Button onClick={() => onOpenChange(false)}>Save</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+```
+
+### shadcn/ui Chart (PieChart/Donut)
+
+```typescript
+// Source: https://ui.shadcn.com/charts/pie (adapted)
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Pie, PieChart } from "recharts";
+
+const chartConfig = {
+  food: { label: "Food", color: "hsl(var(--chart-1))" },
+  rent: { label: "Rent", color: "hsl(var(--chart-2))" },
+  utilities: { label: "Utilities", color: "hsl(var(--chart-3))" },
+};
+
+export function CategoryChart({ data }: { data: CategoryData[] }) {
+  return (
+    <ChartContainer config={chartConfig} className="h-64">
+      <PieChart>
+        <Pie
+          data={data}
+          dataKey="amount"
+          nameKey="category"
+          innerRadius={60}     // innerRadius > 0 = donut
+          outerRadius={100}
+          label
+        />
+        <ChartTooltip content={<ChartTooltipContent />} />
+      </PieChart>
+    </ChartContainer>
+  );
+}
+```
+
+### Base UI Example (Hypothetical)
+
+```typescript
+// Example: Using Base UI for a custom Slider (if shadcn/ui didn't have one)
+import { Slider } from "@base-ui/react";
+
+export function BudgetSlider({ value, onChange }) {
+  return (
+    <Slider
+      value={value}
+      onChange={onChange}
+      min={0}
+      max={5000}
+      step={50}
+      className="w-full"
+    />
+  );
 }
 ```
 
 ## State of the Art
 
-| Migration Aspect | Old Approach (v3.18.7) | Current Approach (v4 beta) | When Changed | Impact |
-|------------------|------------------------|---------------------------|--------------|--------|
-| React compatibility | React ^18.2.0 | React ^19.0.0 | v4.0.0-beta | BREAKING: Must upgrade React |
-| Tailwind integration | Direct Tailwind classes (v3) | tailwind-variants library (v4) | v4.0.0-beta | Color prop format changed |
-| Color specification | HEX or named colors | Named colors only (reliable) | v4.0.0-beta | Must map HEX → names |
-| Installation source | npm.tremor.so package | npm package OR tremor.so copy-paste | April 2025 (Raw launch) | Two distribution models exist |
+| Old Approach | Current Approach | When Changed | Impact |
+|--------------|------------------|--------------|--------|
+| Tremor v3.18.7 stable | Tremor v4 beta (React 19) | Dec 2024 | Required for React 19 + Tailwind v4 stack |
+| HEX colors in Tremor | Named colors only | Dec 2024 | Tremor v4 + tailwind-variants requires color names |
+| shadcn/ui Radix-only | shadcn/ui Radix OR Base UI | Jan 2026 | New components have Base UI variants (choice at init) |
+| Manual @radix-ui installs | shadcn/ui CLI manages deps | Ongoing | shadcn/ui CLI handles Radix version compatibility |
 
 **Deprecated/outdated:**
-- **@tremor/react@3.x for React 19 projects**: Peer dependency incompatible, runtime errors
-- **HEX colors in v4 `colors` prop**: Works in v3, unreliable in v4 due to Tailwind v4 + tailwind-variants
-- **"v1.0.0" as npm package target**: No such npm package version exists (component versioning only)
+- **Tremor stable (v3.x):** Incompatible with React 19, last published ~1 year ago
+- **Tremor HEX color support:** Unreliable with Tailwind v4, use named colors or CSS variables
+- **@base-ui-components/react package name:** Renamed to @base-ui/react in 2026
+
+## Component Inventory
+
+### shadcn/ui Components (Installed)
+
+All located in `src/components/ui/`:
+
+| Component | Underlying Primitive | Used In | Purpose |
+|-----------|---------------------|---------|---------|
+| alert-dialog.tsx | @radix-ui/react-alert-dialog | Legacy DeleteTransactionDialog | Confirm destructive actions |
+| button.tsx | @radix-ui/react-slot | Multiple (auth, dashboard, settings) | Primary action buttons |
+| calendar.tsx | react-day-picker | UI library (internal) | Date selection |
+| card.tsx | Native div | Finance LinkBankFlow | Content containers |
+| chart.tsx | recharts | Not yet used (will replace Tremor) | Chart wrapper with theming |
+| context-menu.tsx | @radix-ui/react-context-menu | Legacy SingleTransaction | Right-click menus |
+| date.tsx | Native input + Calendar | UI library (internal) | Date input component |
+| dialog.tsx | @radix-ui/react-dialog | Legacy Edit/RecurringStatus dialogs | Modal dialogs |
+| drawer.tsx | vaul (drawer primitive) | Legacy NewTransaction | Bottom sheet on mobile |
+| form.tsx | react-hook-form | Legacy NewTransaction | Form validation wrapper |
+| input-otp.tsx | input-otp library | Legacy PasscodePrompt | One-time password input |
+| input.tsx | Native input | Multiple (auth, settings, legacy) | Text inputs |
+| label.tsx | @radix-ui/react-label | Multiple (settings, legacy) | Form labels |
+| popover.tsx | @radix-ui/react-popover | Not directly used | Popover container |
+| scroll-area.tsx | @radix-ui/react-scroll-area | Legacy NewTransaction | Scrollable containers |
+| select.tsx | @radix-ui/react-select | Legacy Edit/NewTransaction dialogs | Dropdown selects |
+| sonner.tsx | sonner library | Legacy Sonner effect | Toast notifications |
+| switch.tsx | @radix-ui/react-switch | Not directly used | Toggle switches |
+| textarea.tsx | Native textarea | Legacy NewTransaction | Multi-line text input |
+| tooltip.tsx | @radix-ui/react-tooltip | Legacy SortButton, Currency | Hover tooltips |
+
+**Total:** 21 shadcn/ui components installed
+
+### Tremor Components (In Use)
+
+| Component | File | Route | Status |
+|-----------|------|-------|--------|
+| DonutChart | src/components/dashboard/SpendingByCategoryChart.tsx | `/` (dashboard) | TO BE REPLACED with shadcn/ui PieChart |
+
+**Total:** 1 Tremor component
+
+### Recharts Direct Usage (Legacy)
+
+| Component | File | Route | Status |
+|-----------|------|-------|--------|
+| Multiple (BarChart, PieChart, LineChart, AreaChart) | src/components/legacy/common/Analytics.tsx | Legacy analytics page | FROZEN - no changes |
+
+**Total:** 1 file with extensive Recharts usage (legacy only)
+
+### Radix UI Direct Imports (Legacy Only)
+
+All legacy components using Radix directly are FROZEN. No migration planned.
+
+**Files with direct @radix-ui imports (legacy):** 0
+
+All Radix usage goes through shadcn/ui wrappers.
+
+### BetterBudgeter Components (Non-UI)
+
+| Component | Library Dependencies | Status |
+|-----------|---------------------|--------|
+| SpendingByCategoryChart | Tremor DonutChart | TO MIGRATE to shadcn/ui chart |
+| BudgetNotificationDialogs | shadcn/ui AlertDialog | ✓ Already using shadcn/ui |
+| SyncTransactionsButton | shadcn/ui Button | ✓ Already using shadcn/ui |
+| BudgetSettings | shadcn/ui Button, Input, Label | ✓ Already using shadcn/ui |
+| LinkBankFlow | shadcn/ui Button, Card | ✓ Already using shadcn/ui |
+| LoginForm | shadcn/ui Button, Input, Label | ✓ Already using shadcn/ui |
+| SignOutButton | shadcn/ui Button | ✓ Already using shadcn/ui |
+
+**Total BetterBudgeter components:** 7 (1 needs migration, 6 already use shadcn/ui)
 
 ## Open Questions
 
-### 1. When will Tremor v4 reach stable release?
+Things that couldn't be fully resolved:
 
-**What we know:**
-- v4.0.0-beta-tremor-v4.4 released December 2024
-- Beta track is actively maintained (multiple beta releases)
-- Tremor was acquired by Vercel (announced on tremor.so homepage)
+1. **Base UI adoption timeline**
+   - What we know: Base UI is stable (v1.1.0), shadcn/ui now supports both Radix and Base UI variants
+   - What's unclear: When/if to switch shadcn/ui components from Radix to Base UI variants
+   - Recommendation: Stick with Radix variants (default) unless specific Base UI feature needed. Re-evaluate after Phase 3 completion.
 
-**What's unclear:**
-- Timeline for v4 stable release
-- Whether API will change before stable
-- Vercel's long-term plans post-acquisition
+2. **Tremor globals.css cleanup depth**
+   - What we know: Lines 5-53 in globals.css contain Tremor-specific config (@source directive, @utility fill-* definitions)
+   - What's unclear: Are any other parts of globals.css Tremor-dependent?
+   - Recommendation: Remove lines 5-53 completely after Tremor removal. Test build to verify no other dependencies.
 
-**Recommendation:** Monitor [Tremor GitHub releases](https://github.com/tremorlabs/tremor/releases) and [@tremorlabs Twitter](https://x.com/tremorlabs) for v4 stable announcement. Set a quarterly review (every 3 months) to check if v4 has stabilized.
-
-### 2. Should the project switch to Tremor Raw (copy-paste model)?
-
-**What we know:**
-- Tremor Raw components are at v1.0.0 (individual component versions)
-- Raw approach gives full source code control
-- Raw components require Tailwind v4.0+
-- Current npm package approach works with only 1 component used
-
-**What's unclear:**
-- Maintenance burden of copy-paste vs npm updates
-- Whether Raw offers better stability than v4 beta
-- Migration effort to switch distribution models
-
-**Recommendation:** DEFER. Current npm package approach works. Switching to Raw is a roadmap-level decision (would affect dependency management strategy project-wide). Only consider if v4 beta becomes unstable or blocking.
-
-### 3. What's the fallback if v4 beta breaks?
-
-**What we know:**
-- Project already has recharts ^2.15.1 as dependency (Tremor uses it internally)
-- DonutChart could be replaced with recharts PieChart directly
-- Only 1 Tremor component is used, making replacement feasible
-
-**What's unclear:**
-- Specific recharts API for equivalent functionality
-- Effort required to match current visual design
-
-**Recommendation:** Document a rollback plan:
-1. If v4 beta fails during development: Implement custom recharts PieChart
-2. Keep CATEGORY_COLORS (already in utils/) as source of truth
-3. Budget 2-4 hours for recharts replacement if needed
+3. **Legacy Analytics component chart library**
+   - What we know: Legacy Analytics.tsx uses Recharts extensively (multiple chart types)
+   - What's unclear: Should this be left frozen or migrated to shadcn/ui charts?
+   - Recommendation: Leave frozen (legacy only). If needed in BetterBudgeter, rebuild charts with shadcn/ui, don't refactor legacy.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- **Installed package inspection**: `node_modules/@tremor/react/package.json` - v4.0.0-beta-tremor-v4.4 verified
-- **TypeScript definitions**: `node_modules/@tremor/react/dist/index.d.ts` - DonutChartProps interface
-- **Project codebase**: `src/components/dashboard/SpendingByCategoryChart.tsx` - actual usage
-- **Git history**: Commits `6a9657c`, `13e23ac`, `d4f0139` - migration evidence
-- **Existing analysis**: `docs/TREMOR_MIGRATION_ANALYSIS.md` - prior migration documentation
+
+- [shadcn/ui official docs](https://ui.shadcn.com/docs/components) - Component list and usage
+- [shadcn/ui charts page](https://ui.shadcn.com/charts/pie) - Chart component documentation
+- [Base UI official docs](https://base-ui.com/) - Base UI overview and components
+- [Base UI npm package](https://www.npmjs.com/package/@base-ui/react) - Package information (v1.1.0)
+- Existing codebase audit - grep verified all imports
+- TREMOR_AUDIT.md (from Phase 02-01) - Complete Tremor usage documentation
 
 ### Secondary (MEDIUM confidence)
-- [Tremor NPM changelog](https://npm.tremor.so/changelog) - WebFetch verified, shows v3.18.0-3.18.4 releases
-- [Tremor.so changelog](https://www.tremor.so/changelog) - WebFetch verified, shows component v1.0.0 releases (April 2025)
-- [Tremor.so installation docs](https://www.tremor.so/docs/getting-started/installation) - Tremor Raw requirements
-- [npm.tremor.so installation docs](https://npm.tremor.so/docs/getting-started/installation) - v3.18.0+ requirements
-- [Tremor DonutChart API docs](https://www.tremor.so/docs/visualizations/donut-chart) - Raw component API
-- [Tremor NPM DonutChart API docs](https://npm.tremor.so/docs/visualizations/donut-chart) - npm package API
 
-### Tertiary (LOW confidence - WebSearch only)
-- [@tremorlabs Twitter announcement](https://x.com/tremorlabs/status/1868722998590759361) - v4 beta announcement (React 19, Tailwind v4, CSS-first theming)
-- NPM registry metadata via WebSearch - v3.18.7 latest stable, 4.0.0-beta versions exist
-- Vercel acquisition announcement banner on tremor.so
+- [Starting a React Project? shadcn/ui, Radix, and Base UI Explained](https://certificates.dev/blog/starting-a-react-project-shadcnui-radix-and-base-ui-explained) - Library comparison
+- [What is the difference between Radix and shadcn-ui?](https://workos.com/blog/what-is-the-difference-between-radix-and-shadcn-ui) - Relationship explanation
+- [shadcn/ui Base UI migration discussion](https://github.com/shadcn-ui/ui/discussions/6248) - Base UI integration
+- [Tremor GitHub repository](https://github.com/tremorlabs/tremor) - Main repository
+- [Tremor npm repository](https://github.com/tremorlabs/tremor-npm) - NPM package repository (last release v3.18.7 Jan 2025)
+
+### Tertiary (LOW confidence)
+
+- WebSearch results on Radix/shadcn coexistence - community experiences, not official docs
+- Tremor maintenance status - inferred from npm publish dates and GitHub activity
 
 ## Metadata
 
 **Confidence breakdown:**
-- **Current state (v4 beta installed)**: HIGH - Verified via package.json, git history, and existing docs
-- **API differences v3 vs v4**: MEDIUM - TypeScript definitions and docs reviewed, but missing official migration guide
-- **Tremor ecosystem structure**: HIGH - Two distribution models confirmed via official sites
-- **v1.0.0 target clarification**: HIGH - Verified "v1.0.0" refers to Raw components, not npm package version
-- **Stability timeline**: LOW - No official roadmap found for v4 stable release
+- shadcn/ui component list: HIGH - Verified in codebase with grep, matches official docs
+- Base UI capabilities: HIGH - Official docs from base-ui.com, npm registry confirms v1.1.0
+- Tremor removal justification: HIGH - TREMOR_AUDIT.md confirms 1 component only, Tremor-npm last release Jan 2025 (v3.18.7)
+- Radix/shadcn coexistence: MEDIUM - Based on community reports and GitHub issues, not official compatibility matrix
+- Chart migration approach: HIGH - shadcn/ui official chart docs, verified chart.tsx exists in codebase
 
-**Research date:** 2026-01-27
-**Valid until:** 2026-04-27 (90 days) - Tremor is in active development (beta track), recommend quarterly review for v4 stable release
+**Research date:** 2026-01-28
+**Valid until:** 90 days (shadcn/ui and Base UI are stable, not fast-moving)
 
-**Critical clarification for planner:**
-The phase context mentions "v1.0.0 stable" as the target, but this appears to be based on a misunderstanding. There is no @tremor/react npm package v1.0.0. The project is already on v4.0.0-beta and should STAY there. Planning should focus on:
-1. Auditing the completed migration
-2. Documenting current usage
-3. Establishing monitoring for v4 stable release
-4. Creating rollback procedures
-
-NOT planning a new migration to a non-existent v1.0.0 package.
+**Next steps for planning:**
+1. Create component inventory table (21 shadcn + 1 Tremor + legacy separation)
+2. Define migration tasks (Tremor removal, DonutChart replacement)
+3. Document CLAUDE.md library boundary rules
+4. Create risk assessment (version conflicts, build breakage, visual regressions)
