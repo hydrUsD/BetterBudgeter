@@ -2,7 +2,7 @@
  * Spending by Category Chart Component
  *
  * Displays a donut chart showing expense breakdown by category.
- * Uses Tremor for visualization.
+ * Uses shadcn/ui ChartContainer + Recharts for visualization.
  *
  * ADHD DESIGN:
  * - Visual overview without reading numbers
@@ -14,12 +14,22 @@
  * - Receives pre-aggregated data from parent (server component)
  * - Does NOT fetch data directly
  *
+ * MIGRATION NOTE (Phase 03):
+ * - Migrated from Tremor DonutChart to shadcn/ui ChartContainer + Recharts PieChart
+ * - Tremor was unmaintained; shadcn/ui charts are actively maintained
+ *
  * @see docs/DASHBOARD_STRATEGY.md Section 4.2
  */
 
 "use client";
 
-import { DonutChart } from "@tremor/react";
+import { PieChart, Pie, Cell } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import type { ChartConfig } from "@/components/ui/chart";
 import { CATEGORY_COLORS } from "@/utils/charts";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -40,6 +50,22 @@ interface SpendingByCategoryChartProps {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Chart Configuration
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Build ChartConfig from CATEGORY_COLORS
+ * Maps each category to its label and color for shadcn/ui ChartContainer
+ */
+const chartConfig = Object.entries(CATEGORY_COLORS).reduce(
+  (acc, [key, color]) => ({
+    ...acc,
+    [key]: { label: key, color: color },
+  }),
+  {}
+) satisfies ChartConfig;
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Component
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -53,7 +79,9 @@ export function SpendingByCategoryChart({
 
   if (data.length === 0) {
     return (
-      <div className={`flex flex-col items-center justify-center h-64 ${className ?? ""}`}>
+      <div
+        className={`flex flex-col items-center justify-center h-64 ${className ?? ""}`}
+      >
         <p className="text-muted-foreground text-sm">
           No expense data for this month
         </p>
@@ -68,8 +96,8 @@ export function SpendingByCategoryChart({
   // Data Transformation
   // ─────────────────────────────────────────────────────────────────────────────
 
-  // Transform data for Tremor DonutChart
-  // Tremor expects: { name: string, value: number }[]
+  // Transform data for Recharts PieChart
+  // Recharts expects: { name: string, value: number }[]
   const chartData = data.map((item) => ({
     name: item.category,
     value: item.amount,
@@ -78,27 +106,44 @@ export function SpendingByCategoryChart({
   // Calculate total for center display
   const total = data.reduce((sum, item) => sum + item.amount, 0);
 
-  // Get colors for each category
-  // Use Tremor's predefined color names (not HEX) for Tailwind v4 compatibility
-  const colors = data.map((item) => getTremorColor(item.category));
-
   // ─────────────────────────────────────────────────────────────────────────────
   // Render
   // ─────────────────────────────────────────────────────────────────────────────
 
   return (
     <div className={className}>
-      <DonutChart
-        data={chartData}
-        category="value"
-        index="name"
-        colors={colors}
-        valueFormatter={formatCurrency}
-        showAnimation={true}
-        animationDuration={300}
-        className="h-64"
-        showTooltip={true}
-      />
+      {/* Donut chart using shadcn/ui ChartContainer + Recharts PieChart */}
+      <ChartContainer config={chartConfig} className="min-h-[256px] w-full">
+        <PieChart>
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                formatter={(value) => formatCurrency(value as number)}
+              />
+            }
+          />
+          <Pie
+            data={chartData}
+            dataKey="value"
+            nameKey="name"
+            innerRadius={60}
+            outerRadius={100}
+            cx="50%"
+            cy="50%"
+          >
+            {chartData.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={
+                  CATEGORY_COLORS[
+                    entry.name as keyof typeof CATEGORY_COLORS
+                  ] || CATEGORY_COLORS.Other
+                }
+              />
+            ))}
+          </Pie>
+        </PieChart>
+      </ChartContainer>
 
       {/* Legend - Simple list below chart */}
       <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
@@ -108,8 +153,9 @@ export function SpendingByCategoryChart({
               className="w-3 h-3 rounded-full"
               style={{
                 backgroundColor:
-                  CATEGORY_COLORS[item.category as keyof typeof CATEGORY_COLORS] ??
-                  CATEGORY_COLORS.Other,
+                  CATEGORY_COLORS[
+                    item.category as keyof typeof CATEGORY_COLORS
+                  ] ?? CATEGORY_COLORS.Other,
               }}
             />
             <span className="text-muted-foreground truncate">
@@ -144,33 +190,3 @@ function formatCurrency(value: number): string {
     currency: "EUR",
   }).format(value);
 }
-
-/**
- * Map category to Tremor's predefined color names.
- *
- * Tremor supports these colors: blue, cyan, sky, teal, emerald, green, lime,
- * yellow, amber, orange, red, rose, pink, fuchsia, purple, violet, indigo,
- * gray, slate, zinc, neutral, stone.
- *
- * Note: HEX colors don't work with Tailwind v4 because the classes aren't generated.
- */
-function getTremorColor(category: string): string {
-  const colorMap: Record<string, string> = {
-    // Expense categories
-    Food: "red",
-    Rent: "orange",
-    Utilities: "amber",
-    Transport: "emerald",
-    Entertainment: "blue",
-    Shopping: "violet",
-    Other: "gray",
-    // Income categories
-    Salary: "green",
-    Freelance: "teal",
-    Investment: "cyan",
-    Bonus: "sky",
-  };
-
-  return colorMap[category] ?? "gray";
-}
-
