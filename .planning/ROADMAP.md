@@ -86,15 +86,19 @@ Plans:
 ### Phase 4: Library Consolidation & Cleanup
 **Goal:** Remove unused code, establish clear library boundaries, document the new system.
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Remove Tremor artifacts and unused dependencies
+- [ ] 04-02-PLAN.md — Create UI library documentation (docs/UI_ARCHITECTURE.md)
+
 **Deliverables:**
-- Remove unused shadcn chart utilities and old Tremor-related code
-- Document library responsibilities in code comments:
-  - **shadcn/ui + Base UI** = all new BetterBudgeter components
-  - **Radix UI** = legacy OopsBudgeter only
-  - **Recharts (via shadcn/ui)** = all charts
-  - **Sonner** = notifications
-- Verify Sonner integration still works
-- Clean up duplicate color definitions or unused dependencies
+- Remove unused Tremor utilities from utils.ts
+- Update outdated Tremor comments to reflect Recharts/shadcn-ui
+- Remove unused dependencies (mongoose, quick.db)
+- Create docs/UI_ARCHITECTURE.md with Mermaid diagrams
+- Document Sonner toast patterns
+- Add header comments to key files documenting library usage
 
 **Why fourth:** After migration, we can see what's actually used vs unused.
 
@@ -120,7 +124,7 @@ Plans:
 | 1. Legacy Component Isolation | Complete | 2 plans, verified |
 | 2. UI Library Strategy | Complete | 3 plans, verified |
 | 3. UI Library Migration | Complete | 2 plans, verified (minor gaps deferred to Phase 4) |
-| 4. Library Consolidation & Cleanup | Not Started | Depends on Phase 3 |
+| 4. Library Consolidation & Cleanup | Planned | 2 plans in 2 waves |
 | 5. Documentation & Handoff | Not Started | |
 
 ---
