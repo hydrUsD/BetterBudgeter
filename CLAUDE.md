@@ -114,6 +114,34 @@ The project uses multiple UI libraries with strict separation rules:
 - Base UI is only used when shadcn/ui does not provide the needed primitive
 - Tremor is removed — do not reintroduce
 
+### When to Use Base UI
+
+Base UI (@base-ui/react) is a headless component library from the creators of Material UI. Use it when:
+
+1. **shadcn/ui lacks the component** - For complex components like Combobox, Autocomplete, or nested Dialogs that shadcn/ui doesn't provide
+2. **You need full styling control** - Base UI is unstyled; you provide all CSS
+3. **Accessibility is critical** - Base UI components are thoroughly tested for a11y
+
+**Do NOT use Base UI when:**
+- shadcn/ui already has the component (prefer shadcn/ui for consistency)
+- The component is in legacy OopsBudgeter code (those stay on Radix UI)
+
+**Example usage:**
+```tsx
+import { Dialog } from '@base-ui/react'
+
+// Base UI uses similar compound component pattern to Radix
+<Dialog.Root>
+  <Dialog.Trigger>Open</Dialog.Trigger>
+  <Dialog.Portal>
+    <Dialog.Backdrop />
+    <Dialog.Popup>Content</Dialog.Popup>
+  </Dialog.Portal>
+</Dialog.Root>
+```
+
+**Coexistence:** Base UI and Radix UI can coexist without conflicts. They share similar APIs but different implementations.
+
 ### Authentication
 
 - Supabase Auth is the **single authentication system**
