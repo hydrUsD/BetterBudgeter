@@ -34,7 +34,6 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.91.0",
-    "@tremor/react": "4.0.0-beta-tremor-v4.4",
     "baseline-browser-mapping": "^2.9.17",
     "better-sqlite3": "^11.8.1",
     "caniuse-lite": "^1.0.30001766",
