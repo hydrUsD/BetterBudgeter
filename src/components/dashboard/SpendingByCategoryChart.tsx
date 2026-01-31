@@ -2,7 +2,12 @@
  * Spending by Category Chart Component
  *
  * Displays a donut chart showing expense breakdown by category.
- * Uses shadcn/ui ChartContainer + Recharts for visualization.
+ * Data is transformed from transaction objects to chart-compatible format.
+ *
+ * LIBRARY USAGE:
+ * - shadcn/ui ChartContainer for wrapper and theming
+ * - Recharts PieChart for the actual visualization
+ * - @/utils/charts/CATEGORY_COLORS for consistent category colors
  *
  * ADHD DESIGN:
  * - Visual overview without reading numbers
@@ -14,11 +19,8 @@
  * - Receives pre-aggregated data from parent (server component)
  * - Does NOT fetch data directly
  *
- * MIGRATION NOTE (Phase 03):
- * - Migrated from Tremor DonutChart to shadcn/ui ChartContainer + Recharts PieChart
- * - Tremor was unmaintained; shadcn/ui charts are actively maintained
- *
- * @see docs/DASHBOARD_STRATEGY.md Section 4.2
+ * @see docs/UI_ARCHITECTURE.md for library decisions
+ * @see docs/DASHBOARD_STRATEGY.md Section 4.2 for design rationale
  */
 
 "use client";

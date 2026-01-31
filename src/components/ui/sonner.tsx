@@ -1,3 +1,19 @@
+/**
+ * Sonner Toaster Configuration
+ *
+ * This file configures the Sonner toast library for the application.
+ * It's mounted in src/app/layout.tsx and provides the global toast context.
+ *
+ * USAGE:
+ * Import `toast` from "sonner" anywhere to show notifications:
+ *   toast.success("Message")
+ *   toast.error("Message")
+ *   toast.warning("Message")
+ *   toast.info("Message")
+ *
+ * @see docs/UI_ARCHITECTURE.md#sonner-toast-patterns for full documentation
+ */
+
 "use client"
 
 import { useTheme } from "next-themes"
