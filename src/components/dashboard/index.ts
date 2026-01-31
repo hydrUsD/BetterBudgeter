@@ -29,7 +29,7 @@ export { BudgetProgressSection } from "./BudgetProgressSection";
 
 /**
  * SpendingByCategoryChart: Donut chart showing expense breakdown by category.
- * Uses Tremor for visualization. ADHD-friendly visual overview.
+ * Uses Recharts (via shadcn/ui charts) for visualization. ADHD-friendly visual overview.
  *
  * @see docs/DASHBOARD_STRATEGY.md Section 4.2
  */

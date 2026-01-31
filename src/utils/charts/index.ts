@@ -1,7 +1,7 @@
 /**
  * Chart Utilities
  *
- * Pure, stateless helpers for chart configuration (Tremor/Recharts).
+ * Pure, stateless helpers for chart configuration (Recharts via shadcn/ui).
  * Provides consistent colors, formatting, and config across charts.
  *
  * These functions have NO side effects and do NOT access external state.

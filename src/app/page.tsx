@@ -202,7 +202,7 @@ export default async function DashboardPage() {
           {/* Budget Progress - Traffic Light Feedback */}
           <BudgetProgressSection budgetProgress={budgetProgress} />
 
-          {/* Spending by Category Chart (Tremor Donut Chart)
+          {/* Spending by Category Chart (Recharts PieChart via shadcn/ui)
               ADHD-friendly: Visual overview of where money goes
               Adjacent to Budget Progress for related financial context.
               @see docs/DASHBOARD_STRATEGY.md Section 4.2 */}
