@@ -107,13 +107,19 @@ Plans:
 ---
 
 ### Phase 5: Documentation & Handoff
-**Goal:** Prepare documentation for UI audit phase.
+**Goal:** Create comprehensive UI audit and handoff documentation to enable rapid context restoration and redesign decisions.
+
+**Plans:** 1 plan
+
+Plans:
+- [ ] 05-01-PLAN.md — Create UI_AUDIT_HANDOFF.md with inventory, boundary maps, ADHD evaluation, and Figma notes
 
 **Deliverables:**
 - Component inventory (what exists, where, which library)
 - Clear "redesign scope" vs "legacy zone" boundaries
-- Notes for Figma design work
-- Updated CLAUDE.md if needed
+- ADHD UX evaluation with compliance/violation examples
+- Figma handoff notes with decision support matrix
+- Single comprehensive document enabling single-page vs multi-page dashboard decision
 
 **Why last:** Captures final state after all cleanup work.
 
@@ -127,7 +133,7 @@ Plans:
 | 2. UI Library Strategy | Complete | 3 plans, verified |
 | 3. UI Library Migration | Complete | 2 plans, verified (minor gaps deferred to Phase 4) |
 | 4. Library Consolidation & Cleanup | Complete | 2 plans, verified |
-| 5. Documentation & Handoff | Not Started | |
+| 5. Documentation & Handoff | Not Started | 1 plan |
 
 ---
 
