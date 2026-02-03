@@ -259,3 +259,210 @@ flowchart TB
 | `/legacy-index` | Navigation to legacy routes | LEGACY | (links only) |
 
 ---
+
+## ADHD UX Evaluation
+
+Evaluation based on ADHD design principles from [CLAUDE.md](../CLAUDE.md) UX Philosophy section.
+
+### Principle 1: Few Elements, High Signal
+
+**Current:** NEEDS-WORK
+
+**Evidence:**
+- Dashboard (`/`) displays 7 sections simultaneously: header, balance card, income/expense cards, budget progress, spending chart, linked accounts, recent transactions
+- Each section competes for attention on initial page load
+- BudgetNotificationDialogs adds modal interruption on top of dense page
+
+**Positive aspects:**
+- SpendingByCategoryChart uses single donut (not multiple charts)
+- Budget progress uses traffic light colors for quick visual scanning
+- Only 1 chart displayed (spending by category) - not overwhelming
+
+**Redesign opportunity:** Consider breaking dashboard into focused views or progressive disclosure
+
+---
+
+### Principle 2: Clear Defaults, Minimal Configuration
+
+**Current:** GOOD
+
+**Evidence:**
+- Budget tracking requires explicit setup in `/settings` but provides clear empty state with CTA
+- No overwhelming settings pages - single BudgetSettings component
+- SyncTransactionsButton provides single action (sync all) not per-account configuration
+- Import runs with sensible defaults (all accounts, all transactions)
+
+**Positive aspects:**
+- Empty states guide users with clear CTAs
+- No complex multi-step wizards
+- Settings page is focused (budget only, not cluttered)
+
+---
+
+### Principle 3: Avoid Visual Noise
+
+**Current:** NEEDS-WORK
+
+**Evidence:**
+- Dashboard page is ~348 lines including all sections inline
+- Multiple card styles mixed (bordered, dashed border for empty states, colored for budget status)
+- Debug info at page bottom adds unnecessary cognitive load
+- Linked Accounts and Recent Transactions lists could become long
+
+**Positive aspects:**
+- Consistent use of muted colors for secondary text
+- Clear visual hierarchy (h1 > h2 > body text)
+- Minimal use of icons (only in SyncTransactionsButton)
+
+**Redesign opportunity:** Consider hiding debug info in production, paginating lists, or moving secondary data to separate views
+
+---
+
+### Principle 4: Prefer Summaries Over Raw Tables
+
+**Current:** GOOD
+
+**Evidence:**
+- Balance shown as single aggregate number across accounts
+- Income/Expenses shown as totals, not transaction-by-transaction
+- Spending chart provides visual summary instead of category table
+- Budget progress uses visual bars, not number-only display
+
+**Positive aspects:**
+- SpendingByCategoryChart limits legend to 6 items
+- BudgetProgressSection shows only set budgets (not all possible categories)
+- Recent Transactions limited to 5 most recent
+
+---
+
+### Principle 5: Empty States Must Guide Users
+
+**Current:** GOOD
+
+**Evidence:**
+- "No Banks Linked" state provides clear CTA (SyncTransactionsButton shows "Link a Bank")
+- "No transactions yet" state explains how to import
+- BudgetProgressSection empty state links to `/settings` with "Set up budgets" CTA
+- SpendingByCategoryChart empty state explains what to do ("Import transactions")
+
+**Positive aspects:**
+- All empty states tested and implemented
+- Consistent pattern: explanation + action button/link
+- No blank screens without guidance
+
+---
+
+### Redesign Opportunities Summary
+
+Prioritized by impact on ADHD cognitive load reduction:
+
+1. **Dashboard information density** (HIGH IMPACT)
+   - 7 sections on one page creates cognitive overload
+   - Consider: dedicated Budget view, Transactions view, Accounts view
+   - Or: progressive disclosure (collapsed sections, expand on click)
+
+2. **Remove debug info from production** (MEDIUM IMPACT)
+   - User ID and transaction count shown at page bottom
+   - Should be dev-only or moved to a hidden details panel
+
+3. **List pagination/limits** (MEDIUM IMPACT)
+   - Linked Accounts and Recent Transactions could grow unbounded
+   - Consider: hard limits with "See all" links
+
+4. **Modal timing for BudgetNotificationDialogs** (LOW IMPACT)
+   - Dialogs appear immediately on dashboard load
+   - Consider: delay or user-initiated notifications view
+
+5. **Visual consistency** (LOW IMPACT)
+   - Mix of card styles (bordered, dashed, colored)
+   - Consider: unified card component with variants
+
+---
+
+## Figma Handoff Notes
+
+### Design Constraints
+
+**Technical:**
+- **UI library:** shadcn/ui components (Tailwind CSS-based)
+- **Charts:** Recharts via shadcn/ui ChartContainer
+- **Notifications:** Sonner toasts (already configured)
+- **Auth:** Supabase Auth flow (login page structure fixed)
+
+**Boundaries:**
+- **Legacy zone frozen:** Cannot redesign `/legacy`, `/analytics`, `/achievements`
+- **Library rules:** No Radix UI direct imports in new components
+- **Component reuse:** 20 shadcn/ui primitives available (see Component Inventory)
+
+### Visual Baseline Reference
+
+**Colors:**
+- CSS custom properties defined in `src/app/globals.css`
+- Theme supports light/dark mode via CSS variables
+- Primary semantic colors: green (income/success), red (expense/error), amber (warning)
+
+**Chart colors:**
+- Defined in `src/utils/charts/index.ts` as `CATEGORY_COLORS`
+- Expense categories: red, orange, yellow, green, blue, violet, gray
+- Income categories: emerald, teal, cyan, sky
+- See [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) Chart Color System section for details
+
+**Typography:**
+- Tailwind defaults (system fonts)
+- Heading sizes: text-2xl (h1), font-semibold (h2), text-sm (secondary)
+- Muted text: text-muted-foreground class
+
+### Dashboard Focus Areas
+
+**Primary redesign target:** `/` (main dashboard)
+
+**Current dashboard sections:**
+1. Page Header (title, description, user actions)
+2. User email display
+3. Balance Card (total across accounts)
+4. Income/Expense Cards (totals)
+5. Budget Progress (traffic light feedback)
+6. Spending by Category Chart (donut)
+7. Linked Accounts list
+8. Recent Transactions list
+9. Debug Info (dev only, should be hidden)
+
+**Key question:** Single-page dashboard vs multi-page architecture?
+
+**Candidate pages if splitting:**
+- **Home/Overview:** Balance, quick stats, budget alerts only
+- **Budget:** Budget Progress, Spending by Category (category focus)
+- **Transactions:** Recent Transactions, full transaction list (transaction focus)
+- **Accounts:** Linked Accounts, sync controls (account focus)
+
+### Decision Support Matrix
+
+| Aspect | Single-Page | Multi-Page |
+|--------|-------------|------------|
+| **ADHD Impact** | Higher cognitive load (7 sections visible) | Lower load per page (focused views) |
+| **Navigation Complexity** | None (scroll-based) | Requires navigation UI (tabs/sidebar) |
+| **Development Effort** | Lower (current state) | Higher (new routes, nav component) |
+| **User Context Switching** | Low (all data visible) | Higher (switch between pages) |
+| **Mobile UX** | Poor (long scroll) | Better (focused screens) |
+| **Information Access** | Immediate (everything visible) | Requires navigation clicks |
+| **Maintenance** | Single page.tsx file | Multiple page files, shared components |
+
+**Recommendation approach:** This matrix provides factors for decision-making. The choice depends on:
+- How often users need to see all data at once vs focused views
+- Team capacity for additional development
+- Whether mobile support is a priority
+
+---
+
+## Document Maintenance
+
+**When to update this document:**
+- After adding/removing components in `src/components/`
+- After route changes in `src/app/`
+- After significant UI/UX changes to dashboard
+- At least quarterly to verify accuracy
+
+**Verification steps:**
+1. Run `find src/components -name "*.tsx" | wc -l` and compare to Total count
+2. Verify route list against `src/app/` directories
+3. Spot-check 3-5 LOC counts against actual files
