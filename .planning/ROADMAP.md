@@ -30,7 +30,11 @@
   2. Body text renders at minimum 16px with 1.5× line height throughout the app
   3. No existing page breaks or visually regresses — all legacy routes still work
   4. `bun run build` passes with no errors
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 06-01-PLAN.md — Add BB color tokens to :root and .dark blocks (TOKEN-01/02/03)
+- [ ] 06-02-PLAN.md — Add spacing, radius, shadow, typography tokens + TOKEN-04 body style (TOKEN-04/05/06/07)
+- [ ] 06-03-PLAN.md — Add BB @theme inline block with all Tailwind utility mappings (TOKEN-01 through TOKEN-07)
 **UI hint**: yes
 
 ### Phase 7: Layout Shell & Navigation
@@ -106,7 +110,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 6. Design Tokens | 0/? | Not started | - |
+| 6. Design Tokens | 0/3 | Not started | - |
 | 7. Layout Shell & Navigation | 0/? | Not started | - |
 | 8. Home Hub | 0/? | Not started | - |
 | 9. Spoke Pages | 0/? | Not started | - |
