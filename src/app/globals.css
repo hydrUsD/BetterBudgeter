@@ -118,6 +118,61 @@
   --bb-cat-transport: oklch(0.62 0.10 200);
   --bb-cat-entertainment: oklch(0.65 0.12 290);
   --bb-cat-other: oklch(0.58 0.02 280);
+
+  /* Spacing scale (TOKEN-05) — 4px grid
+     Steps 7, 9, 11 are intentionally omitted (not in spec). */
+  --bb-space-1: 4px;
+  --bb-space-2: 8px;
+  --bb-space-3: 12px;
+  --bb-space-4: 16px;
+  --bb-space-5: 20px;
+  --bb-space-6: 24px;
+  --bb-space-8: 32px;
+  --bb-space-10: 40px;
+  --bb-space-12: 48px;
+
+  /* Border radius (TOKEN-06) */
+  --bb-radius-sm: 6px;
+  --bb-radius-md: 10px;
+  --bb-radius-lg: 14px;
+  --bb-radius-xl: 20px;
+
+  /* Shadow tokens (TOKEN-06) — intentionally minimal
+     Prefer border + background for elevation over heavy shadows */
+  --bb-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.04);
+  --bb-shadow-md: 0 2px 8px oklch(0 0 0 / 0.06);
+  --bb-shadow-lg: 0 4px 16px oklch(0 0 0 / 0.08);
+
+  /* Font stacks (TOKEN-07)
+     --bb-font-sans: Lucida-led prototype — open letterforms aid ADHD legibility.
+     Verdana fallback: designed for screen legibility, best b/d differentiation.
+     System tail: covers all remaining platforms.
+     NOTE: This is a prototype. Finalize in Phase 11. */
+  --bb-font-sans: "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Verdana,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --bb-font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+
+  /* Type scale (TOKEN-07) — 5 sizes, 2 weights only (minimalism for ADHD clarity) */
+  /* Size tokens — font-size only */
+  --bb-text-xs: 12px;
+  --bb-text-sm: 14px;
+  --bb-text-base: 16px;
+  --bb-text-xl: 22px;
+  --bb-text-3xl: 36px;
+
+  /* Line-height companions — one per size (TOKEN-07) */
+  --bb-text-xs-lh: 1.5;
+  --bb-text-sm-lh: 1.5;
+  --bb-text-base-lh: 1.6;
+  --bb-text-xl-lh: 1.4;
+  --bb-text-3xl-lh: 1.2;
+
+  /* Font-weight companions — one per size (TOKEN-07) */
+  --bb-text-xs-fw: 400;
+  --bb-text-sm-fw: 400;
+  --bb-text-base-fw: 400;
+  --bb-text-xl-fw: 700;
+  --bb-text-3xl-fw: 700;
 }
 
 .dark {
@@ -194,6 +249,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* TOKEN-04: Minimum 16px body text + 1.5x line-height for ADHD readability.
+       16px is browser default — no visual regression expected.
+       1.5 line-height is a modest global improvement to reading comfort. */
+    font-size: 16px;
+    line-height: 1.5;
   }
 }
 
