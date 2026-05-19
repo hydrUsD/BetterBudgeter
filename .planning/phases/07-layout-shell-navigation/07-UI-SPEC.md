@@ -1,10 +1,12 @@
 ---
 phase: 7
 slug: layout-shell-navigation
-status: draft
+status: approved
 shadcn_initialized: true
 preset: "manual (style=new-york, baseColor=zinc, iconLibrary=lucide); BB design system layered via --bb-* tokens"
 created: 2026-05-19
+reviewed_at: 2026-05-19
+review_verdict: "APPROVED — 6/6 dimensions PASS; 4 non-blocking recommendations captured in Open Questions"
 ---
 
 # Phase 7 — UI Design Contract
