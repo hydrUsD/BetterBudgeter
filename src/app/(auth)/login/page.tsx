@@ -13,6 +13,7 @@
  * @see docs/SUPABASE_STRATEGY.md for auth decisions
  */
 
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { generateMetadata } from "@/lib/head";
@@ -41,9 +42,18 @@ export default async function LoginPage() {
           </p>
         </div>
 
-        {/* Login Form */}
+        {/* Login Form
+         *
+         * Wrapped in <Suspense> because LoginForm is a client component that
+         * calls useSearchParams() (Next.js App Router requirement). The old
+         * root layout's PasscodeWrapper implicitly bailed out of static
+         * prerender; after the Phase 7 slim root layout (D-05), this page is
+         * statically generated and the Suspense boundary is required.
+         */}
         <div className="border rounded-lg p-6 bg-card">
-          <LoginForm />
+          <Suspense fallback={<div className="text-sm text-muted-foreground text-center">Loading…</div>}>
+            <LoginForm />
+          </Suspense>
         </div>
 
         {/* Legacy Link */}
