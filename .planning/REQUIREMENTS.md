@@ -139,7 +139,47 @@
 
 ## Requirement Traceability
 
-*Filled by roadmapper — maps each REQ-ID to its phase.*
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| TOKEN-01 | Phase 6 | Pending |
+| TOKEN-02 | Phase 6 | Pending |
+| TOKEN-03 | Phase 6 | Pending |
+| TOKEN-04 | Phase 6 | Pending |
+| TOKEN-05 | Phase 6 | Pending |
+| TOKEN-06 | Phase 6 | Pending |
+| TOKEN-07 | Phase 6 | Pending |
+| NAV-01 | Phase 7 | Pending |
+| NAV-02 | Phase 7 | Pending |
+| NAV-03 | Phase 7 | Pending |
+| NAV-04 | Phase 7 | Pending |
+| NAV-05 | Phase 7 | Pending |
+| NAV-06 | Phase 7 | Pending |
+| PAGE-01 | Phase 8 | Pending |
+| PAGE-02 | Phase 8 | Pending |
+| PAGE-03 | Phase 8 | Pending |
+| PAGE-07 | Phase 8 | Pending |
+| PAGE-08 | Phase 8 | Pending |
+| PAGE-04 | Phase 9 | Pending |
+| PAGE-05 | Phase 9 | Pending |
+| PAGE-06 | Phase 9 | Pending |
+| PAGE-09 | Phase 9 | Pending |
+| COMP-01 | Phase 10 | Pending |
+| COMP-02 | Phase 10 | Pending |
+| COMP-03 | Phase 10 | Pending |
+| COMP-04 | Phase 10 | Pending |
+| COMP-05 | Phase 10 | Pending |
+| COMP-06 | Phase 10 | Pending |
+| COMP-07 | Phase 10 | Pending |
+| COMP-08 | Phase 10 | Pending |
+| COMP-09 | Phase 10 | Pending |
+| COPY-01 | Phase 11 | Pending |
+| COPY-02 | Phase 11 | Pending |
+| A11Y-01 | Phase 11 | Pending |
+| A11Y-02 | Phase 11 | Pending |
+| A11Y-03 | Phase 11 | Pending |
+| A11Y-04 | Phase 11 | Pending |
+| MOTION-01 | Phase 11 | Pending |
+| MOTION-02 | Phase 11 | Pending |
 
 ---
 

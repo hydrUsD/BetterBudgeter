@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: ADHD-Optimized UI Redesign
-status: planning
-last_updated: "2026-05-19T05:50:26.311Z"
+status: roadmap_ready
+last_updated: "2026-05-19"
 last_activity: 2026-05-19
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -17,19 +17,50 @@ progress:
 
 ## Project Reference
 
-**Building:** UI Cleanup & Redesign Preparation for BetterBudgeter
-**Core Value:** Reduce cognitive load when working on UI — clear boundaries, consistent libraries, matching docs
+**Building:** ADHD-Optimized UI Redesign for BetterBudgeter
+**Core Value:** A budget app that ADHD users actually keep using — because it meets them where they are instead of demanding executive function they don't have.
 
 ---
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Not started (roadmap defined, ready for Phase 6)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-05-19 — Milestone v2.0 started
+Status: Roadmap created — awaiting plan-phase execution
+Last activity: 2026-05-19 — Roadmap created for v2.0 (Phases 6–11)
 
-## Recent Decisions
+## Phase Overview
+
+```
+Milestone: ADHD-Optimized UI Redesign
+├── Phase 6: Design Tokens ⬜ NOT STARTED
+├── Phase 7: Layout Shell & Navigation ⬜ NOT STARTED
+├── Phase 8: Home Hub ⬜ NOT STARTED
+├── Phase 9: Spoke Pages ⬜ NOT STARTED
+├── Phase 10: Component System ⬜ NOT STARTED
+└── Phase 11: Copy, Accessibility & Motion ⬜ NOT STARTED
+```
+
+---
+
+## Recent Decisions (v2.0)
+
+| Decision | Choice | Date |
+|----------|--------|------|
+| Milestone scope | UI/UX only — no backend, DB, auth changes | 2026-05-19 |
+| Phase numbering | Start at 6 (v1.0 ended at Phase 5) | 2026-05-19 |
+| Charts constraint | shadcn/ui charts ONLY — no direct Recharts imports, no Tremor | 2026-05-19 |
+| Token strategy | `--bb-*` alongside shadcn/ui variables, not replacing them | 2026-05-19 |
+| Navigation pattern | 4-tab bottom bar — Home, Budgets, Transactions, Settings | 2026-05-19 |
+| Home page model | Hub (4 sections only) — complex content lives on spoke pages | 2026-05-19 |
+| Safe-to-Spend | Computed in `lib/safe-to-spend.ts`, NOT raw balance | 2026-05-19 |
+| Spending by Category chart | Migrated from Home → Budgets page | 2026-05-19 |
+| Linked Accounts | Migrated from Home → Settings page | 2026-05-19 |
+| Legacy routes | Never touched — `/legacy`, `/analytics`, `/achievements` stay as-is | 2026-05-19 |
+
+---
+
+## Previous Milestone Decisions (v1.0 — archived)
 
 | Decision | Choice | Date |
 |----------|--------|------|
@@ -43,67 +74,45 @@ Last activity: 2026-05-19 — Milestone v2.0 started
 | New BB primitives | Base UI (modern successor to Radix, v1.0 stable Dec 2025) | 2026-01-28 |
 | Legacy primitives | Radix UI stays for legacy OopsBudgeter only | 2026-01-28 |
 | Charts | shadcn/ui charts (Recharts under the hood) | 2026-01-28 |
-| animate-ui | Deferred to redesign phase (foundation first) | 2026-01-28 |
-| Library boundary rules | 5 rules established in LIBRARY_STRATEGY.md + CLAUDE.md | 2026-01-28 |
-| Overall migration risk | LOW (6 risks documented with mitigations) | 2026-01-28 |
-| Base UI version | Pinned to ^1.1.0 for stable minor updates | 2026-01-30 |
-| Chart pattern | ChartContainer + PieChart with Cell for per-slice colors | 2026-01-30 |
-| Tremor complete removal | Remove all artifacts including CSS utilities | 2026-01-30 |
-| Tremor migration notes | Retained as historical documentation in SpendingByCategoryChart.tsx | 2026-01-31 |
-| Dependency cleanup scope | Only mongoose/quick.db removed, other flagged deps are plugins/tools | 2026-01-31 |
-| Central docs approach | Single docs/UI_ARCHITECTURE.md rather than per-component READMEs | 2026-01-31 |
-| Header comment pattern | LIBRARY USAGE section + @see docs/UI_ARCHITECTURE.md | 2026-01-31 |
-| Handoff document approach | Single comprehensive docs/UI_AUDIT_HANDOFF.md | 2026-02-03 |
-| ADHD evaluation format | 5 principles with GOOD/NEEDS-WORK/VIOLATION ratings | 2026-02-03 |
-| Dashboard decision support | Decision matrix for single-page vs multi-page | 2026-02-03 |
 
 ---
 
 ## Pending Todos
 
-_None yet_
+- Run `/gsd:plan-phase 6` to begin Phase 6: Design Tokens
 
 ---
 
 ## Blockers / Concerns
 
-- ~~Tremor v4 beta → v1.0.0 may have significant API changes~~ (RESOLVED: Tremor removed entirely)
-- ~~Analytics.tsx is complex legacy code~~ (RESOLVED: Moved to legacy with other components)
-- Radix UI maintenance risk — same team left after WorkOS acquisition (long-term concern, not blocking)
+- None currently
 
 ---
 
 ## Session Continuity
 
-**Last session:** 2026-02-03
-**Stopped at:** Completed 05-01-PLAN.md (Milestone complete)
-**Resume file:** None
+**Last session:** 2026-05-19
+**Stopped at:** Roadmap created (v2.0, Phases 6–11)
+**Resume with:** `/gsd:plan-phase 6`
 
 ---
 
 ## Quick Context
 
 ```
-Milestone: UI Cleanup & Redesign Preparation ✅ COMPLETE
-├── Phase 1: Legacy Component Isolation ✅ COMPLETE
-├── Phase 2: UI Library Strategy ✅ COMPLETE
-│   ├── 02-01: Tremor Audit ✅ COMPLETE
-│   ├── 02-02: Component Inventory & Strategy ✅ COMPLETE
-│   └── 02-03: Risk Assessment & CLAUDE.md Update ✅ COMPLETE
-├── Phase 3: UI Library Migration ✅ COMPLETE
-│   ├── 03-01: Install Base UI + Migrate Chart ✅ COMPLETE
-│   └── 03-02: Remove Tremor + Cleanup ✅ COMPLETE
-├── Phase 4: Library Consolidation & Cleanup ✅ COMPLETE
-│   ├── 04-01: Tremor Artifact Cleanup ✅ COMPLETE
-│   └── 04-02: UI Library Documentation ✅ COMPLETE
-└── Phase 5: Documentation & Handoff ✅ COMPLETE
-    └── 05-01: UI Audit Handoff ✅ COMPLETE
+Milestone v1.0: UI Cleanup & Redesign Preparation ✅ COMPLETE (Phases 1–5)
+
+Milestone v2.0: ADHD-Optimized UI Redesign — IN PROGRESS
+├── Phase 6: Design Tokens (TOKEN-01 to TOKEN-07)
+│   Goal: All --bb-* CSS custom properties defined in globals.css
+├── Phase 7: Layout Shell & Navigation (NAV-01 to NAV-06)
+│   Goal: Tab bar + PageShell + PageHeader available and wired up
+├── Phase 8: Home Hub (PAGE-01, PAGE-02, PAGE-03, PAGE-07, PAGE-08)
+│   Goal: Home page restructured as hub with Safe-to-Spend hero
+├── Phase 9: Spoke Pages (PAGE-04, PAGE-05, PAGE-06, PAGE-09)
+│   Goal: Budgets, Transactions, Settings pages built and functional
+├── Phase 10: Component System (COMP-01 to COMP-09)
+│   Goal: Full ADHD-optimized component library in use
+└── Phase 11: Copy, Accessibility & Motion (COPY, A11Y, MOTION)
+    Goal: Shame-free copy, WCAG 2.2 AA, functional motion only
 ```
-
-**Milestone complete.** UI Cleanup & Redesign Preparation delivered:
-
-- Legacy isolation (components/legacy/)
-- Library boundaries (shadcn/ui primary, Radix frozen)
-- Comprehensive documentation (UI_ARCHITECTURE.md, UI_AUDIT_HANDOFF.md)
-- ADHD UX evaluation with redesign opportunities
-- Decision support for dashboard architecture

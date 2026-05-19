@@ -1,149 +1,164 @@
-# ROADMAP: UI Cleanup & Redesign Preparation
+# ROADMAP: v2.0 — ADHD-Optimized UI Redesign
 
-## Milestone 1: UI Cleanup & Redesign Preparation
-
-**Goal:** Prepare codebase for comprehensive UI/UX redesign work in Figma.
-
-**Success:** Clear structural boundaries, consistent library usage, documentation that matches code.
+**Milestone:** v2.0
+**Previous milestone:** v1.0 UI Cleanup & Redesign Preparation (Phases 1–5, complete)
+**Phases in this milestone:** 6–11
+**Requirements:** 39 active (TOKEN, NAV, PAGE, COMP, COPY, A11Y, MOTION)
+**Granularity:** Standard
 
 ---
 
 ## Phases
 
-### Phase 1: Legacy Component Isolation
-**Goal:** Structurally separate legacy OopsBudgeter components from BetterBudgeter components.
-
-**Plans:** 2 plans
-
-Plans:
-- [x] 01-01-PLAN.md — Move 28 legacy components to components/legacy/ and restore original Logo.tsx
-- [x] 01-02-PLAN.md — Rewire all imports to legacy/ paths and verify build
-
-**Deliverables:**
-- `components/legacy/` directory with all legacy components
-- Updated imports throughout codebase
-- No functional changes — just file moves
-- Verification that legacy routes still work
-
-**Why first:** Creates mental clarity before making any code changes. Establishes clear "don't touch" zone.
+- [ ] **Phase 6: Design Tokens** — Establish all `--bb-*` CSS custom properties in globals.css (colors, typography, spacing, radius, shadows). No visible UI change — foundation for all subsequent phases.
+- [ ] **Phase 7: Layout Shell & Navigation** — Create shared layout components (PageShell, PageHeader, TabBar) and wire up bottom tab bar across the four main pages. Legacy routes excluded.
+- [ ] **Phase 8: Home Hub** — Restructure the Home page (`/`) into a hub: Safe-to-Spend hero metric, compact budget status indicators, recent transactions, quick-action sync button. Implement `lib/safe-to-spend.ts`.
+- [ ] **Phase 9: Spoke Pages** — Build Budgets (`/budgets`), Transactions (`/transactions`), and expanded Settings (`/settings`) pages. Migrate Spending by Category chart to Budgets; migrate Linked Accounts to Settings.
+- [ ] **Phase 10: Component System** — Build and integrate the full component library: KPI Card, Budget Progress Card, Transaction Item, Empty State, Alert Banner, button variants, loading states, confirmation dialogs, feedback patterns.
+- [ ] **Phase 11: Copy, Accessibility & Motion** — Non-judgmental copy pass, WCAG 2.2 AA compliance audit, semantic HTML, motion system (functional animations + reduced-motion support).
 
 ---
 
-### Phase 2: UI Library Strategy
-**Goal:** Audit current UI library usage, decide replacement strategy for Tremor, and establish the new component system.
+## Phase Details
 
-**Status:** COMPLETE (2026-01-28)
+### Phase 6: Design Tokens
+**Goal**: All `--bb-*` CSS custom properties are defined and available throughout the app, in both light and dark mode, ready for consumption by subsequent phases.
+**Depends on**: Nothing (first phase of milestone)
+**Requirements**: TOKEN-01, TOKEN-02, TOKEN-03, TOKEN-04, TOKEN-05, TOKEN-06, TOKEN-07
+**Success Criteria** (what must be TRUE):
+  1. All `--bb-*` tokens exist in `globals.css` and can be inspected in browser DevTools in both light and dark mode
+  2. Body text renders at minimum 16px with 1.5× line height throughout the app
+  3. No existing page breaks or visually regresses — all legacy routes still work
+  4. `bun run build` passes with no errors
+**Plans**: TBD
+**UI hint**: yes
 
-**Plans:** 3 plans
+### Phase 7: Layout Shell & Navigation
+**Goal**: Users can navigate between Home, Budgets, Transactions, and Settings via a persistent bottom tab bar. Shared layout components (PageShell, PageHeader) are available for all spoke pages to use. Auth and legacy routes render without the tab bar.
+**Depends on**: Phase 6
+**Requirements**: NAV-01, NAV-02, NAV-03, NAV-04, NAV-05, NAV-06
+**Success Criteria** (what must be TRUE):
+  1. Bottom tab bar is visible on all four main pages (Home, Budgets, Transactions, Settings) and absent on `/login`, `/link-bank`, and all legacy routes
+  2. Active tab shows `--bb-info` color; inactive tabs show `--bb-text-secondary`; tapping a tab switches instantly with no transition animation
+  3. All legacy routes (`/legacy`, `/analytics`, `/achievements`, `/legacy-index`, `/dashboard`) remain fully functional
+  4. PageShell constrains content to max-width 768px with correct bottom padding clearing the tab bar
+  5. `bun run build` passes with no errors
+**Plans**: TBD
+**UI hint**: yes
 
-Plans:
-- [x] 02-01-PLAN.md — Tremor usage audit and stability strategy
-- [x] 02-02-PLAN.md — Component inventory and library strategy document
-- [x] 02-03-PLAN.md — Migration risk assessment and CLAUDE.md update
+### Phase 8: Home Hub
+**Goal**: The Home page (`/`) delivers the hub experience — a Safe-to-Spend hero metric computed from real account data, a compact one-line-per-budget status indicator, a short recent-transaction list, and a Sync button. Everything else that was on the old dashboard is moved to its spoke page.
+**Depends on**: Phase 7
+**Requirements**: PAGE-01, PAGE-02, PAGE-03, PAGE-07, PAGE-08
+**Success Criteria** (what must be TRUE):
+  1. Home page displays exactly 4 sections: greeting + Safe-to-Spend hero, compact budget status indicators, 3–5 most recent transactions, "Sync Transactions" button
+  2. Safe-to-Spend value is computed by `lib/safe-to-spend.ts` (not raw balance) and shows a meaningful number when transactions exist
+  3. Budget status indicators are compact single-line elements (NOT full Budget Progress Cards)
+  4. Page uses PageShell layout (max-width 768px, correct spacing from token scale)
+  5. `bun run build` passes with no errors
+**Plans**: TBD
+**UI hint**: yes
 
-**Previous work (02-01-PLAN.md):** Tremor audit completed 2026-01-27. Found only 1 Tremor component (DonutChart). This audit remains valid and informs the new strategy.
+### Phase 9: Spoke Pages
+**Goal**: Users can access complete, functional Budgets, Transactions, and Settings pages. The Spending by Category chart lives on the Budgets page (removed from Home). Linked Accounts management lives on Settings (removed from Home). Each page uses PageShell and design tokens.
+**Depends on**: Phase 8
+**Requirements**: PAGE-04, PAGE-05, PAGE-06, PAGE-09
+**Success Criteria** (what must be TRUE):
+  1. Budgets page (`/budgets`) shows monthly overview, one Budget Progress Card per active budget, Spending by Category donut chart (shadcn/ui chart — no direct Recharts imports), and "Edit budgets" link
+  2. Transactions page (`/transactions`) shows Income + Expenses KPI cards in a two-column grid at ≥640px (single-column below), full transaction history grouped by date, and a Sync button
+  3. Settings page (`/settings`) includes budget configuration, Linked Accounts list, notification preferences, and account info/sign-out
+  4. All three pages use PageShell and consume `--bb-*` design tokens; no hardcoded color values
+  5. `bun run build` passes with no errors
+**Plans**: TBD
+**UI hint**: yes
 
-**Deliverables:**
-- Audit of all current UI library usage (Tremor, Radix, shadcn, Recharts)
-- Decision document: new library architecture
-- Migration risk assessment
+### Phase 10: Component System
+**Goal**: A complete, consistent set of purpose-built ADHD-optimized components is available and in use across all pages: KPI Card, Budget Progress Card, Transaction Item, Empty State, Alert Banner, button variants, loading/feedback patterns, and confirmation dialogs.
+**Depends on**: Phase 9
+**Requirements**: COMP-01, COMP-02, COMP-03, COMP-04, COMP-05, COMP-06, COMP-07, COMP-08, COMP-09
+**Success Criteria** (what must be TRUE):
+  1. KPI Card, Budget Progress Card, Transaction Item, Empty State, and Alert Banner are built as standalone reusable components and used on their respective pages
+  2. Budget Progress Card shows three distinct visual states: On Track (green bar), Warning (amber bar + "Getting close"), Over Budget (coral bar + "Over by €X" — never "Budget failed")
+  3. Every destructive or impulsive action (delete budget, unlink account, etc.) triggers a supportive confirmation dialog using compassionate language ("You can recreate it anytime")
+  4. Every user action produces immediate visible feedback: press states, inline spinners, success toasts via Sonner, inline error messages
+  5. All buttons meet the 44×44px minimum touch target and have loading states that keep button size stable
+  6. `bun run build` passes with no errors
+**Plans**: TBD
+**UI hint**: yes
 
-**Key Decisions (locked 2026-01-28):**
-- Tremor removed entirely (unmaintained — no commits in over a year)
-- shadcn/ui = primary UI framework for BetterBudgeter
-- Base UI = headless primitives for new BetterBudgeter components
-- Radix UI = stays for legacy OopsBudgeter only (do not touch)
-- Charts = shadcn/ui charts (Recharts under the hood)
-- animate-ui = deferred to redesign phase (foundation first)
-
-**Why second:** Must decide the library architecture before any migration work.
-
----
-
-### Phase 3: UI Library Migration
-**Goal:** Replace Tremor with shadcn/ui charts, set up Base UI as the primitive layer for new components, and remove Tremor dependency.
-
-**Status:** COMPLETE (2026-01-30)
-
-**Plans:** 2 plans
-
-Plans:
-- [x] 03-01-PLAN.md — Install Base UI and migrate SpendingByCategoryChart to shadcn/ui
-- [x] 03-02-PLAN.md — Remove Tremor dependency and clean up all Tremor artifacts
-
-**Deliverables:**
-- shadcn/ui initialized with Base UI primitives (for new components)
-- DonutChart replaced with shadcn/ui chart equivalent (Recharts)
-- `@tremor/react` removed from dependencies
-- Verification that all charts render correctly
-- Legacy components remain untouched on Radix
-- Commit after each migration step
-
-**Why third:** Depends on library strategy from Phase 2.
-
----
-
-### Phase 4: Library Consolidation & Cleanup
-**Goal:** Remove unused code, establish clear library boundaries, document the new system.
-
-**Status:** COMPLETE (2026-01-31)
-
-**Plans:** 2 plans
-
-Plans:
-- [x] 04-01-PLAN.md — Remove Tremor artifacts and unused dependencies
-- [x] 04-02-PLAN.md — Create UI library documentation (docs/UI_ARCHITECTURE.md)
-
-**Deliverables:**
-- Remove unused Tremor utilities from utils.ts
-- Update outdated Tremor comments to reflect Recharts/shadcn-ui
-- Remove unused dependencies (mongoose, quick.db)
-- Create docs/UI_ARCHITECTURE.md with Mermaid diagrams
-- Document Sonner toast patterns
-- Add header comments to key files documenting library usage
-
-**Why fourth:** After migration, we can see what's actually used vs unused.
-
----
-
-### Phase 5: Documentation & Handoff
-**Goal:** Create comprehensive UI audit and handoff documentation to enable rapid context restoration and redesign decisions.
-
-**Status:** COMPLETE (2026-02-03)
-
-**Plans:** 1 plan
-
-Plans:
-- [x] 05-01-PLAN.md — Create UI_AUDIT_HANDOFF.md with inventory, boundary maps, ADHD evaluation, and Figma notes
-
-**Deliverables:**
-- Component inventory (what exists, where, which library)
-- Clear "redesign scope" vs "legacy zone" boundaries
-- ADHD UX evaluation with compliance/violation examples
-- Figma handoff notes with decision support matrix
-- Single comprehensive document enabling single-page vs multi-page dashboard decision
-
-**Why last:** Captures final state after all cleanup work.
+### Phase 11: Copy, Accessibility & Motion
+**Goal**: Every user-facing string passes the shame test and explains errors actionably. All interactive elements meet WCAG 2.2 AA. Semantic HTML is correct throughout. Functional motion is implemented; decorative motion is absent. Light and dark mode both pass contrast checks.
+**Depends on**: Phase 10
+**Requirements**: COPY-01, COPY-02, A11Y-01, A11Y-02, A11Y-03, A11Y-04, MOTION-01, MOTION-02
+**Success Criteria** (what must be TRUE):
+  1. No user-facing string contains blame, penalty, or shame language — all strings match or follow the rewrite table in DESIGN_SYSTEM.md §9.3
+  2. All error messages state what happened AND what the user can do next; no technical codes or stack traces are shown to users
+  3. All interactive elements have visible focus rings, minimum 44×44px touch targets, and pass 4.5:1 contrast in both light and dark mode
+  4. App uses semantic HTML landmarks (`<main>`, `<nav>`, `<header>`, `<section>`), strict heading hierarchy, and `<label>` on all form inputs
+  5. All `--bb-*` tokens have both light and dark values; `prefers-reduced-motion` disables all non-essential animations; `prefers-color-scheme` switches modes correctly
+  6. `bun run build` passes with no errors
+**Plans**: TBD
+**UI hint**: yes
 
 ---
 
-## Phase Status
+## Progress Table
 
-| Phase | Status | Notes |
-|-------|--------|-------|
-| 1. Legacy Component Isolation | Complete | 2 plans, verified |
-| 2. UI Library Strategy | Complete | 3 plans, verified |
-| 3. UI Library Migration | Complete | 2 plans, verified (minor gaps deferred to Phase 4) |
-| 4. Library Consolidation & Cleanup | Complete | 2 plans, verified |
-| 5. Documentation & Handoff | Complete | 1 plan, verified |
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 6. Design Tokens | 0/? | Not started | - |
+| 7. Layout Shell & Navigation | 0/? | Not started | - |
+| 8. Home Hub | 0/? | Not started | - |
+| 9. Spoke Pages | 0/? | Not started | - |
+| 10. Component System | 0/? | Not started | - |
+| 11. Copy, Accessibility & Motion | 0/? | Not started | - |
 
 ---
 
-## Post-Milestone
+## Requirement Coverage
 
-After this milestone, user will:
-1. Conduct comprehensive UI audit (manual)
-2. Create redesign scope in Figma
-3. Connect Claude to Figma via MCP for design implementation
+All 39 active requirements mapped:
 
-**Future consideration:** Achievements page research for ADHD engagement (separate project)
+| Req ID | Phase |
+|--------|-------|
+| TOKEN-01 | 6 |
+| TOKEN-02 | 6 |
+| TOKEN-03 | 6 |
+| TOKEN-04 | 6 |
+| TOKEN-05 | 6 |
+| TOKEN-06 | 6 |
+| TOKEN-07 | 6 |
+| NAV-01 | 7 |
+| NAV-02 | 7 |
+| NAV-03 | 7 |
+| NAV-04 | 7 |
+| NAV-05 | 7 |
+| NAV-06 | 7 |
+| PAGE-01 | 8 |
+| PAGE-02 | 8 |
+| PAGE-03 | 8 |
+| PAGE-07 | 8 |
+| PAGE-08 | 8 |
+| PAGE-04 | 9 |
+| PAGE-05 | 9 |
+| PAGE-06 | 9 |
+| PAGE-09 | 9 |
+| COMP-01 | 10 |
+| COMP-02 | 10 |
+| COMP-03 | 10 |
+| COMP-04 | 10 |
+| COMP-05 | 10 |
+| COMP-06 | 10 |
+| COMP-07 | 10 |
+| COMP-08 | 10 |
+| COMP-09 | 10 |
+| COPY-01 | 11 |
+| COPY-02 | 11 |
+| A11Y-01 | 11 |
+| A11Y-02 | 11 |
+| A11Y-03 | 11 |
+| A11Y-04 | 11 |
+| MOTION-01 | 11 |
+| MOTION-02 | 11 |
+
+Coverage: 39/39 ✓
