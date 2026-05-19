@@ -19,7 +19,8 @@
     "research_before_questions": false,
     "discuss_mode": "discuss",
     "skip_discuss": false,
-    "use_worktrees": true
+    "use_worktrees": true,
+    "_auto_chain_active": false
   },
   "intel": {
     "enabled": false
