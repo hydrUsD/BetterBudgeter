@@ -184,3 +184,17 @@ No new security surface introduced. Route group restructure is URL-transparent (
 | Task 2 commit `14f0490` exists | PASS |
 | Git records moves as R100 renames | PASS |
 | Apache 2.0 license preserved in root layout | PASS |
+
+## Task 3: Human Verification
+
+| URL | Expected | Result |
+|-----|----------|--------|
+| `/legacy` | Legacy chrome + PasscodeWrapper | PASS (user-verified 2026-05-19) |
+| `/analytics` | Legacy chrome | PASS (user-verified 2026-05-19) |
+| `/achievements` | Legacy chrome | PASS (user-verified 2026-05-19) |
+| `/legacy-index` | Legacy chrome | PASS (user-verified 2026-05-19) |
+| `/dashboard` | 308 → `/` (D-14) | PASS (user-verified 2026-05-19) |
+| `/login` | Slim root only, no legacy chrome (D-02) | PASS (user-verified 2026-05-19) |
+| `/link-bank` | Slim root only (or middleware-redirect to /login) (D-02, D-13) | PASS (user-verified 2026-05-19) |
+
+User approved smoke test via `/gsd:execute-phase 7` checkpoint flow. Plan 03 complete — all 3 tasks delivered, all 7 URLs verified green. Ready for merge into `ui-tests`.
