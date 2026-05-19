@@ -57,11 +57,11 @@
 **Plans**: 4 plans, 3 waves
 
 **Wave 1** (parallel — PageShell/PageHeader and TabBar have no inter-dependency):
-- [ ] 07-01-PLAN.md — PageShell + PageHeader layout primitives (TDD, NAV-05)
-- [ ] 07-02-PLAN.md — TabBar bottom navigation component (TDD, NAV-01/02/03)
+- [x] 07-01-PLAN.md — PageShell + PageHeader layout primitives (TDD, NAV-05)
+- [x] 07-02-PLAN.md — TabBar bottom navigation component (TDD, NAV-01/02/03)
 
 **Wave 2**:
-- [ ] 07-03-PLAN.md — Slim root layout + create (legacy)/layout.tsx + git mv 5 legacy page dirs (NAV-04, NAV-06)
+- [x] 07-03-PLAN.md — Slim root layout + create (legacy)/layout.tsx + git mv 5 legacy page dirs (NAV-04, NAV-06)
 
 **Wave 3** (depends on Plans 01, 02, 03 — wires BB chrome to consume primitives):
 - [ ] 07-04-PLAN.md — Create (bb)/layout.tsx + move Home/Settings into (bb)/ + create stub /budgets and /transactions pages (NAV-01/02/03/05/06)
@@ -130,7 +130,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 6. Design Tokens | 0/3 | Planned | - |
-| 7. Layout Shell & Navigation | 0/? | Not started | - |
+| 7. Layout Shell & Navigation | 3/4 | In Progress|  |
 | 8. Home Hub | 0/? | Not started | - |
 | 9. Spoke Pages | 0/? | Not started | - |
 | 10. Component System | 0/? | Not started | - |
