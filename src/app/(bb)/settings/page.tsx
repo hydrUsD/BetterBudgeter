@@ -58,7 +58,8 @@ export default async function SettingsPage() {
   // ─────────────────────────────────────────────────────────────────────────────
 
   return (
-    <main className="flex flex-col gap-6 p-6 max-w-2xl mx-auto">
+    // Outer wrapper downgraded from <main> to <div> per Phase 7 D-07 — PageShell (in (bb)/layout.tsx per D-06) now provides the single <main> landmark for this route. See RESEARCH §Pitfall 5.
+    <div className="flex flex-col gap-6">
       {/* Page Header */}
       <div>
         <h1 className="text-2xl font-bold">Settings</h1>
@@ -162,6 +163,6 @@ export default async function SettingsPage() {
           </button>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

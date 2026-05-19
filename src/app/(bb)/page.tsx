@@ -96,7 +96,8 @@ export default async function DashboardPage() {
   const totalBalance = accounts.reduce((sum, acc) => sum + (acc.balance ?? 0), 0);
 
   return (
-    <main className="flex flex-col gap-6 p-6 max-w-5xl mx-auto">
+    // Outer wrapper downgraded from <main> to <div> per Phase 7 D-07 — PageShell (in (bb)/layout.tsx per D-06) now provides the single <main> landmark for this route. See RESEARCH §Pitfall 5.
+    <div className="flex flex-col gap-6">
       {/* Budget Notification Dialogs
           ADHD-friendly Alert Dialogs for budget warnings and over-budget states.
           Shows one dialog at a time, requires user acknowledgment.
@@ -301,7 +302,7 @@ export default async function DashboardPage() {
           <strong>Transactions:</strong> {summary.transactionCount}
         </p>
       </div>
-    </main>
+    </div>
   );
 }
 
