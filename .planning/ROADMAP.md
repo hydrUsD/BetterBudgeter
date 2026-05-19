@@ -54,7 +54,19 @@
   3. All legacy routes (`/legacy`, `/analytics`, `/achievements`, `/legacy-index`, `/dashboard`) remain fully functional
   4. PageShell constrains content to max-width 768px with correct bottom padding clearing the tab bar
   5. `bun run build` passes with no errors
-**Plans**: TBD
+**Plans**: 4 plans, 3 waves
+
+**Wave 1** (parallel — PageShell/PageHeader and TabBar have no inter-dependency):
+- [ ] 07-01-PLAN.md — PageShell + PageHeader layout primitives (TDD, NAV-05)
+- [ ] 07-02-PLAN.md — TabBar bottom navigation component (TDD, NAV-01/02/03)
+
+**Wave 2**:
+- [ ] 07-03-PLAN.md — Slim root layout + create (legacy)/layout.tsx + git mv 5 legacy page dirs (NAV-04, NAV-06)
+
+**Wave 3** (depends on Plans 01, 02, 03 — wires BB chrome to consume primitives):
+- [ ] 07-04-PLAN.md — Create (bb)/layout.tsx + move Home/Settings into (bb)/ + create stub /budgets and /transactions pages (NAV-01/02/03/05/06)
+
+**Cross-cutting constraints:** `git mv` for all 7 file moves (preserves blame per CLAUDE.md rule 10); no @radix-ui imports in new BB code; --bb-* tokens only; TDD discipline (RED→GREEN commits) for the 3 layout components; `viewportFit: "cover"` added to root Viewport export (RESEARCH §Pitfall 1).
 **UI hint**: yes
 
 ### Phase 8: Home Hub
