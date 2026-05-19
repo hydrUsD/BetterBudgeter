@@ -10,7 +10,7 @@
 
 ## Phases
 
-- [x] **Phase 6: Design Tokens** — Establish all `--bb-*` CSS custom properties in globals.css (colors, typography, spacing, radius, shadows). No visible UI change — foundation for all subsequent phases. *(Planned — 3 plans)*
+- [x] **Phase 6: Design Tokens** — Establish all `--bb-*` CSS custom properties in globals.css (colors, typography, spacing, radius, shadows). No visible UI change — foundation for all subsequent phases. *(Complete — 3 plans)*
 - [ ] **Phase 7: Layout Shell & Navigation** — Create shared layout components (PageShell, PageHeader, TabBar) and wire up bottom tab bar across the four main pages. Legacy routes excluded.
 - [ ] **Phase 8: Home Hub** — Restructure the Home page (`/`) into a hub: Safe-to-Spend hero metric, compact budget status indicators, recent transactions, quick-action sync button. Implement `lib/safe-to-spend.ts`.
 - [ ] **Phase 9: Spoke Pages** — Build Budgets (`/budgets`), Transactions (`/transactions`), and expanded Settings (`/settings`) pages. Migrate Spending by Category chart to Budgets; migrate Linked Accounts to Settings.
@@ -33,13 +33,13 @@
 **Plans**: 3 plans, 3 sequential waves (all modify `src/app/globals.css`)
 
 **Wave 1**
-- [ ] 06-01-PLAN.md — Color tokens: BB `:root` and `.dark` blocks (TOKEN-01/02/03)
+- [x] 06-01-PLAN.md — Color tokens: BB `:root` and `.dark` blocks (TOKEN-01/02/03)
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 06-02-PLAN.md — Spacing, radius, shadow, typography tokens + base body style (TOKEN-04/05/06/07)
+- [x] 06-02-PLAN.md — Spacing, radius, shadow, typography tokens + base body style (TOKEN-04/05/06/07)
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 06-03-PLAN.md — BB `@theme inline` Tailwind utility mappings (TOKEN-01 through TOKEN-07)
+- [x] 06-03-PLAN.md — BB `@theme inline` Tailwind utility mappings (TOKEN-01 through TOKEN-07)
 
 **Cross-cutting constraints:** All three plans modify `src/app/globals.css` additively — existing shadcn blocks must remain unchanged.
 **UI hint**: yes
