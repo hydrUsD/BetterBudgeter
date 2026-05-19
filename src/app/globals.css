@@ -45,6 +45,81 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* BetterBudgeter Tailwind Mappings
+   Two-step pattern: token defined in :root → exposed here as Tailwind utility.
+   Naming convention (D-02): --color-bb-{name} → bg-bb-{name}, text-bb-{name}
+                              --spacing-bb-{n}  → p-bb-{n}, m-bb-{n}
+                              --radius-bb-{name}→ rounded-bb-{name}
+                              --text-bb-{name}  → text-bb-{name}
+*/
+@theme inline {
+  /* Foundation colors (TOKEN-01) */
+  --color-bb-bg: var(--bb-bg);
+  --color-bb-surface: var(--bb-surface);
+  --color-bb-surface-raised: var(--bb-surface-raised);
+  --color-bb-text: var(--bb-text);
+  --color-bb-text-secondary: var(--bb-text-secondary);
+  --color-bb-border: var(--bb-border);
+
+  /* Semantic financial colors (TOKEN-02) */
+  --color-bb-positive: var(--bb-positive);
+  --color-bb-positive-bg: var(--bb-positive-bg);
+  --color-bb-caution: var(--bb-caution);
+  --color-bb-caution-bg: var(--bb-caution-bg);
+  --color-bb-negative: var(--bb-negative);
+  --color-bb-negative-bg: var(--bb-negative-bg);
+  --color-bb-info: var(--bb-info);
+  --color-bb-info-bg: var(--bb-info-bg);
+
+  /* Budget category colors (TOKEN-03) */
+  --color-bb-cat-essentials: var(--bb-cat-essentials);
+  --color-bb-cat-discretionary: var(--bb-cat-discretionary);
+  --color-bb-cat-savings: var(--bb-cat-savings);
+  --color-bb-cat-food: var(--bb-cat-food);
+  --color-bb-cat-transport: var(--bb-cat-transport);
+  --color-bb-cat-entertainment: var(--bb-cat-entertainment);
+  --color-bb-cat-other: var(--bb-cat-other);
+
+  /* Spacing scale (TOKEN-05) — 4px grid, named steps */
+  --spacing-bb-1: var(--bb-space-1);
+  --spacing-bb-2: var(--bb-space-2);
+  --spacing-bb-3: var(--bb-space-3);
+  --spacing-bb-4: var(--bb-space-4);
+  --spacing-bb-5: var(--bb-space-5);
+  --spacing-bb-6: var(--bb-space-6);
+  --spacing-bb-8: var(--bb-space-8);
+  --spacing-bb-10: var(--bb-space-10);
+  --spacing-bb-12: var(--bb-space-12);
+
+  /* Border radius (TOKEN-06) */
+  --radius-bb-sm: var(--bb-radius-sm);
+  --radius-bb-md: var(--bb-radius-md);
+  --radius-bb-lg: var(--bb-radius-lg);
+  --radius-bb-xl: var(--bb-radius-xl);
+
+  /* Typography scale (TOKEN-07) — 5 sizes, with line-height and font-weight companions */
+  /* Size tokens — font-size values */
+  --text-bb-xs: var(--bb-text-xs);
+  --text-bb-sm: var(--bb-text-sm);
+  --text-bb-base: var(--bb-text-base);
+  --text-bb-xl: var(--bb-text-xl);
+  --text-bb-3xl: var(--bb-text-3xl);
+
+  /* Line-height companions — one per size */
+  --text-bb-xs-lh: var(--bb-text-xs-lh);
+  --text-bb-sm-lh: var(--bb-text-sm-lh);
+  --text-bb-base-lh: var(--bb-text-base-lh);
+  --text-bb-xl-lh: var(--bb-text-xl-lh);
+  --text-bb-3xl-lh: var(--bb-text-3xl-lh);
+
+  /* Font-weight companions — one per size */
+  --text-bb-xs-fw: var(--bb-text-xs-fw);
+  --text-bb-sm-fw: var(--bb-text-sm-fw);
+  --text-bb-base-fw: var(--bb-text-base-fw);
+  --text-bb-xl-fw: var(--bb-text-xl-fw);
+  --text-bb-3xl-fw: var(--bb-text-3xl-fw);
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
