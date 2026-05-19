@@ -92,15 +92,25 @@ Verdana fallback for screen legibility. Finalize in Phase 11.
 
 ### Type Scale (TOKEN-07)
 
+4 sizes, 2 weights only.
+
 | Token | Size | Line Height | Weight | Usage |
 |-------|------|-------------|--------|-------|
-| `--bb-text-xs` | `12px` | `1.5` | `400` | Captions, timestamps |
 | `--bb-text-sm` | `14px` | `1.5` | `400` | Secondary text, labels |
 | `--bb-text-base` | `16px` | `1.6` | `400` | Body text (minimum per TOKEN-04) |
-| `--bb-text-lg` | `18px` | `1.5` | `500` | Emphasized body, section labels |
-| `--bb-text-xl` | `22px` | `1.4` | `600` | Section headings |
-| `--bb-text-2xl` | `28px` | `1.3` | `700` | Page titles / secondary hero numbers |
+| `--bb-text-xl` | `22px` | `1.4` | `700` | Section headings |
 | `--bb-text-3xl` | `36px` | `1.2` | `700` | Hero numbers (balance display) |
+
+### Tailwind Typographic Mappings
+
+Exposed via the BB `@theme inline` block:
+
+| CSS Variable | @theme inline mapping | Tailwind class |
+|---|---|---|
+| `--bb-text-sm` | `--text-bb-sm: var(--bb-text-sm)` | `text-bb-sm` |
+| `--bb-text-base` | `--text-bb-base: var(--bb-text-base)` | `text-bb-base` |
+| `--bb-text-xl` | `--text-bb-xl: var(--bb-text-xl)` | `text-bb-xl` |
+| `--bb-text-3xl` | `--text-bb-3xl: var(--bb-text-3xl)` | `text-bb-3xl` |
 
 ### Base Body Style (TOKEN-04)
 
