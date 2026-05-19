@@ -14,21 +14,31 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+
+/**
+ * Root Layout — Truly Global Only (D-05)
+ *
+ * After Phase 7: this layout contains ONLY chrome shared by every route
+ * regardless of group — html/body shell, theme, global toaster, fonts, and viewport.
+ *
+ * Group-specific chrome lives in dedicated group layouts:
+ *   - (bb)/layout.tsx    → TabBar + PageShell for the new BetterBudget routes (D-06)
+ *   - (legacy)/layout.tsx → PasscodeWrapper + AppProvider + ... for OopsBudgeter routes (D-04)
+ *
+ * Standalone pages (/login, /link-bank) are outside both groups — they inherit
+ * ONLY this slim root layout: no tab bar, no legacy chrome (D-02).
+ *
+ * What was removed (moved into (legacy)/layout.tsx per D-04):
+ *   PasscodeWrapper, AppProvider, BudgetProvider, PageLayout, Logo,
+ *   Settings, Achievements, ThemeToggle, GoToTop
+ */
+
 import type { Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/legacy/providers/ThemeProvider";
-import PasscodeWrapper from "@/components/legacy/security/PasscodeWrapper";
-import GoToTop from "@/components/legacy/helpers/GoToTop";
-import { BudgetProvider } from "@/contexts/BudgetContext";
 import Toaster from "@/components/legacy/effects/Sonner";
-import { ThemeToggle } from "@/components/legacy/common/ThemeToggle";
-import Logo from "@/components/common/Logo";
 import { generateMetadata } from "@/lib/head";
-import { Settings } from "@/components/legacy/common/Settings";
-import PageLayout from "@/components/legacy/helpers/PageLayout";
-import { Achievements } from "@/components/legacy/common/Achievements";
-import { AppProvider } from "@/contexts/AppContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,6 +58,7 @@ export const viewport: Viewport = {
   width: "device-width",
   userScalable: false,
   themeColor: "#166d3b",
+  viewportFit: "cover", // Required for iOS safe-area-inset-bottom to work (see RESEARCH §Pitfall 1, supports D-05 slim root)
 };
 
 export default function RootLayout({
@@ -66,7 +77,7 @@ export default function RootLayout({
       className="scroll-smooth scroll-p-4 overflow-hidden overflow-y-scroll"
     >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-w-full flex justify-center items-center`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-w-full`}
         suppressHydrationWarning={true}
       >
         <ThemeProvider
@@ -75,23 +86,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <PasscodeWrapper>
-            <AppProvider>
-              <BudgetProvider>
-                <main className="p-0 md:p-6">
-                  <PageLayout>
-                    <Logo />
-                    <Settings />
-                    <Achievements />
-                    <ThemeToggle />
-                    {children}
-                  </PageLayout>
-                </main>
-                <GoToTop />
-                <Toaster />
-              </BudgetProvider>
-            </AppProvider>
-          </PasscodeWrapper>
+          {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
