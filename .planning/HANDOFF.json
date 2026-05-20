@@ -1,0 +1,75 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-05-20T17:22:09.876Z",
+  "phase": null,
+  "phase_name": null,
+  "phase_dir": null,
+  "plan": null,
+  "task": null,
+  "total_tasks": null,
+  "status": "between_phases",
+  "last_completed_phase": "08-home-hub",
+  "next_phase": "09-spoke-pages",
+  "milestone": "v2.0",
+  "milestone_name": "ADHD-Optimized UI Redesign",
+  "milestone_progress": "3 of 6 phases complete (Phase 6 tokens + Phase 7 layout + Phase 8 home hub)",
+  "branch": "ui-tests",
+  "head": "01766cb",
+  "commits_ahead_of_master": 160,
+  "completed_tasks": [
+    {
+      "id": "phase-08-end-to-end",
+      "name": "Phase 8 (Home Hub) full GSD pipeline: discuss → ui-phase → plan → execute → verify → extract-learnings",
+      "status": "done",
+      "commits": "23 commits between acbb721 (08-CONTEXT) and 01766cb (08-LEARNINGS)"
+    },
+    {
+      "id": "phase-08-manual-smoke",
+      "name": "Phase 8 manual browser smoke (4 states) user-confirmed",
+      "status": "done",
+      "commit": "2a8c76a docs(state): phase 8 COMPLETE — smoke 4/4 user-confirmed"
+    },
+    {
+      "id": "tailwind-source-restriction-fix",
+      "name": "Incidental fix: globals.css `@import \"tailwindcss\" source(\"../../src\")` to stop scanning .planning/",
+      "status": "done",
+      "commit": "59e8204 fix(globals.css): restrict Tailwind v4 content scan to src/"
+    }
+  ],
+  "remaining_tasks": [
+    {
+      "id": "discuss-or-plan-09",
+      "name": "Run /gsd:discuss-phase 9 (or /gsd:plan-phase 9) to start Phase 9: Spoke Pages",
+      "status": "not_started",
+      "note": "Phase 9 builds /budgets, /transactions, expanded /settings. Many patterns inherit from Phase 8 — may be faster. Most decisions can be carried forward; CONTEXT.md may be lighter than Phase 8's."
+    },
+    {
+      "id": "psd2-mock-doc-augment",
+      "name": "OPTIONAL: document the PSD2 storage-grounds analysis in docs/PSD2_MOCK_STRATEGY.md for the IHK Projektdokumentation",
+      "status": "not_started",
+      "severity": "advisory"
+    }
+  ],
+  "blockers": [],
+  "human_actions_pending": [],
+  "decisions": [
+    {
+      "decision": "Phase 8 marked Complete after user-confirmed manual smoke walk of all 4 states (normal hub responsiveness, 0-accounts CTA, DB-error inline, dark-mode parity)",
+      "rationale": "Verifier flagged status: human_needed pending those 4 checks; user walked them in browser and reported 'everything looks normal and works without any issues'",
+      "phase": "08"
+    },
+    {
+      "decision": "Hub visual treatment intentionally minimal; user noted 'a bit boring but that's for a later date'",
+      "rationale": "DESIGN_SYSTEM Principle P1 (calm over comprehensive) explicitly favors low visual stimulation. Phase 11 (Copy + Accessibility + Motion) is where targeted visual interest and microcopy polish land.",
+      "phase": "08"
+    },
+    {
+      "decision": "globals.css pinned Tailwind v4 source-scan to ../../src via @import modifier",
+      "rationale": "Tailwind v4.0.11 auto-scanned .planning/ and docs/ and generated invalid CSS from class-shaped shorthand (literal `pb-[env(...)]` in 07-02-PLAN.md). Crashed `next dev` but not `bun run build`. The `@source not` directive is only available in Tailwind 4.1+. Captured in code comment + project memory at ~/.claude/projects/.../memory/tailwind-source-restriction.md",
+      "phase": "08"
+    }
+  ],
+  "uncommitted_files": [],
+  "next_action": "Run `/gsd:discuss-phase 9` to scope Phase 9 (Spoke Pages: /budgets with full Budget Progress Cards + Spending by Category chart migration; /transactions with Income/Expenses KPIs + full transaction list; expanded /settings with Linked Accounts migration + budget editor + notification prefs). Requirements PAGE-04, PAGE-05, PAGE-06, PAGE-09. Depends on Phase 8 (done).",
+  "context_notes": "Phase 8 closed cleanly end-to-end in one session: /gsd:resume-work picked up at the between-Phase-7-and-8 handoff, then full pipeline (discuss → ui-phase → plan → execute → verify) ran without major issues. Notable session events captured for future sessions: (1) gsd-planner on Opus 4.7 returned with API 529 mid-final-return AFTER writing all 6 PLAN.md files — recovered via workflow step 9a filesystem fallback; future planner runs may want to use sonnet for resilience or break work into smaller chunks. (2) gsd-executor for plan 08-05 found its worktree at an old base commit `5e787a3` instead of the expected `dbe83887` — `worktree_branch_check` reset it automatically; the base-pinning mechanism works as designed and should not be simplified. (3) Tailwind v4 auto-scan of planning docs is a real footgun; the `globals.css` fix is now mandatory project setup. (4) The user explicitly approved each gray-area decision through 14 locked decisions in 08-CONTEXT.md; Phase 9 may inherit ~10 of those (greeting, currency formatter, edge-state philosophy, view-model props, server-component-first, no-PageShell-wrap, /legacy preservation) — discuss-phase 9 can scope narrower than Phase 8. Phase 9 spoke pages should reuse: TransactionItem component (Home + Transactions), formatCurrency from utils/currency, PageShell+PageHeader from layout, calculateAllBudgetProgress, getRecentTransactions. New work mostly: Spending by Category chart placement on /budgets, Linked Accounts panel on /settings, budget editor UI on /settings. Phase 11 (copy + a11y + motion) inherits any polish backlog. Branch `ui-tests` is 160 commits ahead of master; eventually a PR will need to land but not yet — milestone v2.0 is not done."
+}
