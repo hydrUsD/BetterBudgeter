@@ -66,9 +66,6 @@ export const ESSENTIAL_CATEGORIES = [
   "Transport",
 ] as const;
 
-/** Derived type for a single essential category string literal. */
-type EssentialCategory = typeof ESSENTIAL_CATEGORIES[number];
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Pure Calculation
 // ─────────────────────────────────────────────────────────────────────────────

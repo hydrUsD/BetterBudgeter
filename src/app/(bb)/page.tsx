@@ -1,349 +1,461 @@
 /**
- * BetterBudget Dashboard Page (Home)
+ * BetterBudget Home Hub Page
  *
- * This is the main dashboard showing financial overview.
- * All data is fetched from the database (not mock APIs).
+ * WHAT:
+ * The calm Home hub — the first thing a signed-in user sees.
+ * Composes all Phase 8 modules into a server-rendered, data-backed view.
  *
- * Auth: Protected by middleware - only authenticated users can access.
- * Unauthenticated users are redirected to /login.
+ * 4 SECTIONS (PAGE-01, in this exact order — do NOT reorder):
+ *   1. Greeting + Safe-to-Spend hero card
+ *   2. Compact budget status indicators (traffic-light dot + category + remaining)
+ *   3. 3–5 most recent transactions (TransactionItem view-model pattern)
+ *   4. "Sync Transactions" quick-action button (full-width, primary variant)
  *
- * KEY FEATURES:
- * - Total Balance, Income, Expenses KPIs
- * - Budget Progress with traffic light colors
- * - Spending by Category donut chart (Recharts)
- * - Recent Transactions list
- * - Linked Accounts list
- * - Sync Transactions button for manual import
- *
- * ADHD DESIGN:
- * - Clear visual hierarchy (balance first, then details)
- * - Traffic light budget feedback (glanceable)
- * - Max 1 chart to reduce visual noise
- * - Predictable behavior (manual refresh only)
+ * AUTH:
+ * Protected by middleware (src/middleware.ts) — unauthenticated users are
+ * redirected to /login before this page component even runs. `user` may still
+ * be null if middleware has an edge-case miss; all rendering is safe for null user.
  *
  * DATA FLOW:
- * - UI reads from database only (never from mock API)
- * - Manual sync triggers: UI → /api/import → mock → DB → UI refresh
+ *   1. getUser()                    — separate, before Promise.all (needed for greeting even on DB error)
+ *   2. Promise.all([                — parallel: all three DB calls fire simultaneously
+ *        getAccounts(),
+ *        getRecentTransactions(5),
+ *        calculateAllBudgetProgress()
+ *      ])
+ *   3. computeSafeToSpend(accounts, budgetProgress)  — pure calculation, no extra DB call
+ *   4. Render the hub (or edge-state variant)
  *
- * EXTENSION POINTS (marked with comments):
- * - Notification bell/badge (header area)
- * - Spending Trends chart (after category chart)
- * - UI layout settings (via bb_user_settings)
+ * ADHD DESIGN:
+ *   P1 "Calm over comprehensive" — 4 sections max; no charts, no raw data dumps.
+ *   P2 "Compassion over correction" — errors show a neutral inline note, never a red banner.
+ *   See docs/DESIGN_SYSTEM.md §1 for the full principle set.
+ *
+ * EDGE STATES (CONTEXT D-CUT-02):
+ *   0 accounts linked  → REPLACES hub entirely with a full-screen CTA card linking to /link-bank
+ *   0 budgets          → Hub renders; Section 2 shows "Set up your first budget" inline link
+ *   0 transactions     → Hub renders; Section 3 shows inline note + SyncTransactionsButton
+ *   DB error           → Hub renders; hero shows €— and an inline note at page bottom (NO red banner)
  *
  * ROUTING:
- * - This page lives at `/` (the new primary landing page)
- * - `/dashboard` redirects here (HTTP 308)
- * - Legacy OopsBudgeter dashboard is at `/legacy`
+ *   Lives at `/`   — the new primary landing page for authenticated users.
+ *   `/legacy`      — legacy OopsBudgeter dashboard (preserved, untouched by Phase 8).
+ *   `/dashboard`   — HTTP 308 redirect → `/` (set up in Phase 7).
  *
- * @see docs/DASHBOARD_STRATEGY.md for design decisions
- * @see docs/SUPABASE_STRATEGY.md for data flow
- * @see docs/IMPORT_PIPELINE_STRATEGY.md for import behavior
+ * REMOVED FROM HOME (vs legacy dashboard) — moved to spoke pages in Phase 9+:
+ *   SpendingByCategoryChart     → /budgets (Phase 9)
+ *   BudgetProgressSection       → /budgets (Phase 9)
+ *   LinkedAccounts inline list  → /settings (Phase 9)
+ *   IncomeExpense KPI cards     → /transactions (Phase 9)
+ *   SignOutButton               → /settings (Phase 9)
+ *   Debug "User ID" / "Transactions: N" paragraphs → removed permanently
+ *
+ * // TODO (Phase 9): Re-host BudgetNotificationDialogs on /settings (where budget
+ * //   editing will live) or /budgets. It does not belong on the 4-section hub (PAGE-01).
+ *
+ * @see docs/DESIGN_SYSTEM.md §7.2 for the 4-section spec
+ * @see docs/ADHD_UX_RESEARCH.md for Safe-to-Spend rationale
+ * @see .planning/phases/08-home-hub/08-UI-SPEC.md for visual contracts
  */
+
+import Link from "next/link";
 
 import { generateMetadata } from "@/lib/head";
 import { getUser } from "@/lib/auth";
 import { getAccounts } from "@/lib/db/accounts";
-import {
-  getRecentTransactions,
-  getTransactionSummary,
-  getExpensesByCategory,
-  type CategoryBreakdown,
-} from "@/lib/db/transactions";
+import { getRecentTransactions } from "@/lib/db/transactions";
 import { calculateAllBudgetProgress } from "@/lib/budgets";
-import { SignOutButton } from "@/components/auth";
+import { computeSafeToSpend } from "@/lib/safe-to-spend";
+
+import { nameFromEmail, greetingForTime } from "@/utils/greeting";
+import { formatCurrency } from "@/utils/currency";
+
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/button";
 import {
   SyncTransactionsButton,
-  BudgetProgressSection,
-  SpendingByCategoryChart,
-  BudgetNotificationDialogs,
+  TransactionItem,
+  type TransactionItemProps,
 } from "@/components/dashboard";
-import type { BudgetProgress } from "@/types/finance";
 
-export const metadata = generateMetadata({
-  title: "Dashboard",
-});
+import type { DbAccount, DbTransaction } from "@/lib/db/types";
+import type { BudgetProgress, BudgetStatus, TransactionCategory } from "@/types/finance";
 
-export default async function DashboardPage() {
-  // Get current user (middleware already verified auth, so user exists)
-  const user = await getUser();
+// ─────────────────────────────────────────────────────────────────────────────
+// Metadata
+// ─────────────────────────────────────────────────────────────────────────────
 
-  // Fetch account and transaction data from database
-  // Wrapped in try-catch to handle database errors gracefully
-  let accounts: Awaited<ReturnType<typeof getAccounts>> = [];
-  let recentTransactions: Awaited<ReturnType<typeof getRecentTransactions>> = [];
-  let summary: Awaited<ReturnType<typeof getTransactionSummary>> = {
-    totalIncome: 0,
-    totalExpenses: 0,
-    netChange: 0,
-    transactionCount: 0,
+export const metadata = generateMetadata({ title: "Home" });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Private Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Build the greeting string shown at the top of the hub.
+ *
+ * Examples:
+ *   "Good morning, Paul."   — when name is available, morning band
+ *   "Good morning."         — when name is null (numeric email prefix, etc.)
+ *
+ * The period-instead-of-comma rule for the no-name variant is from CONTEXT D-GR-02:
+ * "Calm, not awkward" — "Good morning." reads as a warm standalone greeting.
+ *
+ * @param name - Result of nameFromEmail(), which may be null for unparseable emails.
+ * @param now  - The current Date in UTC; greetingForTime() converts it to Europe/Berlin.
+ */
+function buildGreeting(name: string | null, now: Date): string {
+  const band = greetingForTime(now);
+
+  // Map time band → English greeting prefix (D-GR-02; English-only per deferred i18n decision)
+  const greetingByBand = {
+    morning: "Good morning",
+    afternoon: "Good afternoon",
+    evening: "Good evening",
+  } as const;
+
+  // Name is appended only when parseable; period closes both variants identically.
+  return name ? `${greetingByBand[band]}, ${name}.` : `${greetingByBand[band]}.`;
+}
+
+/**
+ * Map a raw DbTransaction row to the TransactionItem view-model.
+ *
+ * WHY a mapping step:
+ * TransactionItem is decoupled from the DB schema (CONTEXT D-CMP-02). The page owns
+ * the transformation. If the DB schema changes, only this function needs to change —
+ * not the component.
+ *
+ * Merchant derivation (RESEARCH Pattern 4): prefers the human-readable description
+ * stored by the import pipeline, falls back to PSD2-style creditor/debtor fields,
+ * and ultimately to "Transaction" so the UI never shows an empty merchant name.
+ *
+ * @param tx - Raw database row from getRecentTransactions()
+ */
+function toTransactionItemProps(tx: DbTransaction): TransactionItemProps {
+  // Merchant: prefer description, then richer PSD2 creditor/debtor fields, then fallback.
+  // These fields are populated by the import pipeline (src/lib/import/index.ts).
+  const merchant = tx.description ?? tx.creditor_name ?? tx.debtor_name ?? "Transaction";
+
+  // Booking date fallback: DB schema says NOT NULL but TS type is `string` without
+  // guaranteeing non-empty. Guard against empty strings (RESEARCH Pitfall 4).
+  const date = tx.booking_date || new Date().toISOString().split("T")[0];
+
+  return {
+    merchant,
+    amount: Math.abs(tx.amount),  // TransactionItem renders sign from `type`
+    type: tx.type,                 // 'income' | 'expense' (DbTransactionType)
+    category: (tx.category ?? "Other") as TransactionCategory,
+    date,
   };
-  let budgetProgress: BudgetProgress[] = [];
-  let expensesByCategory: CategoryBreakdown[] = [];
-  let dataError: string | null = null;
+}
 
-  try {
-    accounts = await getAccounts();
-    recentTransactions = await getRecentTransactions(5);
-    summary = await getTransactionSummary();
-    budgetProgress = await calculateAllBudgetProgress();
-    expensesByCategory = await getExpensesByCategory();
-  } catch (error) {
-    console.error("[dashboard] Error fetching data:", error);
-    dataError = error instanceof Error ? error.message : "Failed to load data";
-  }
+/**
+ * Map a BudgetStatus enum value to the corresponding Tailwind color class.
+ *
+ * Traffic-light mapping (UI-SPEC § Section 2):
+ *   on_track   → green dot  → bg-bb-positive
+ *   warning    → amber dot  → bg-bb-caution
+ *   over_budget → coral dot → bg-bb-negative
+ *
+ * Using semantic --bb-* tokens, NOT hardcoded colors (CLAUDE.md UI library rules).
+ */
+function dotColorForStatus(status: BudgetStatus): string {
+  if (status === "on_track") return "bg-bb-positive";
+  if (status === "warning") return "bg-bb-caution";
+  return "bg-bb-negative"; // over_budget
+}
 
-  // Calculate total balance across all accounts
-  const totalBalance = accounts.reduce((sum, acc) => sum + (acc.balance ?? 0), 0);
+// ─────────────────────────────────────────────────────────────────────────────
+// Private Component: BudgetStatusRow
+// Per CONTEXT D-CMP-03: defined here (inline in the page file), NOT in a
+// separate component file. Used exactly once. Mirrors the inline-helper pattern.
+// Phase 10 may extract to a named component if /budgets needs the same row shape.
+// ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Single-line budget status row: traffic-light dot + category name + remaining amount.
+ *
+ * Visual contract (08-UI-SPEC.md § Section 2):
+ *   ● Food                              €80 remaining
+ *
+ * NOT clickable in Phase 8 — Phase 9 owns the /budgets spoke where clicking would go.
+ * Rows are separated by vertical padding only (no horizontal lines, no tints).
+ *
+ * @param progress - BudgetProgress DTO from calculateAllBudgetProgress()
+ */
+function BudgetStatusRow({ progress }: { progress: BudgetProgress }) {
   return (
-    // Outer wrapper downgraded from <main> to <div> per Phase 7 D-07 — PageShell (in (bb)/layout.tsx per D-06) now provides the single <main> landmark for this route. See RESEARCH §Pitfall 5.
-    <div className="flex flex-col gap-6">
-      {/* Budget Notification Dialogs
-          ADHD-friendly Alert Dialogs for budget warnings and over-budget states.
-          Shows one dialog at a time, requires user acknowledgment.
-          Session-level memory prevents repeated popups after "OK".
-          @see docs/BUDGET_STRATEGY.md Section 4 */}
-      <BudgetNotificationDialogs budgetProgress={budgetProgress} />
+    // Flex row: dot (fixed 8px) + category name + spacer + remaining amount
+    <div className="flex items-center gap-bb-2 py-bb-2">
+      {/* Traffic-light dot: 8px × 8px (w-2 h-2 in Tailwind = 0.5rem = 8px)
+          Color class is determined by BudgetStatus. aria-hidden: decorative only.
+          The text content already conveys the status semantically. */}
+      <span
+        className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColorForStatus(progress.status)}`}
+        aria-hidden="true"
+      />
 
-      {/* Page Header with User Info and Actions */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Your financial overview at a glance
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* EXTENSION POINT: Notification Bell/Badge
-              This is where a notification indicator could be added later.
-              Would show unread count badge and link to notification panel.
-              Data source: /api/notifications (already exists as skeleton)
-              @see docs/DASHBOARD_STRATEGY.md Section 6.1 */}
+      {/* Category name: left-aligned, text-bb-sm (14px), default weight 400 */}
+      <span className="text-bb-sm text-bb-text">{progress.budget.category}</span>
 
-          {/* Manual Import Trigger */}
-          <SyncTransactionsButton accountCount={accounts.length} />
-          <SignOutButton variant="outline" size="sm" />
-        </div>
-      </div>
+      {/* Flex spacer pushes the remaining amount to the right edge */}
+      <span className="flex-1" />
 
-      {/* User email display */}
-      <div className="text-sm text-muted-foreground">
-        Logged in as {user?.email}
-      </div>
-
-      {/* Error State: Database Connection Issue */}
-      {dataError && (
-        <section className="border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950 rounded-lg p-4">
-          <h2 className="font-semibold text-red-800 dark:text-red-200 mb-1">
-            Unable to Load Data
-          </h2>
-          <p className="text-sm text-red-700 dark:text-red-300">
-            {dataError}
-          </p>
-          <p className="text-xs text-red-600 dark:text-red-400 mt-2">
-            Please check your database connection and try refreshing the page.
-          </p>
-        </section>
-      )}
-
-      {/* Empty State: No Banks Linked */}
-      {accounts.length === 0 && (
-        <section className="border border-dashed border-muted-foreground/50 rounded-lg p-8 text-center">
-          <h2 className="font-semibold mb-2">No Banks Linked</h2>
-          <p className="text-muted-foreground text-sm mb-4">
-            Link a bank account to start tracking your finances.
-          </p>
-          <SyncTransactionsButton accountCount={0} />
-        </section>
-      )}
-
-      {/* Dashboard Content: Only show if accounts exist */}
-      {accounts.length > 0 && (
-        <>
-          {/* Balance Card */}
-          <section className="border rounded-lg p-6 bg-card">
-            <h2 className="font-semibold mb-2 text-muted-foreground">
-              Total Balance
-            </h2>
-            <div className="text-3xl font-bold">
-              {formatCurrency(totalBalance)}
-            </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              Across {accounts.length} account{accounts.length !== 1 ? "s" : ""}
-            </p>
-          </section>
-
-          {/* Income/Expense Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <section className="border rounded-lg p-6 bg-card">
-              <h2 className="font-semibold text-green-600 dark:text-green-400">
-                Income
-              </h2>
-              <div className="text-2xl font-bold mt-2">
-                {formatCurrency(summary.totalIncome)}
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Total income recorded
-              </p>
-            </section>
-
-            <section className="border rounded-lg p-6 bg-card">
-              <h2 className="font-semibold text-red-600 dark:text-red-400">
-                Expenses
-              </h2>
-              <div className="text-2xl font-bold mt-2">
-                {formatCurrency(summary.totalExpenses)}
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Total expenses recorded
-              </p>
-            </section>
-          </div>
-
-          {/* Budget Progress - Traffic Light Feedback */}
-          <BudgetProgressSection budgetProgress={budgetProgress} />
-
-          {/* Spending by Category Chart (Recharts PieChart via shadcn/ui)
-              ADHD-friendly: Visual overview of where money goes
-              Adjacent to Budget Progress for related financial context.
-              @see docs/DASHBOARD_STRATEGY.md Section 4.2 */}
-          <section className="border rounded-lg p-6 bg-card">
-            <h2 className="font-semibold mb-4">Spending by Category</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              This month&apos;s expenses by category
-            </p>
-            <SpendingByCategoryChart data={expensesByCategory} />
-          </section>
-
-          {/* Linked Accounts */}
-          <section className="border rounded-lg p-6 bg-card">
-            <h2 className="font-semibold mb-4">Linked Accounts</h2>
-            <div className="space-y-3">
-              {accounts.map((account) => (
-                <div
-                  key={account.id}
-                  className="flex justify-between items-center p-3 bg-muted/30 rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium">{account.account_name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {account.bank_name} · {account.account_type}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">{formatCurrency(account.balance ?? 0)}</p>
-                    {account.last_synced_at && (
-                      <p className="text-xs text-muted-foreground">
-                        Synced {formatRelativeTime(account.last_synced_at)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Recent Transactions */}
-          <section className="border rounded-lg p-6 bg-card">
-            <h2 className="font-semibold mb-4">Recent Transactions</h2>
-            {recentTransactions.length === 0 ? (
-              <p className="text-muted-foreground text-sm">
-                No transactions yet. Click &quot;Sync Transactions&quot; to import.
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {recentTransactions.map((tx) => (
-                  <div
-                    key={tx.id}
-                    className="flex justify-between items-center p-3 bg-muted/30 rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium">{tx.description || "Transaction"}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {tx.category} · {formatDate(tx.booking_date)}
-                      </p>
-                    </div>
-                    <div
-                      className={`font-medium ${
-                        tx.type === "income"
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
-                      }`}
-                    >
-                      {tx.type === "income" ? "+" : "-"}
-                      {formatCurrency(tx.amount)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* EXTENSION POINT: Spending Trends Chart (Post-MVP)
-              This is where an Income vs Expenses bar chart could be added later.
-              Would show spending patterns over time (weekly/monthly).
-              Data source: getTransactionsByPeriod() (not yet implemented)
-              @see docs/DASHBOARD_STRATEGY.md Section 4.2 Chart 2 */}
-        </>
-      )}
-
-      {/* Debug Info (development only) */}
-      <div className="text-xs text-muted-foreground border-t pt-4">
-        <p>
-          <strong>Note:</strong> This dashboard displays data from the database
-          only. Use &quot;Sync Transactions&quot; to import from linked banks.
-        </p>
-        {user && (
-          <p className="mt-1">
-            <strong>User ID:</strong> {user.id}
-          </p>
-        )}
-        <p className="mt-1">
-          <strong>Transactions:</strong> {summary.transactionCount}
-        </p>
-      </div>
+      {/* Remaining amount: right-aligned, text-bb-sm (14px), secondary text color.
+          remainingAmount is already Math.max(0, ...) from calculateAllBudgetProgress()
+          — see src/lib/budgets/index.ts:174. The display is "€0 remaining" when over-budget,
+          never a negative number (CONTEXT D-S2S-02 + UI-SPEC copywriting contract). */}
+      <span className="text-bb-sm text-bb-text-secondary">
+        {formatCurrency(progress.remainingAmount)} remaining
+      </span>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Helper Functions (could be moved to utils/ if reused)
+// Page Component
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Format a number as currency (EUR)
+ * Home Hub Page — the primary landing view for authenticated users.
+ *
+ * Server component: all data fetching and computation happen server-side.
+ * First paint = final paint for data (no loading skeletons needed — RESEARCH §Loading Policy).
+ * The only interactive element is SyncTransactionsButton (its own "use client" island).
  */
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("de-DE", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amount);
-}
+export default async function HomePage() {
+  // ─────────── Step 1: Fetch user (separate from Promise.all) ─────────────────
+  //
+  // getUser() is called before the DB try/catch because we need the greeting even
+  // when the DB fails. The hero can render "Good morning, Paul." with €— for the
+  // Safe-to-Spend value in the error state — user identity is not affected by DB errors.
+  const user = await getUser();
 
-/**
- * Format a date string for display
- */
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("de-DE", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
+  // ─────────── Step 2: Parallel DB fetch (accounts + transactions + budgets) ──
 
-/**
- * Format a timestamp as relative time (e.g., "2 hours ago")
- */
-function formatRelativeTime(timestamp: string): string {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
+  // Default empty arrays: if the try/catch catches an error, the hub renders with
+  // 0-item states rather than crashing. This is the D-CUT-02 "DB error" edge state.
+  let accounts: DbAccount[] = [];
+  let recentTransactions: DbTransaction[] = [];
+  let budgetProgress: BudgetProgress[] = [];
+  let dataError: string | null = null;
 
-  if (diffMins < 1) return "just now";
-  if (diffMins < 60) return `${diffMins} min ago`;
-  if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
-  return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
+  try {
+    // Promise.all fires all three DB calls simultaneously (not sequentially).
+    // WHY: Reduces the total wait time from sum(t1+t2+t3) to max(t1,t2,t3).
+    // RESEARCH Pattern 1: parallel-fetch + try/catch is the established BB page pattern.
+    [accounts, recentTransactions, budgetProgress] = await Promise.all([
+      getAccounts(),
+      getRecentTransactions(5),
+      calculateAllBudgetProgress(),
+    ]);
+  } catch (error) {
+    // Log the raw error to server logs only (STRIDE T-08-05-01: never expose internals to UI).
+    console.error("[home] Error fetching data:", error);
+    // Store a truthy signal; the raw message is NOT rendered (we show a hardcoded note instead).
+    dataError = error instanceof Error ? error.message : "Failed to load data";
+  }
+
+  // ─────────── Step 3: Compute view-model values ──────────────────────────────
+
+  // Derive the display name from the user's email address (D-GR-01).
+  // nameFromEmail returns null for numeric-prefix or malformed emails → greeting falls back.
+  const name = nameFromEmail(user?.email);
+
+  // Timezone note (D-GR-03): `new Date()` returns UTC on Vercel servers. We pass it
+  // to greetingForTime(), which internally projects to Europe/Berlin using Intl.DateTimeFormat
+  // formatToParts(). The page does NOT need to construct a Berlin Date object — the pure
+  // helper handles the timezone conversion. See src/utils/greeting.ts for the implementation.
+  const greeting = buildGreeting(name, new Date());
+
+  // Safe-to-Spend is null on DB error (hero renders €—).
+  // On success, computeSafeToSpend() filters liquid accounts and subtracts essential budgets.
+  // Result is always >= 0 (clamped inside the function).
+  const safeToSpend = dataError ? null : computeSafeToSpend(accounts, budgetProgress);
+
+  // Sort budgets alphabetically by category name (Claude's Discretion — deterministic,
+  // consistent with the BUDGET_THRESHOLDS predictability ethos in lib/budgets/index.ts).
+  const sortedBudgets = [...budgetProgress].sort((a, b) =>
+    a.budget.category.localeCompare(b.budget.category)
+  );
+
+  // Map raw DB rows → TransactionItemProps view-model (CONTEXT D-CMP-02).
+  const transactionItems = recentTransactions.map(toTransactionItemProps);
+
+  // ─────────── Edge State: 0 accounts linked (CONTEXT D-CUT-02) ───────────────
+  //
+  // When no accounts are linked AND there is no DB error, REPLACE the entire hub
+  // with a full-screen CTA card. Nothing else on the hub is meaningful without an account.
+  //
+  // IMPORTANT: Use a direct <Link>/<Button>, NOT <SyncTransactionsButton accountCount={0}>.
+  // SyncTransactionsButton renders its own "Link a Bank" button when accountCount=0 (see
+  // SyncTransactionsButton.tsx:80), which would create a competing UI element inside a
+  // card that already has a clear CTA. Direct Link is more intentional and primary-feeling.
+  // See 08-RESEARCH.md §Pitfall 7.
+  //
+  // No <PageHeader> on this state — the card heading ("Link your bank to get started")
+  // serves the h1 role. Rendering both would create two competing page titles.
+  if (accounts.length === 0 && !dataError) {
+    return (
+      <div className="bg-bb-surface-raised border border-dashed border-bb-border rounded-bb-xl p-bb-10 flex flex-col items-center text-center">
+        {/* h1 is the heading for this edge state — no separate <PageHeader> (UI-SPEC § Edge State: 0 Accounts) */}
+        <h1 className="text-bb-xl font-bold text-bb-text mb-bb-4">
+          Link your bank to get started
+        </h1>
+        <p className="text-bb-base text-bb-text-secondary mb-bb-8">
+          Connect a bank account to see your spending and start budgeting.
+        </p>
+        {/* Primary CTA: direct Next.js Link wrapping a shadcn Button.
+            Target: /link-bank (existing standalone page, OUTSIDE the (bb) group per Phase 7 D-02).
+            No secondary CTA — one primary action per view (DESIGN_SYSTEM §5.6). */}
+        <Link href="/link-bank">
+          <Button>Link your bank</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  // ─────────── Normal Hub: 4 sections in locked order ─────────────────────────
+  //
+  // Outer element is a fragment (<>) wrapping PageHeader + sections div.
+  // WHY not <main>: (bb)/layout.tsx already wraps all BB pages in <PageShell>,
+  // which renders the single <main> landmark. A second <main> would be invalid HTML.
+  // See RESEARCH Pattern 6 for the full explanation.
+  return (
+    <>
+      {/* PageHeader renders <header><h1>Home</h1></header> — the semantic page title. */}
+      <PageHeader title="Home" />
+
+      {/* Outer wrapper: flex column with section gap (gap-bb-8 = 32px per DESIGN_SYSTEM §4.2) */}
+      <div className="flex flex-col gap-bb-8">
+
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        {/* Section 1: Greeting + Safe-to-Spend Hero                               */}
+        {/* 08-UI-SPEC.md § Section 1 — card with greeting + label + EUR number    */}
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          {/* Greeting line: text-bb-base (16px), secondary text color.
+              Examples: "Good morning, Paul." or "Good morning."
+              The greeting is body text, NOT a heading (PageHeader owns the h1). */}
+          <p className="text-bb-base text-bb-text-secondary">{greeting}</p>
+
+          {/* Label: text-bb-sm (14px), positioned above the number (DESIGN_SYSTEM §5.1:
+              label names the metric before the number is read — helps ADHD top-to-bottom scan). */}
+          <p className="text-bb-sm text-bb-text-secondary mt-bb-8">
+            Safe to spend this month
+          </p>
+
+          {/* EUR number: text-bb-3xl (36px, D-CMP-01), font-bold (700).
+              Always text-bb-text (neutral dark) regardless of value — NEVER colored red/green.
+              Rationale: the formula clamps at 0 so negatives are impossible; coloring would
+              add anxiety-inducing meaning that doesn't exist in the math (UI-SPEC Hero color rule).
+              €— (em-dash) renders in text-bb-text-secondary when safeToSpend is null (DB error).
+              aria-label provides screen-reader context for the €— state. */}
+          <p
+            className={`text-bb-3xl font-bold mt-bb-2 ${
+              safeToSpend === null ? "text-bb-text-secondary" : "text-bb-text"
+            }`}
+            aria-label={
+              safeToSpend === null
+                ? "Safe to spend value unavailable"
+                : `Safe to spend ${formatCurrency(safeToSpend)}`
+            }
+          >
+            {safeToSpend === null ? "€—" : formatCurrency(safeToSpend)}
+          </p>
+        </section>
+
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        {/* Section 2: Budget Status Indicators (compact, NOT full progress cards) */}
+        {/* PAGE-02 — 08-UI-SPEC.md § Section 2. Each budget: one single line.    */}
+        {/* BudgetProgressSection (full cards) is NOT used here — it moves to      */}
+        {/* /budgets in Phase 9.                                                   */}
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Budget status</h2>
+
+          {sortedBudgets.length === 0 ? (
+            // 0-budgets inline empty state (CONTEXT D-CUT-02 + UI-SPEC § Section 2).
+            // Two-part: statement + inline link. No dashed border — Phase 10 adds EmptyState primitive.
+            // /settings is the link target (D-CUT-03). Phase 9 fills the destination with BudgetSettings.
+            <div>
+              <p className="text-bb-sm text-bb-text-secondary">
+                Set up your first budget
+              </p>
+              <Link
+                href="/settings"
+                className="text-bb-sm text-bb-info underline-offset-4 hover:underline mt-bb-1 inline-block"
+              >
+                Go to settings
+              </Link>
+            </div>
+          ) : (
+            // Budget rows: one BudgetStatusRow per active budget, alphabetically sorted.
+            <div>
+              {sortedBudgets.map((progress) => (
+                <BudgetStatusRow key={progress.budget.id} progress={progress} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        {/* Section 3: Recent Transactions (TransactionItem view-model pattern)    */}
+        {/* PAGE-03 — 08-UI-SPEC.md § Section 3.                                  */}
+        {/* getRecentTransactions(5) fetches the 5 most recent transactions.       */}
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Recent transactions</h2>
+
+          {transactionItems.length === 0 ? (
+            // 0-transactions inline empty state (CONTEXT D-CUT-02).
+            // Factual message + SyncTransactionsButton prevents a dead-end empty state.
+            // At this point accounts.length > 0 (0-accounts guard above), so
+            // SyncTransactionsButton renders as "Sync Transactions" (not "Link a Bank").
+            <div>
+              <p className="text-bb-sm text-bb-text-secondary mb-bb-4">
+                Your transactions will appear here.
+              </p>
+              <SyncTransactionsButton accountCount={accounts.length} />
+            </div>
+          ) : (
+            // Transaction list: each row is a TransactionItem.
+            // Key synthesized from merchant + date + index because the view-model does not
+            // carry the DB `id`. Phase 9 may extend TransactionItemProps with `id` if
+            // the /transactions page needs stable keys for animations.
+            <div>
+              {transactionItems.map((tx, idx) => (
+                <TransactionItem
+                  key={`${tx.merchant}-${tx.date}-${idx}`}
+                  {...tx}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        {/* Section 4: Sync Transactions quick-action                              */}
+        {/* PAGE-01 — 08-UI-SPEC.md § Section 4.                                  */}
+        {/* Full-width (w-full) = generous touch target + single primary action    */}
+        {/* per view (DESIGN_SYSTEM §5.6).                                         */}
+        {/* No card wrapper — the button sits directly in the page flow.           */}
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        <SyncTransactionsButton accountCount={accounts.length} className="w-full" />
+
+      </div>
+
+      {/* DB error inline note (CONTEXT D-CUT-02, STRIDE T-08-05-01):
+          Rendered below the Sync button when the DB fetch failed.
+          Shows a hardcoded user-friendly message — NEVER the raw error string.
+          text-bb-text-secondary on a neutral background = calm, not alarming.
+          NO bg-bb-negative, NO border-bb-negative, NO text-bb-negative (P1: calm first). */}
+      {dataError && (
+        <p className="text-bb-sm text-bb-text-secondary text-center mt-bb-4">
+          Couldn&apos;t load data. Try refreshing.
+        </p>
+      )}
+    </>
+  );
 }
