@@ -44,7 +44,7 @@ Prepared the codebase for redesign work:
 ### Active — v2.0 ADHD-Optimized UI Redesign
 
 - [ ] Design tokens defined as CSS custom properties in `globals.css`
-- [ ] Hub-and-spoke navigation with persistent 4-tab bottom bar
+- [x] Hub-and-spoke navigation with persistent 4-tab bottom bar *(Validated in Phase 7: Layout Shell & Navigation)*
 - [ ] Home page (hub) shows Safe-to-Spend as primary metric
 - [ ] Budgets spoke page with budget progress cards
 - [ ] Transactions spoke page with transaction list
