@@ -1,10 +1,11 @@
 ---
 phase: 7
 slug: layout-shell-navigation
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: audited
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-05-19
+audited: 2026-05-20
 ---
 
 # Phase 7 — Validation Strategy
@@ -40,12 +41,12 @@ created: 2026-05-19
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | 0 | NAV-01,02,03 | — | TabBar renders 4 tabs, active state correct, hrefs match TABS | unit | `bun run test tests/components/TabBar.test.tsx` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | NAV-05 | — | PageShell wraps children with max-width + bottom-padding classes | unit | `bun run test tests/components/PageShell.test.tsx` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | NAV-05 | — | PageHeader renders title; subtitle conditional | unit | `bun run test tests/components/PageHeader.test.tsx` | ❌ W0 | ⬜ pending |
-| TBD | TBD | — | NAV-04 | — | All legacy routes resolve (build-time) | build | `bun run build` | n/a | ⬜ pending |
-| TBD | TBD | — | NAV-06 | — | `/login` and `/link-bank` render without TabBar | integration/manual | `bun run build` + manual smoke | n/a | ⬜ pending |
-| TBD | TBD | — | NAV-03 (scroll memory) | — | Each tab remembers scroll position | **manual-only** | post-deploy device test | n/a | ⬜ pending |
+| 07-02 T1–T3 | 07-02 | 1 | NAV-01,02,03 | — | TabBar renders 4 tabs, active state correct, hrefs match TABS | unit | `bun run test tests/components/TabBar.test.tsx` | ✅ | ✅ green (7/7) |
+| 07-01 T1 | 07-01 | 1 | NAV-05 | — | PageShell wraps children with max-width + bottom-padding classes | unit | `bun run test tests/components/PageShell.test.tsx` | ✅ | ✅ green (4/4) |
+| 07-01 T2 | 07-01 | 1 | NAV-05 | — | PageHeader renders title; subtitle conditional | unit | `bun run test tests/components/PageHeader.test.tsx` | ✅ | ✅ green (4/4) |
+| 07-03 T1–T3 | 07-03 | 1 | NAV-04 | — | All legacy routes resolve (build-time) | build | `bun run build` | n/a | ✅ green |
+| 07-04 T3 | 07-04 | 2 | NAV-06 | — | `/login` and `/link-bank` render without TabBar | integration/manual | `bun run build` + manual smoke | n/a | ✅ user-approved 2026-05-19 (manual) |
+| 07-04 T3 | 07-04 | 2 | NAV-03 (scroll memory) | — | Each tab remembers scroll position | **manual-only** | post-deploy device test | n/a | ⬜ manual-only (deferred to post-deploy) |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -53,10 +54,10 @@ created: 2026-05-19
 
 ## Wave 0 Requirements
 
-- [ ] `tests/components/TabBar.test.tsx` — covers NAV-01, NAV-02, NAV-03 (`<Link>` href correctness; mocked `usePathname`)
-- [ ] `tests/components/PageShell.test.tsx` — covers NAV-05 (render + class assertions)
-- [ ] `tests/components/PageHeader.test.tsx` — covers NAV-05 (title + optional subtitle)
-- [ ] Optional: `tests/smoke/legacy-routes.test.ts` — covers NAV-04 (build-time presence; full SSR test out-of-scope)
+- [x] `tests/components/TabBar.test.tsx` — covers NAV-01, NAV-02, NAV-03 (`<Link>` href correctness; mocked `usePathname`) — **7/7 green**
+- [x] `tests/components/PageShell.test.tsx` — covers NAV-05 (render + class assertions) — **4/4 green**
+- [x] `tests/components/PageHeader.test.tsx` — covers NAV-05 (title + optional subtitle) — **4/4 green**
+- [ ] Optional: `tests/smoke/legacy-routes.test.ts` — skipped; NAV-04 build-time coverage provided by `bun run build` (full SSR test out-of-scope per original plan)
 
 **No new framework install required** — vitest, Testing Library, jsdom are already configured.
 
@@ -75,11 +76,36 @@ created: 2026-05-19
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (TabBar, PageShell, PageHeader test files)
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter after gsd-planner completes per-task map
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (TabBar, PageShell, PageHeader test files)
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s (measured: ~717ms for the 3 Wave-0 test files)
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** audited 2026-05-20 — all automated coverage in place; declared manual-only items documented above.
+
+---
+
+## Validation Audit 2026-05-20
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 (none needed — Wave-0 tests already landed in 07-01 and 07-02) |
+| Escalated | 0 |
+| Manual-only (carried) | 3 (scroll memory, /dashboard 308 redirect curl, /login + /link-bank visual no-TabBar) |
+
+**Coverage map at audit time:**
+
+| Requirement | Automated | Manual |
+|-------------|-----------|--------|
+| NAV-01 | ✅ TabBar.test.tsx | — |
+| NAV-02 | ✅ TabBar.test.tsx | partial (filled-icon visual) |
+| NAV-03 (Link hrefs) | ✅ TabBar.test.tsx | — |
+| NAV-03 (scroll memory) | ❌ (out-of-scope for vitest+jsdom) | ✅ deferred to post-deploy |
+| NAV-04 (legacy routes) | ✅ `bun run build` | partial (308 curl smoke) |
+| NAV-05 | ✅ PageShell.test.tsx + PageHeader.test.tsx | — |
+| NAV-06 | ❌ (visual) | ✅ user-approved 2026-05-19 |
+
+**Result:** Nyquist-compliant within declared manual-only scope. No new tests generated; no auditor spawn needed.
