@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: ADHD-Optimized UI Redesign
-status: executing
-stopped_at: Phase 7 UI-SPEC approved
-last_updated: "2026-05-19T20:12:15.016Z"
+status: ready_to_plan
+stopped_at: Phase 07 complete (4/4) — ready to discuss Phase 8
+last_updated: 2026-05-20T10:38:47.557Z
 last_activity: 2026-05-19 -- Phase 07 execution started
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 7
-  completed_plans: 3
+  completed_plans: 17
   percent: 17
 ---
 
@@ -25,17 +25,17 @@ progress:
 
 ## Current Position
 
-Phase: 07 (layout-shell-navigation) — EXECUTING
-Plan: 1 of 4
-Status: Executing Phase 07
-Last activity: 2026-05-19 -- Phase 07 execution started
+Phase: 8
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-05-20
 
 ## Phase Overview
 
 ```
 Milestone: ADHD-Optimized UI Redesign
 ├── Phase 6: Design Tokens ✅ COMPLETE (3/3 plans done, build passes)
-├── Phase 7: Layout Shell & Navigation ⬜ NOT STARTED
+├── Phase 7: Layout Shell & Navigation ✅ COMPLETE (4/4 plans done, verifier passed 5/5)
 ├── Phase 8: Home Hub ⬜ NOT STARTED
 ├── Phase 9: Spoke Pages ⬜ NOT STARTED
 ├── Phase 10: Component System ⬜ NOT STARTED
@@ -80,7 +80,7 @@ Milestone: ADHD-Optimized UI Redesign
 
 ## Pending Todos
 
-- Run `/gsd:discuss-phase 7` or `/gsd:plan-phase 7` to begin Phase 7: Layout Shell & Navigation
+- Run `/gsd:discuss-phase 8` or `/gsd:plan-phase 8` to begin Phase 8: Home Hub
 
 ---
 
@@ -92,10 +92,9 @@ Milestone: ADHD-Optimized UI Redesign
 
 ## Session Continuity
 
-**Last session:** 2026-05-20 (resumed)
-**Stopped at:** Phase 7 code-complete + user-approved smoke test; post-wave gates pending (verify-stamp commit, ROADMAP update, code-review, regression, verifier, phase.complete)
-**Resume with:** `/gsd:execute-phase 7` — will detect all 4 plans done and execute the post-wave gate sequence
-**Resume file:** `.planning/HANDOFF.json` (one-shot, delete after gates complete)
+**Last session:** 2026-05-20
+**Stopped at:** Phase 07 complete (4/4 plans, verifier `passed` 5/5 success criteria, 6/6 NAV requirements satisfied)
+**Resume with:** `/gsd:discuss-phase 8` (Home Hub — CONTEXT.md not yet created) or `/gsd:plan-phase 8`
 
 ---
 
