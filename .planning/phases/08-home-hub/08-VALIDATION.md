@@ -2,10 +2,12 @@
 phase: 8
 slug: home-hub
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-05-20
 populated: 2026-05-20
+approved: 2026-05-20
+approver: gsd-plan-checker
 ---
 
 # Phase 8 — Validation Strategy
@@ -90,6 +92,6 @@ Wave 0 (plan `08-00-PLAN.md`) creates the following test scaffolding before any 
 - [ ] Wave 0 covers all MISSING test files referenced by Wave 1+ plans
 - [ ] No watch-mode flags in any task's automated command (`bun run test` is non-watch by default; `--watch` is not used)
 - [ ] Feedback latency < 30s (quick run is ~5–8s)
-- [ ] `nyquist_compliant: true` set in frontmatter (gsd-plan-checker flips this after approval)
+- [x] `nyquist_compliant: true` set in frontmatter (gsd-plan-checker approved 2026-05-20)
 
-**Approval:** pending (awaiting gsd-plan-checker)
+**Approval:** approved 2026-05-20 by gsd-plan-checker (VERIFICATION PASSED, 11/11 focus invariants, 2 non-blocking warnings since-fixed)

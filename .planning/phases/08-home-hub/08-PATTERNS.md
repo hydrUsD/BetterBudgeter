@@ -12,12 +12,12 @@
 |---------------------|------|-----------|----------------|---------------|
 | `src/lib/safe-to-spend.ts` | service / pure logic | transform | `src/lib/budgets/index.ts` | role-match |
 | `src/utils/greeting.ts` | utility | transform | `src/utils/charts/index.ts` | role-match |
-| `src/utils/format.ts` | utility | transform | `src/utils/format/index.ts` | exact |
+| `src/utils/currency.ts` | utility | transform | `src/utils/format/index.ts` | exact |
 | `src/components/dashboard/TransactionItem.tsx` | component | request-response | `src/app/(bb)/page.tsx` lines 255–279 | role-match |
 | `src/app/(bb)/page.tsx` (REPLACED) | page / controller | request-response | current `src/app/(bb)/page.tsx` + `src/app/(bb)/settings/page.tsx` | exact (self-analog) |
 | `tests/lib/safe-to-spend.test.ts` | test | — | `tests/utils/charts.test.ts` | role-match |
 | `tests/utils/greeting.test.ts` | test | — | `tests/utils/charts.test.ts` | role-match |
-| `tests/utils/format.test.ts` | test | — | `tests/utils/charts.test.ts` | exact |
+| `tests/utils/currency.test.ts` | test | — | `tests/utils/charts.test.ts` | exact |
 | `tests/components/TransactionItem.test.tsx` | test | — | `tests/components/PageShell.test.tsx` | exact |
 
 ---
@@ -130,13 +130,13 @@ Copy this structure for `greeting.ts`: short file-level docblock explaining scop
 
 **`utils/` directory already exists.** The `src/utils/` directory contains `charts/`, `format/`, and `mapping/` subdirectories (all as `index.ts` barrel files). However, `greeting.ts` and `format.ts` are **flat files** (per CONTEXT D-CMP-01: `src/utils/greeting.ts`, not `src/utils/greeting/index.ts`). This is the correct pattern for single-function utility modules.
 
-**Critical:** `src/utils/format/index.ts` already exists (legacy OopsBudgeter utility with `formatCurrency(amount, currency?, locale?)` — 3 params, USD default). The NEW `src/utils/format.ts` is a **flat file** at the `utils/` root, NOT inside the `format/` subdirectory. These are two different files. The new file exports a single `formatCurrency(amount: number): string` locked to `de-DE/EUR` (D-CUT-04). There is no conflict if named differently in import paths: `@/utils/format` (flat file) vs `@/utils/format/index` — but to avoid ambiguity, the implementation note below applies.
+**Critical:** `src/utils/format/index.ts` already exists (legacy OopsBudgeter utility with `formatCurrency(amount, currency?, locale?)` — 3 params, USD default). The NEW utility was **renamed during planning** from `src/utils/currency.ts` to `src/utils/currency.ts` to avoid TypeScript module-resolution ambiguity with the legacy `src/utils/format/index.ts`. The new file is a flat `.ts` at the `utils/` root with a single `formatCurrency(amount: number): string` locked to `de-DE/EUR` (D-CUT-04). All plans (08-03, 08-04, 08-05) and VALIDATION.md import from `@/utils/currency`; the legacy `@/utils/format` is untouched.
 
-> **Naming conflict note for planner:** `src/utils/format/index.ts` (legacy) and `src/utils/format.ts` (new) would both resolve as `@/utils/format` in TypeScript module resolution. **Resolution:** Name the new file `src/utils/format.ts` — TypeScript resolves a `.ts` file before a directory's `index.ts`, so `@/utils/format` will resolve to the flat file. Verify with `bun run typecheck` after creation. If ambiguity causes errors, rename to `src/utils/currency.ts` and update all imports — but try the flat file first.
+> **Resolution applied (planning-time decision):** Renamed new file `src/utils/currency.ts` → `src/utils/currency.ts`. Replaces the earlier "try the flat file first" guidance — Option A (the rename) was chosen because it eliminates ambiguity at the source rather than relying on TypeScript resolution order. This is a filename change ONLY; the function signature and behavior are unchanged per CONTEXT.md D-CMP-01.
 
 ---
 
-### `src/utils/format.ts` (utility, transform)
+### `src/utils/currency.ts` (utility, transform)
 
 **Analog:** `src/utils/format/index.ts` lines 26–37 (legacy version) AND `src/app/(bb)/page.tsx` lines 316–321 (inline source to extract from)
 
@@ -415,7 +415,7 @@ Use fixed ISO date strings (not `new Date()`) so tests are deterministic regardl
 
 ---
 
-### `tests/utils/format.test.ts` (test, unit)
+### `tests/utils/currency.test.ts` (test, unit)
 
 **Analog:** `tests/utils/charts.test.ts` (exact same structure)
 
@@ -435,7 +435,7 @@ describe("formatCurrency", () => {
 ```
 The `de-DE` locale uses `.` as thousands separator and `,` as decimal. Verify exact output string format locally if unsure — the test value must match what `Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' })` actually produces on Node.js.
 
-**Test directory location:** `tests/utils/format.test.ts` — sibling of `charts.test.ts`.
+**Test directory location:** `tests/utils/currency.test.ts` — sibling of `charts.test.ts`.
 
 ---
 
@@ -556,7 +556,7 @@ Do NOT repeat this setup in individual test files. `jest-dom` matchers (`.toBeIn
 ### No `"use client"` in New Server Components
 
 **Source:** `src/app/(bb)/page.tsx` line 1 (no directive = server component) / RESEARCH.md Pitfall 5
-**Apply to:** `src/lib/safe-to-spend.ts`, `src/utils/greeting.ts`, `src/utils/format.ts`, `src/components/dashboard/TransactionItem.tsx`, `src/app/(bb)/page.tsx`
+**Apply to:** `src/lib/safe-to-spend.ts`, `src/utils/greeting.ts`, `src/utils/currency.ts`, `src/components/dashboard/TransactionItem.tsx`, `src/app/(bb)/page.tsx`
 
 None of these files are client components. They must NOT have `"use client"` at the top. `TransactionItem.tsx` must include a header comment: `// Server component — do NOT add "use client". No interactivity.` to prevent future regression.
 
@@ -603,9 +603,9 @@ No files in Phase 8 lack a codebase analog. All patterns are mapped.
 
 ## Naming Conflict Warning
 
-`src/utils/format/index.ts` (legacy OopsBudgeter module — exports `formatCurrency(amount, currency?, locale?)` defaulting to USD/en-US) and the new `src/utils/format.ts` (exports `formatCurrency(amount: number)` locked to de-DE/EUR) will both resolve as `@/utils/format` in TypeScript module resolution.
+`src/utils/format/index.ts` (legacy OopsBudgeter module — exports `formatCurrency(amount, currency?, locale?)` defaulting to USD/en-US) and the new `src/utils/currency.ts` (exports `formatCurrency(amount: number)` locked to de-DE/EUR) will both resolve as `@/utils/format` in TypeScript module resolution.
 
-**TypeScript resolves a flat `.ts` file before a directory `index.ts`**, so `import { formatCurrency } from "@/utils/format"` will prefer the new flat file. Verify this with `bun run typecheck` immediately after creating `src/utils/format.ts`.
+**TypeScript resolves a flat `.ts` file before a directory `index.ts`**, so `import { formatCurrency } from "@/utils/format"` will prefer the new flat file. Verify this with `bun run typecheck` immediately after creating `src/utils/currency.ts`.
 
 If type errors appear, rename to `src/utils/currency.ts` (exported as `formatCurrency`) and update all Phase 8 imports to `@/utils/currency`. This is a low-risk fallback that requires no logic change.
 

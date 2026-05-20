@@ -594,7 +594,7 @@ export function greetingForTime(now: Date): 'morning' | 'afternoon' | 'evening' 
  */
 
 import { cn } from '@/lib/utils';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency } from '@/utils/currency';  // renamed from utils/format during planning — see 08-PATTERNS.md "Naming conflict note"
 import type { TransactionCategory } from '@/types/finance';
 
 export interface TransactionItemProps {
