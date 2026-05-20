@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: ADHD-Optimized UI Redesign
-status: ready_to_plan
-stopped_at: Phase 08 UI-SPEC approved — ready to plan Phase 8
+status: ready_to_execute
+stopped_at: Phase 08 plans approved (6 plans, plan-checker PASS, nyquist_compliant=true) — ready to execute
 last_updated: 2026-05-20
-last_activity: 2026-05-20 -- Phase 08 ui-phase completed (4 PASS + 2 non-blocking FLAGs)
+last_activity: 2026-05-20 -- Phase 08 plan-phase completed
 progress:
   total_phases: 6
   completed_phases: 1
@@ -26,8 +26,8 @@ progress:
 ## Current Position
 
 Phase: 8
-Plan: Not started
-Status: Context + UI-SPEC ready — ready to plan
+Plan: 6 plans (Wave 0 + 5 work), all approved
+Status: Plans approved — ready to execute
 Last activity: 2026-05-20
 
 ## Phase Overview
@@ -80,8 +80,7 @@ Milestone: ADHD-Optimized UI Redesign
 
 ## Pending Todos
 
-- Run `/gsd:plan-phase 8` to plan Phase 8: Home Hub (CONTEXT.md + UI-SPEC.md both ready)
-- Optional planner pickup (non-blocking UI-SPEC FLAGs): add explicit "Focal point:" line to Section 1 hero; add explicit "60/30/10 split" sentence to Color section
+- Run `/gsd:execute-phase 8` to execute Phase 8 (Wave 0 first: test scaffolding + src/utils/ dir; then Wave 1 TDD parallel; then Wave 2; then Wave 3 page rewrite)
 - Optional: document PSD2 storage-grounds analysis in `docs/PSD2_MOCK_STRATEGY.md` for Projektdokumentation
 
 ---
@@ -95,9 +94,9 @@ Milestone: ADHD-Optimized UI Redesign
 ## Session Continuity
 
 **Last session:** 2026-05-20
-**Stopped at:** Phase 8 UI-SPEC approved by gsd-ui-checker (4/6 PASS + 2 non-blocking FLAGs after revision 1 fixed typography palette). CONTEXT.md + UI-SPEC.md both committed.
-**Resume with:** `/gsd:plan-phase 8`
-**Resume file:** `.planning/phases/08-home-hub/08-UI-SPEC.md`
+**Stopped at:** Phase 8 plan-phase complete. 6 PLAN.md files generated (Wave 0 test scaffolding + Wave 1-3 work). Plan-checker PASS (all 5 requirements covered, 11/11 focus invariants, 2 non-blocking warnings since-fixed). VALIDATION.md `nyquist_compliant: true`. RESEARCH.md, PATTERNS.md, UI-SPEC.md, CONTEXT.md, VALIDATION.md, all 6 plans committed. Note: planner Agent (opus) returned with API 529 after writing all plans — recovered via filesystem fallback (workflow step 9a).
+**Resume with:** `/gsd:execute-phase 8`
+**Resume file:** `.planning/phases/08-home-hub/08-00-PLAN.md`
 
 ---
 
