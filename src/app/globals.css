@@ -1,4 +1,12 @@
-@import "tailwindcss";
+/* Restrict Tailwind v4's content auto-detection to src/ only.
+   Why: Tailwind v4 auto-scans the entire project. `.planning/` and `docs/`
+   contain class-shaped shorthand strings (e.g. `pb-[env(...)]` with literal
+   ellipsis) that the scanner faithfully turns into invalid CSS rules,
+   breaking `next dev`. These dirs are documentation, not runtime. The
+   `source()` modifier pins auto-detection to `src/` so they're ignored.
+   Tailwind v4.1+ supports `@source not "..."` for the same effect — use
+   that when we upgrade past v4.0.x. */
+@import "tailwindcss" source("../../src");
 @plugin "tailwindcss-animate";
 @plugin "@tailwindcss/forms";
 
