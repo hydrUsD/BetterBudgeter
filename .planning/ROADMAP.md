@@ -12,7 +12,7 @@
 
 - [x] **Phase 6: Design Tokens** — Establish all `--bb-*` CSS custom properties in globals.css (colors, typography, spacing, radius, shadows). No visible UI change — foundation for all subsequent phases. *(Complete — 3 plans)*
 - [x] **Phase 7: Layout Shell & Navigation** — Create shared layout components (PageShell, PageHeader, TabBar) and wire up bottom tab bar across the four main pages. Legacy routes excluded. (completed 2026-05-20)
-- [ ] **Phase 8: Home Hub** — Restructure the Home page (`/`) into a hub: Safe-to-Spend hero metric, compact budget status indicators, recent transactions, quick-action sync button. Implement `lib/safe-to-spend.ts`.
+- [x] **Phase 8: Home Hub** — Restructure the Home page (`/`) into a hub: Safe-to-Spend hero metric, compact budget status indicators, recent transactions, quick-action sync button. Implement `lib/safe-to-spend.ts`. (completed 2026-05-20)
 - [ ] **Phase 9: Spoke Pages** — Build Budgets (`/budgets`), Transactions (`/transactions`), and expanded Settings (`/settings`) pages. Migrate Spending by Category chart to Budgets; migrate Linked Accounts to Settings.
 - [ ] **Phase 10: Component System** — Build and integrate the full component library: KPI Card, Budget Progress Card, Transaction Item, Empty State, Alert Banner, button variants, loading states, confirmation dialogs, feedback patterns.
 - [ ] **Phase 11: Copy, Accessibility & Motion** — Non-judgmental copy pass, WCAG 2.2 AA compliance audit, semantic HTML, motion system (functional animations + reduced-motion support).
@@ -131,7 +131,7 @@
 |-------|----------------|--------|-----------|
 | 6. Design Tokens | 0/3 | Planned | - |
 | 7. Layout Shell & Navigation | 4/4 | Complete   | 2026-05-20 |
-| 8. Home Hub | 0/? | Not started | - |
+| 8. Home Hub | 6/6 | Complete   | 2026-05-20 |
 | 9. Spoke Pages | 0/? | Not started | - |
 | 10. Component System | 0/? | Not started | - |
 | 11. Copy, Accessibility & Motion | 0/? | Not started | - |
