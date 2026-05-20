@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: ADHD-Optimized UI Redesign
 status: ready_to_plan
-stopped_at: Phase 08 context gathered — ready to plan Phase 8
+stopped_at: Phase 08 UI-SPEC approved — ready to plan Phase 8
 last_updated: 2026-05-20
-last_activity: 2026-05-20 -- Phase 08 discuss-phase completed
+last_activity: 2026-05-20 -- Phase 08 ui-phase completed (4 PASS + 2 non-blocking FLAGs)
 progress:
   total_phases: 6
   completed_phases: 1
@@ -27,7 +27,7 @@ progress:
 
 Phase: 8
 Plan: Not started
-Status: Context gathered — ready to plan
+Status: Context + UI-SPEC ready — ready to plan
 Last activity: 2026-05-20
 
 ## Phase Overview
@@ -80,7 +80,8 @@ Milestone: ADHD-Optimized UI Redesign
 
 ## Pending Todos
 
-- Run `/gsd:plan-phase 8` to plan Phase 8: Home Hub (CONTEXT.md exists)
+- Run `/gsd:plan-phase 8` to plan Phase 8: Home Hub (CONTEXT.md + UI-SPEC.md both ready)
+- Optional planner pickup (non-blocking UI-SPEC FLAGs): add explicit "Focal point:" line to Section 1 hero; add explicit "60/30/10 split" sentence to Color section
 - Optional: document PSD2 storage-grounds analysis in `docs/PSD2_MOCK_STRATEGY.md` for Projektdokumentation
 
 ---
@@ -94,9 +95,9 @@ Milestone: ADHD-Optimized UI Redesign
 ## Session Continuity
 
 **Last session:** 2026-05-20
-**Stopped at:** Phase 8 discuss-phase complete — 14 decisions captured across 4 gray areas (Safe-to-Spend formula, greeting + locale, component extraction, legacy cutover + edge states). PSD2/FinTS storage-grounds analysis captured as deferred.
+**Stopped at:** Phase 8 UI-SPEC approved by gsd-ui-checker (4/6 PASS + 2 non-blocking FLAGs after revision 1 fixed typography palette). CONTEXT.md + UI-SPEC.md both committed.
 **Resume with:** `/gsd:plan-phase 8`
-**Resume file:** `.planning/phases/08-home-hub/08-CONTEXT.md`
+**Resume file:** `.planning/phases/08-home-hub/08-UI-SPEC.md`
 
 ---
 
