@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: ADHD-Optimized UI Redesign
-status: executing
-stopped_at: "Phase 8 plan-phase complete. 6 PLAN.md files generated (Wave 0 test scaffolding + Wave 1-3 work). Plan-checker PASS (all 5 requirements covered, 11/11 focus invariants, 2 non-blocking warnings since-fixed). VALIDATION.md `nyquist_compliant: true`. RESEARCH.md, PATTERNS.md, UI-SPEC.md, CONTEXT.md, VALIDATION.md, all 6 plans committed. Note: planner Agent (opus) returned with API 529 after writing all plans — recovered via filesystem fallback (workflow step 9a)."
+status: phase_executed_awaiting_smoke
+stopped_at: "Phase 8 (Home Hub) executed — 6/6 plans, verifier PASSED (5/5 success criteria, 14/14 CONTEXT decisions, 85/85 tests, build+typecheck green, 0 @radix-ui, legacy untouched). 4 manual smoke checks remain from VALIDATION.md (visual layout, 0-accounts CTA, DB-error inline, dark-mode parity)."
 last_updated: "2026-05-20T15:48:57.689Z"
 last_activity: 2026-05-20 -- Phase 08 execution started
 progress:
@@ -36,7 +36,7 @@ Last activity: 2026-05-20 -- Phase 08 execution started
 Milestone: ADHD-Optimized UI Redesign
 ├── Phase 6: Design Tokens ✅ COMPLETE (3/3 plans done, build passes)
 ├── Phase 7: Layout Shell & Navigation ✅ COMPLETE (4/4 plans done, verifier passed 5/5)
-├── Phase 8: Home Hub ⬜ NOT STARTED
+├── Phase 8: Home Hub ✅ EXECUTED (6/6 plans done, verifier passed 5/5 + 14/14 decisions; 4 manual smoke checks pending)
 ├── Phase 9: Spoke Pages ⬜ NOT STARTED
 ├── Phase 10: Component System ⬜ NOT STARTED
 └── Phase 11: Copy, Accessibility & Motion ⬜ NOT STARTED
@@ -80,7 +80,8 @@ Milestone: ADHD-Optimized UI Redesign
 
 ## Pending Todos
 
-- Run `/gsd:execute-phase 8` to execute Phase 8 (Wave 0 first: test scaffolding + src/utils/ dir; then Wave 1 TDD parallel; then Wave 2; then Wave 3 page rewrite)
+- **Manual smoke-test Phase 8** in browser before declaring Complete: (1) visual layout at 375/768/1280px, (2) 0-accounts full-screen CTA, (3) DB-error inline note (no red banner), (4) dark-mode parity for traffic-light dots + hero
+- Then run `/gsd:discuss-phase 9` (or `/gsd:plan-phase 9`) to start Phase 9: Spoke Pages
 - Optional: document PSD2 storage-grounds analysis in `docs/PSD2_MOCK_STRATEGY.md` for Projektdokumentation
 
 ---
@@ -94,9 +95,9 @@ Milestone: ADHD-Optimized UI Redesign
 ## Session Continuity
 
 **Last session:** 2026-05-20
-**Stopped at:** Phase 8 plan-phase complete. 6 PLAN.md files generated (Wave 0 test scaffolding + Wave 1-3 work). Plan-checker PASS (all 5 requirements covered, 11/11 focus invariants, 2 non-blocking warnings since-fixed). VALIDATION.md `nyquist_compliant: true`. RESEARCH.md, PATTERNS.md, UI-SPEC.md, CONTEXT.md, VALIDATION.md, all 6 plans committed. Note: planner Agent (opus) returned with API 529 after writing all plans — recovered via filesystem fallback (workflow step 9a).
-**Resume with:** `/gsd:execute-phase 8`
-**Resume file:** `.planning/phases/08-home-hub/08-00-PLAN.md`
+**Stopped at:** Phase 8 (Home Hub) executed end-to-end — all 4 waves, 6/6 plans, verifier PASSED. Code changes: `src/lib/safe-to-spend.ts` (new), `src/utils/greeting.ts` + `src/utils/currency.ts` (new), `src/components/dashboard/TransactionItem.tsx` (new), `src/app/(bb)/page.tsx` (rewritten as the 4-section calm hub). 48 new tests added (85/85 suite green). `bun run build` + `bun run typecheck` exit 0. Verifier flagged `status: human_needed` — 4 pre-planned manual smoke checks remain (visual responsiveness, 0-accounts CTA, DB-error edge state, dark-mode parity). Branch `ui-tests`.
+**Resume with:** `bun dev` + manual browser smoke per `.planning/phases/08-home-hub/08-VALIDATION.md` §Manual-Only Verifications. Then `/gsd:discuss-phase 9` or `/gsd:plan-phase 9` for Spoke Pages.
+**Resume file:** `.planning/phases/08-home-hub/08-VERIFICATION.md`
 
 ---
 
