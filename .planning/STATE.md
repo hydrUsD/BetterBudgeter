@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: ADHD-Optimized UI Redesign
 status: ready_to_plan
-stopped_at: Phase 07 complete (4/4) — ready to discuss Phase 8
-last_updated: 2026-05-20T10:38:47.557Z
-last_activity: 2026-05-19 -- Phase 07 execution started
+stopped_at: Phase 08 context gathered — ready to plan Phase 8
+last_updated: 2026-05-20
+last_activity: 2026-05-20 -- Phase 08 discuss-phase completed
 progress:
   total_phases: 6
   completed_phases: 1
@@ -27,7 +27,7 @@ progress:
 
 Phase: 8
 Plan: Not started
-Status: Ready to plan
+Status: Context gathered — ready to plan
 Last activity: 2026-05-20
 
 ## Phase Overview
@@ -80,7 +80,8 @@ Milestone: ADHD-Optimized UI Redesign
 
 ## Pending Todos
 
-- Run `/gsd:discuss-phase 8` or `/gsd:plan-phase 8` to begin Phase 8: Home Hub
+- Run `/gsd:plan-phase 8` to plan Phase 8: Home Hub (CONTEXT.md exists)
+- Optional: document PSD2 storage-grounds analysis in `docs/PSD2_MOCK_STRATEGY.md` for Projektdokumentation
 
 ---
 
@@ -93,8 +94,9 @@ Milestone: ADHD-Optimized UI Redesign
 ## Session Continuity
 
 **Last session:** 2026-05-20
-**Stopped at:** Phase 07 complete (4/4 plans, verifier `passed` 5/5 success criteria, 6/6 NAV requirements satisfied)
-**Resume with:** `/gsd:discuss-phase 8` (Home Hub — CONTEXT.md not yet created) or `/gsd:plan-phase 8`
+**Stopped at:** Phase 8 discuss-phase complete — 14 decisions captured across 4 gray areas (Safe-to-Spend formula, greeting + locale, component extraction, legacy cutover + edge states). PSD2/FinTS storage-grounds analysis captured as deferred.
+**Resume with:** `/gsd:plan-phase 8`
+**Resume file:** `.planning/phases/08-home-hub/08-CONTEXT.md`
 
 ---
 
