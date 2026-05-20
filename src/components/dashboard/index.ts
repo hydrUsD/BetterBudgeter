@@ -44,6 +44,18 @@ export { SpendingByCategoryChart } from "./SpendingByCategoryChart";
  */
 export { BudgetNotificationDialogs } from "./BudgetNotificationDialogs";
 
+/**
+ * TransactionItem: Presentational single-row transaction display.
+ * Used on Home hub (Phase 8) and Transactions page (Phase 9).
+ *
+ * Accepts a view-model (TransactionItemProps) — NOT a raw DbTransaction row.
+ * Parent page is responsible for mapping DB rows → view-model props.
+ *
+ * @see docs/DESIGN_SYSTEM.md §5.3
+ * @see .planning/phases/08-home-hub/08-CONTEXT.md D-CMP-02
+ */
+export { TransactionItem, type TransactionItemProps } from "./TransactionItem";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Placeholder Exports (Future Implementation)
 // ─────────────────────────────────────────────────────────────────────────────

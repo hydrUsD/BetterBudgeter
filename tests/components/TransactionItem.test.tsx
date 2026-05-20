@@ -194,11 +194,16 @@ describe("TransactionItem", () => {
 
   // ─── Case 8: NO_CLIENT_DIRECTIVE_REGRESSION_GUARD ────────────────────────
 
-  it("NO_CLIENT_DIRECTIVE: source file does not start with 'use client'", async () => {
+  it("NO_CLIENT_DIRECTIVE: source file does not contain the 'use client' module directive", async () => {
     // This guard prevents the future regression where someone adds "use client"
     // to TransactionItem.tsx and silently inflates the client bundle (Pitfall 5
-    // in 08-RESEARCH.md). The first 200 characters of the file must NOT contain
-    // the 'use client' directive string.
+    // in 08-RESEARCH.md).
+    //
+    // The Next.js module directive syntax is: "use client"; (or 'use client';)
+    // on its own line at the top of the file. We test for the quoted form
+    // ("use client" or 'use client') which is the exact syntax that triggers
+    // the client boundary. A comment that mentions "use client" in text does NOT
+    // trigger the boundary and is not the same as the directive.
     //
     // NOTE: We read the source file via dynamic import of fs — this is intentional.
     // The test is a static analysis assertion, not a render assertion.
@@ -209,8 +214,9 @@ describe("TransactionItem", () => {
       "src/components/dashboard/TransactionItem.tsx"
     );
     const content = fs.readFileSync(filePath, "utf8");
-    const first200 = content.slice(0, 200);
-    // The directive would appear as 'use client' (with or without semicolon)
-    expect(first200).not.toContain("use client");
+    // The directive always appears as a string literal — either "use client" or
+    // 'use client' — on its own (not embedded inside a longer comment sentence).
+    // We look for the exact quoted directive patterns.
+    expect(content).not.toMatch(/^["']use client["']/m);
   });
 });
