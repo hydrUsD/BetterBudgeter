@@ -11,7 +11,7 @@
 ## Phases
 
 - [x] **Phase 6: Design Tokens** — Establish all `--bb-*` CSS custom properties in globals.css (colors, typography, spacing, radius, shadows). No visible UI change — foundation for all subsequent phases. *(Complete — 3 plans)*
-- [ ] **Phase 7: Layout Shell & Navigation** — Create shared layout components (PageShell, PageHeader, TabBar) and wire up bottom tab bar across the four main pages. Legacy routes excluded.
+- [x] **Phase 7: Layout Shell & Navigation** — Create shared layout components (PageShell, PageHeader, TabBar) and wire up bottom tab bar across the four main pages. Legacy routes excluded. (completed 2026-05-20)
 - [ ] **Phase 8: Home Hub** — Restructure the Home page (`/`) into a hub: Safe-to-Spend hero metric, compact budget status indicators, recent transactions, quick-action sync button. Implement `lib/safe-to-spend.ts`.
 - [ ] **Phase 9: Spoke Pages** — Build Budgets (`/budgets`), Transactions (`/transactions`), and expanded Settings (`/settings`) pages. Migrate Spending by Category chart to Budgets; migrate Linked Accounts to Settings.
 - [ ] **Phase 10: Component System** — Build and integrate the full component library: KPI Card, Budget Progress Card, Transaction Item, Empty State, Alert Banner, button variants, loading states, confirmation dialogs, feedback patterns.
@@ -64,7 +64,7 @@
 - [x] 07-03-PLAN.md — Slim root layout + create (legacy)/layout.tsx + git mv 5 legacy page dirs (NAV-04, NAV-06)
 
 **Wave 3** (depends on Plans 01, 02, 03 — wires BB chrome to consume primitives):
-- [ ] 07-04-PLAN.md — Create (bb)/layout.tsx + move Home/Settings into (bb)/ + create stub /budgets and /transactions pages (NAV-01/02/03/05/06)
+- [x] 07-04-PLAN.md — Create (bb)/layout.tsx + move Home/Settings into (bb)/ + create stub /budgets and /transactions pages (NAV-01/02/03/05/06)
 
 **Cross-cutting constraints:** `git mv` for all 7 file moves (preserves blame per CLAUDE.md rule 10); no @radix-ui imports in new BB code; --bb-* tokens only; TDD discipline (RED→GREEN commits) for the 3 layout components; `viewportFit: "cover"` added to root Viewport export (RESEARCH §Pitfall 1).
 **UI hint**: yes
@@ -130,7 +130,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 6. Design Tokens | 0/3 | Planned | - |
-| 7. Layout Shell & Navigation | 3/4 | In Progress|  |
+| 7. Layout Shell & Navigation | 4/4 | Complete   | 2026-05-20 |
 | 8. Home Hub | 0/? | Not started | - |
 | 9. Spoke Pages | 0/? | Not started | - |
 | 10. Component System | 0/? | Not started | - |

@@ -92,9 +92,10 @@ Milestone: ADHD-Optimized UI Redesign
 
 ## Session Continuity
 
-**Last session:** 2026-05-19T19:07:20.287Z
-**Stopped at:** Phase 7 UI-SPEC approved
-**Resume with:** `/gsd:plan-phase 7` (Layout Shell & Navigation)
+**Last session:** 2026-05-20 (resumed)
+**Stopped at:** Phase 7 code-complete + user-approved smoke test; post-wave gates pending (verify-stamp commit, ROADMAP update, code-review, regression, verifier, phase.complete)
+**Resume with:** `/gsd:execute-phase 7` — will detect all 4 plans done and execute the post-wave gate sequence
+**Resume file:** `.planning/HANDOFF.json` (one-shot, delete after gates complete)
 
 ---
 
