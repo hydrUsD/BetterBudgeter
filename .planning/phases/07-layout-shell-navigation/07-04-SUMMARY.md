@@ -145,7 +145,7 @@ Both moves recorded as renames (R-prefix) — blame history preserved per projec
 
 ## Task 3: Human Smoke-Test Checkpoint
 
-**Status: PENDING** — Awaiting browser verification of all 11 URLs.
+**Status: APPROVED 2026-05-19** — User-verified all 11 URLs + TabBar interactions green via `/gsd:execute-phase 7` checkpoint flow. Phase 7 verified end-to-end in browser.
 
 The full verification checklist is in the plan's Task 3 `<how-to-verify>` section. Key checks:
 
