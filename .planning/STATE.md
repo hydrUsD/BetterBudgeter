@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: ADHD-Optimized UI Redesign
-status: phase_executed_awaiting_smoke
-stopped_at: "Phase 8 (Home Hub) executed — 6/6 plans, verifier PASSED (5/5 success criteria, 14/14 CONTEXT decisions, 85/85 tests, build+typecheck green, 0 @radix-ui, legacy untouched). 4 manual smoke checks remain from VALIDATION.md (visual layout, 0-accounts CTA, DB-error inline, dark-mode parity)."
+status: ready_to_plan
+stopped_at: "Phase 8 (Home Hub) COMPLETE — 6/6 plans, verifier PASSED, all 4 manual smoke checks user-confirmed (2026-05-20). User noted hub feels 'a bit boring' — confirmed-intentional per DESIGN_SYSTEM P1 calm-over-comprehensive; visual interest lands in Phase 11 (motion + copy pass). Tailwind v4 source-scan fix applied in globals.css to unblock dev server."
 last_updated: "2026-05-20T15:48:57.689Z"
 last_activity: 2026-05-20 -- Phase 08 execution started
 progress:
@@ -36,7 +36,7 @@ Last activity: 2026-05-20 -- Phase 08 execution started
 Milestone: ADHD-Optimized UI Redesign
 ├── Phase 6: Design Tokens ✅ COMPLETE (3/3 plans done, build passes)
 ├── Phase 7: Layout Shell & Navigation ✅ COMPLETE (4/4 plans done, verifier passed 5/5)
-├── Phase 8: Home Hub ✅ EXECUTED (6/6 plans done, verifier passed 5/5 + 14/14 decisions; 4 manual smoke checks pending)
+├── Phase 8: Home Hub ✅ COMPLETE (6/6 plans, verifier 5/5 + 14/14 decisions, smoke 4/4 passed)
 ├── Phase 9: Spoke Pages ⬜ NOT STARTED
 ├── Phase 10: Component System ⬜ NOT STARTED
 └── Phase 11: Copy, Accessibility & Motion ⬜ NOT STARTED
@@ -80,8 +80,7 @@ Milestone: ADHD-Optimized UI Redesign
 
 ## Pending Todos
 
-- **Manual smoke-test Phase 8** in browser before declaring Complete: (1) visual layout at 375/768/1280px, (2) 0-accounts full-screen CTA, (3) DB-error inline note (no red banner), (4) dark-mode parity for traffic-light dots + hero
-- Then run `/gsd:discuss-phase 9` (or `/gsd:plan-phase 9`) to start Phase 9: Spoke Pages
+- Run `/gsd:discuss-phase 9` (or `/gsd:plan-phase 9`) to start Phase 9: Spoke Pages (Budgets, Transactions, expanded Settings)
 - Optional: document PSD2 storage-grounds analysis in `docs/PSD2_MOCK_STRATEGY.md` for Projektdokumentation
 
 ---
@@ -95,8 +94,8 @@ Milestone: ADHD-Optimized UI Redesign
 ## Session Continuity
 
 **Last session:** 2026-05-20
-**Stopped at:** Phase 8 (Home Hub) executed end-to-end — all 4 waves, 6/6 plans, verifier PASSED. Code changes: `src/lib/safe-to-spend.ts` (new), `src/utils/greeting.ts` + `src/utils/currency.ts` (new), `src/components/dashboard/TransactionItem.tsx` (new), `src/app/(bb)/page.tsx` (rewritten as the 4-section calm hub). 48 new tests added (85/85 suite green). `bun run build` + `bun run typecheck` exit 0. Verifier flagged `status: human_needed` — 4 pre-planned manual smoke checks remain (visual responsiveness, 0-accounts CTA, DB-error edge state, dark-mode parity). Branch `ui-tests`.
-**Resume with:** `bun dev` + manual browser smoke per `.planning/phases/08-home-hub/08-VALIDATION.md` §Manual-Only Verifications. Then `/gsd:discuss-phase 9` or `/gsd:plan-phase 9` for Spoke Pages.
+**Stopped at:** Phase 8 (Home Hub) COMPLETE — 6/6 plans, verifier PASSED, all 4 manual smoke checks user-confirmed. User comment: hub feels "a bit boring" — confirmed-intentional per DESIGN_SYSTEM P1 (calm over comprehensive) and deferred to Phase 11 (motion + copy pass) for any added visual interest. Phase 11 will revisit. One incidental fix during smoke: globals.css `@import "tailwindcss" source("../../src")` to stop Tailwind v4 from scanning `.planning/` (literal `pb-[env(...)]` placeholder in 07-02-PLAN.md was being turned into invalid CSS).
+**Resume with:** `/gsd:discuss-phase 9` or `/gsd:plan-phase 9` for Spoke Pages (Budgets, Transactions, expanded Settings).
 **Resume file:** `.planning/phases/08-home-hub/08-VERIFICATION.md`
 
 ---
