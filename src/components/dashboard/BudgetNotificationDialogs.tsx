@@ -282,16 +282,16 @@ export function BudgetNotificationDialogs({
       <AlertDialogContent
         className={
           content.variant === "limit"
-            ? "border-red-200 dark:border-red-800"
-            : "border-amber-200 dark:border-amber-800"
+            ? "border-bb-negative"
+            : "border-bb-caution"
         }
       >
         <AlertDialogHeader>
           <AlertDialogTitle
             className={
               content.variant === "limit"
-                ? "text-red-700 dark:text-red-300"
-                : "text-amber-700 dark:text-amber-300"
+                ? "text-bb-negative"
+                : "text-bb-caution"
             }
           >
             {content.title}
