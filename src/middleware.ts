@@ -12,7 +12,7 @@
  * 5. Also refreshes session if needed (keeps user logged in)
  *
  * Protected routes (defined in config.matcher):
- * - /dashboard, /settings, /link-bank (page routes)
+ * - /, /budgets, /transactions, /settings, /link-bank (page routes)
  * - /api/import, /api/mock/*, /api/notifications (API routes)
  *
  * Public routes (not matched by middleware):
@@ -113,6 +113,8 @@ export async function middleware(request: NextRequest) {
  *
  * Protected routes:
  * - / - Main dashboard (requires auth) - NEW PRIMARY LANDING PAGE
+ * - /budgets - Budget overview (requires auth) - Phase 9
+ * - /transactions - Transaction list (requires auth) - Phase 9
  * - /settings - User settings (requires auth)
  * - /link-bank - Bank linking flow (requires auth)
  * - /api/import - Transaction import endpoint
@@ -139,6 +141,8 @@ export const config = {
     // Protected page routes
     // Note: "/" must be listed explicitly (no wildcard) to protect only the root
     "/",
+    "/budgets/:path*",
+    "/transactions/:path*",
     "/settings/:path*",
     "/link-bank/:path*",
     // Protected API routes

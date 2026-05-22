@@ -174,7 +174,7 @@
      60% dominant: page backgrounds
      30% secondary: raised surfaces, borders
      10% accent: semantic signals (--bb-info) */
-  --bb-bg: oklch(0.985 0.002 280);
+  --bb-bg: oklch(0.985 0.008 80);
   --bb-surface: oklch(1 0 0);
   --bb-surface-raised: oklch(0.975 0.002 280);
   --bb-text: oklch(0.205 0.006 280);
