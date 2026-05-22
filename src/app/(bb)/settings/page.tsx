@@ -1,168 +1,209 @@
 /**
  * BetterBudget Settings Page
  *
- * User preferences and app configuration.
- * Settings are persisted per-user in the database.
+ * WHAT:
+ * User preferences, budget configuration, linked accounts, and sign out.
  *
  * SECTIONS:
- * - Budget Settings: Monthly spending limits per category (MVP)
- * - Display Preferences: View mode, currency (placeholder)
- * - Notifications: Budget alerts, weekly summary (placeholder)
- * - Linked Accounts: Bank connections (placeholder)
+ *   1. Account — user email + sign out button
+ *   2. Monthly Budgets — BudgetSettings component (existing, functional)
+ *   3. Linked Accounts — real data from getAccounts(), link to /link-bank
+ *   4. Display Preferences — placeholder ("Coming soon")
+ *   5. Notifications — placeholder ("Coming soon")
+ *
+ * AUTH:
+ * Protected by middleware. Page also does a getUser() call for the email display.
+ *
+ * DATA FLOW:
+ *   Promise.all([getUser(), getBudgets(), getAccounts()])
+ *
+ * TOKEN MIGRATION (Phase 9):
+ * All sections migrated from raw Tailwind (text-muted-foreground, border, etc.)
+ * to --bb-* tokens (text-bb-text-secondary, border-bb-border, etc.).
  *
  * @see docs/BUDGET_STRATEGY.md for budget feature design
  */
 
-import { redirect } from "next/navigation";
-import { generateMetadata } from "@/lib/head";
-import { createServerSupabaseClient } from "@/lib/db/supabaseServer";
-import { getBudgets } from "@/lib/db/budgets";
-import { BudgetSettings } from "@/components/settings/BudgetSettings";
+import Link from "next/link";
 
-export const metadata = generateMetadata({
-  title: "Settings",
-});
+import { generateMetadata } from "@/lib/head";
+import { getUser } from "@/lib/auth";
+import { getBudgets } from "@/lib/db/budgets";
+import { getAccounts } from "@/lib/db/accounts";
+import { formatCurrency } from "@/utils/currency";
+
+import { PageHeader } from "@/components/layout/PageHeader";
+import { BudgetSettings } from "@/components/settings/BudgetSettings";
+import SignOutButton from "@/components/auth/SignOutButton";
+
+import type { DbAccount, DbBudget } from "@/lib/db/types";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Metadata
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const metadata = generateMetadata({ title: "Settings" });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Page Component
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default async function SettingsPage() {
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Auth Check
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login?redirect=/settings");
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Fetch Current Budgets
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  const currentBudgets: Record<string, number> = {};
+  // Fetch user, budgets, and accounts in parallel
+  let user: Awaited<ReturnType<typeof getUser>> = null;
+  let dbBudgets: DbBudget[] = [];
+  let accounts: DbAccount[] = [];
 
   try {
-    const dbBudgets = await getBudgets();
-    for (const budget of dbBudgets) {
-      currentBudgets[budget.category] = budget.monthly_limit;
-    }
+    [user, dbBudgets, accounts] = await Promise.all([
+      getUser(),
+      getBudgets(),
+      getAccounts(),
+    ]);
   } catch (error) {
-    console.error("[settings] Error fetching budgets:", error);
-    // Continue with empty budgets - user can still set new ones
+    console.error("[settings] Error fetching data:", error);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Render
-  // ─────────────────────────────────────────────────────────────────────────────
+  // Build currentBudgets map for BudgetSettings component
+  const currentBudgets: Record<string, number> = {};
+  for (const budget of dbBudgets) {
+    currentBudgets[budget.category] = budget.monthly_limit;
+  }
 
   return (
-    // Outer wrapper downgraded from <main> to <div> per Phase 7 D-07 — PageShell (in (bb)/layout.tsx per D-06) now provides the single <main> landmark for this route. See RESEARCH §Pitfall 5.
-    <div className="flex flex-col gap-6">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">
-          Customize your BetterBudget experience
-        </p>
+    <>
+      <PageHeader title="Settings" subtitle="Customize your BetterBudget experience" />
+
+      <div className="flex flex-col gap-bb-8">
+
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        {/* Section 1: Account — email + sign out                                  */}
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Account</h2>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-bb-base text-bb-text">
+                {user?.email ?? "Not signed in"}
+              </p>
+              <p className="text-bb-sm text-bb-text-secondary">Signed in via Supabase Auth</p>
+            </div>
+            <SignOutButton variant="outline" size="sm" />
+          </div>
+        </section>
+
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        {/* Section 2: Monthly Budgets — existing BudgetSettings component         */}
+        {/* BudgetSettings is a "use client" component for form interactivity.     */}
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Monthly Budgets</h2>
+          <BudgetSettings currentBudgets={currentBudgets} />
+        </section>
+
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        {/* Section 3: Linked Accounts — real data from getAccounts()              */}
+        {/* Shows bank name, account name, account type, and balance for each.    */}
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Linked Accounts</h2>
+
+          {accounts.length === 0 ? (
+            <div>
+              <p className="text-bb-sm text-bb-text-secondary mb-bb-4">
+                No bank accounts linked yet.
+              </p>
+              <Link
+                href="/link-bank"
+                className="text-bb-sm text-bb-info underline-offset-4 hover:underline"
+              >
+                Link a bank account →
+              </Link>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-bb-3">
+              {accounts.map((acc) => (
+                <div
+                  key={acc.id}
+                  className="flex items-center justify-between py-bb-3 border-b border-bb-border last:border-b-0"
+                >
+                  <div>
+                    <p className="text-bb-base text-bb-text">{acc.account_name}</p>
+                    <p className="text-bb-sm text-bb-text-secondary">
+                      {acc.bank_name} · {acc.account_type}
+                    </p>
+                  </div>
+                  <p className="text-bb-base font-bold text-bb-text">
+                    {formatCurrency(acc.balance ?? 0)}
+                  </p>
+                </div>
+              ))}
+
+              <Link
+                href="/link-bank"
+                className="text-bb-sm text-bb-info underline-offset-4 hover:underline mt-bb-2"
+              >
+                Link another account →
+              </Link>
+            </div>
+          )}
+        </section>
+
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        {/* Section 4: Display Preferences — placeholder                           */}
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Display Preferences</h2>
+          <div className="flex flex-col gap-bb-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-bb-base text-bb-text">View Mode</p>
+                <p className="text-bb-sm text-bb-text-secondary">
+                  Choose compact or comfortable layout
+                </p>
+              </div>
+              <span className="text-bb-sm text-bb-text-secondary">Coming soon</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-bb-base text-bb-text">Currency</p>
+                <p className="text-bb-sm text-bb-text-secondary">
+                  Display currency for amounts
+                </p>
+              </div>
+              <span className="text-bb-sm text-bb-text">EUR</span>
+            </div>
+          </div>
+        </section>
+
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        {/* Section 5: Notifications — placeholder                                 */}
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Notifications</h2>
+          <div className="flex flex-col gap-bb-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-bb-base text-bb-text">Budget Alerts</p>
+                <p className="text-bb-sm text-bb-text-secondary">
+                  Notify at 80% and 100% of budget
+                </p>
+              </div>
+              <span className="text-bb-sm text-bb-positive">On</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-bb-base text-bb-text">Weekly Summary</p>
+                <p className="text-bb-sm text-bb-text-secondary">
+                  Receive weekly spending summary
+                </p>
+              </div>
+              <span className="text-bb-sm text-bb-text-secondary">Coming soon</span>
+            </div>
+          </div>
+        </section>
+
       </div>
-
-      {/* Budget Settings - MVP Feature */}
-      <section className="border rounded-lg p-6">
-        <h2 className="font-semibold mb-4">Monthly Budgets</h2>
-        <BudgetSettings currentBudgets={currentBudgets} />
-      </section>
-
-      {/* Display Preferences (placeholder) */}
-      <section className="border border-dashed border-muted-foreground/50 rounded-lg p-6">
-        <h2 className="font-semibold mb-4">Display Preferences</h2>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="font-medium">View Mode</p>
-              <p className="text-sm text-muted-foreground">
-                Choose compact or comfortable layout
-              </p>
-            </div>
-            <div className="text-muted-foreground text-sm">[Coming soon]</div>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="font-medium">Currency</p>
-              <p className="text-sm text-muted-foreground">
-                Display currency for amounts
-              </p>
-            </div>
-            <div className="text-muted-foreground text-sm">EUR</div>
-          </div>
-        </div>
-      </section>
-
-      {/* Notification Preferences (placeholder) */}
-      <section className="border border-dashed border-muted-foreground/50 rounded-lg p-6">
-        <h2 className="font-semibold mb-4">Notifications</h2>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="font-medium">Budget Alerts</p>
-              <p className="text-sm text-muted-foreground">
-                Notify at 80% and 100% of budget
-              </p>
-            </div>
-            <div className="text-muted-foreground text-sm">On</div>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="font-medium">Weekly Summary</p>
-              <p className="text-sm text-muted-foreground">
-                Receive weekly spending summary
-              </p>
-            </div>
-            <div className="text-muted-foreground text-sm">[Coming soon]</div>
-          </div>
-        </div>
-      </section>
-
-      {/* Linked Accounts (placeholder) */}
-      <section className="border border-dashed border-muted-foreground/50 rounded-lg p-6">
-        <h2 className="font-semibold mb-4">Linked Accounts</h2>
-        <p className="text-muted-foreground text-sm">
-          Manage your connected bank accounts.
-        </p>
-        <div className="mt-4">
-          <a
-            href="/link-bank"
-            className="text-sm underline hover:text-foreground"
-          >
-            Link a bank account →
-          </a>
-        </div>
-      </section>
-
-      {/* Data Export (placeholder) */}
-      <section className="border border-dashed border-muted-foreground/50 rounded-lg p-6">
-        <h2 className="font-semibold mb-4">Data Export</h2>
-        <p className="text-muted-foreground text-sm">
-          Export your transaction history
-        </p>
-        <div className="mt-4 flex gap-2">
-          <button
-            disabled
-            className="px-3 py-1 text-sm border rounded opacity-50 cursor-not-allowed"
-          >
-            Export CSV
-          </button>
-          <button
-            disabled
-            className="px-3 py-1 text-sm border rounded opacity-50 cursor-not-allowed"
-          >
-            Export JSON
-          </button>
-        </div>
-      </section>
-    </div>
+    </>
   );
 }
