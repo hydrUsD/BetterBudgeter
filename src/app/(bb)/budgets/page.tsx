@@ -1,20 +1,50 @@
 /**
- * Budgets Page — Stub for Phase 7 (D-07 + D-08)
+ * BetterBudget Budgets Page
  *
- * This page exists in Phase 7 only so the /budgets tab has somewhere to navigate to.
- * Content is filled in by Phase 9 (PAGE-04). Stub copy is user-facing and neutral
- * per CONTEXT.md D-08 — exact strings locked there, do not improvise.
+ * WHAT:
+ * The Budgets spoke page — detailed view of all budget categories with progress
+ * cards, a spending-by-category donut chart, and a link to edit budgets in settings.
  *
- * EXTENSION POINT: Phase 9 will replace the placeholder paragraph with monthly overview,
- * budget progress cards, spending donut chart (migrated from Home), and "Edit budgets →" link.
+ * SECTIONS:
+ *   1. Monthly overview card — total budgeted vs total spent (summary KPI)
+ *   2. BudgetProgressSection — per-category progress cards with traffic-light status
+ *   3. SpendingByCategoryChart — donut chart showing expense breakdown
+ *   4. "Edit budgets →" link to /settings
  *
- * SECURITY NOTE: When Phase 9 adds real user data here, the /budgets URL MUST be added
- * to src/middleware.ts matchers (currently public — only static placeholder text).
- * See CONTEXT.md §Middleware & Routing Safety (D-13) and RESEARCH §Security Domain V4.
+ * AUTH:
+ * Protected by middleware (src/middleware.ts) — unauthenticated users are
+ * redirected to /login before this page even runs.
+ *
+ * DATA FLOW:
+ *   Promise.all([
+ *     calculateAllBudgetProgress(),
+ *     getExpensesByCategory(),
+ *     getTransactionSummary({ fromDate, toDate })
+ *   ])
+ *
+ * EDGE STATES:
+ *   0 budgets → BudgetProgressSection shows inline CTA to /settings
+ *   0 transactions → SpendingByCategoryChart shows "No expense data" message
+ *   DB error → neutral inline note at bottom, sections render with empty data
+ *
+ * @see docs/BUDGET_STRATEGY.md for budget tracking design
+ * @see docs/DESIGN_SYSTEM.md §7.2 for page layout spec
  */
 
-import { PageHeader } from "@/components/layout/PageHeader";
+import Link from "next/link";
+
 import { generateMetadata } from "@/lib/head";
+import { calculateAllBudgetProgress } from "@/lib/budgets";
+import {
+  getExpensesByCategory,
+  type CategoryBreakdown,
+} from "@/lib/db/transactions";
+import { getCurrentMonthStart, getCurrentMonthEnd } from "@/lib/budgets";
+import { formatCurrency } from "@/utils/currency";
+
+import { PageHeader } from "@/components/layout/PageHeader";
+import { BudgetProgressSection, SpendingByCategoryChart } from "@/components/dashboard";
+import type { BudgetProgress } from "@/types/finance";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Metadata
@@ -26,19 +56,110 @@ export const metadata = generateMetadata({ title: "Budgets" });
 // Page Component
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * BudgetsPage renders a minimal stub so /budgets is a reachable, user-friendly route.
- * No outer <main> — PageShell (in (bb)/layout.tsx per D-06) provides the single <main> landmark.
- * No icons, no dashed borders — those visual treatments belong to the formal Empty State
- * component introduced in Phase 10 (per UI-SPEC §Stub Pages + D-08 §Anti-Patterns #12).
- */
-export default function BudgetsPage() {
+export default async function BudgetsPage() {
+  // Date range for current month (used by summary + chart queries)
+  const fromDate = getCurrentMonthStart();
+  const toDate = getCurrentMonthEnd();
+
+  // Default empty state — used if DB fetch fails
+  let budgetProgress: BudgetProgress[] = [];
+  let categoryBreakdown: CategoryBreakdown[] = [];
+  let dataError: string | null = null;
+
+  try {
+    [budgetProgress, categoryBreakdown] = await Promise.all([
+      calculateAllBudgetProgress(),
+      getExpensesByCategory({ fromDate, toDate }),
+    ]);
+  } catch (error) {
+    console.error("[budgets] Error fetching data:", error);
+    dataError = error instanceof Error ? error.message : "Failed to load data";
+  }
+
+  // Compute totals for the monthly overview card
+  const totalBudgeted = budgetProgress.reduce(
+    (sum, p) => sum + p.budget.monthlyLimit, 0
+  );
+  const totalSpent = budgetProgress.reduce(
+    (sum, p) => sum + p.spentAmount, 0
+  );
+  const totalRemaining = Math.max(0, totalBudgeted - totalSpent);
+
   return (
     <>
       <PageHeader title="Budgets" subtitle="Track your monthly spending limits" />
-      <p className="text-bb-base text-bb-text-secondary">
-        Your budgets will appear here.
-      </p>
+
+      <div className="flex flex-col gap-bb-8">
+
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        {/* Section 1: Monthly Overview Card                                       */}
+        {/* Shows total budgeted vs total spent across all categories.             */}
+        {/* Only renders when the user has at least one budget configured.         */}
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        {budgetProgress.length > 0 && (
+          <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+            <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">This month</h2>
+            <div className="grid grid-cols-3 gap-bb-4 text-center">
+              <div>
+                <p className="text-bb-sm text-bb-text-secondary">Budgeted</p>
+                <p className="text-bb-xl font-bold text-bb-text">
+                  {formatCurrency(totalBudgeted)}
+                </p>
+              </div>
+              <div>
+                <p className="text-bb-sm text-bb-text-secondary">Spent</p>
+                <p className="text-bb-xl font-bold text-bb-text">
+                  {formatCurrency(totalSpent)}
+                </p>
+              </div>
+              <div>
+                <p className="text-bb-sm text-bb-text-secondary">Remaining</p>
+                <p className="text-bb-xl font-bold text-bb-positive">
+                  {formatCurrency(totalRemaining)}
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        {/* Section 2: Budget Progress Cards                                       */}
+        {/* Reuses BudgetProgressSection (migrated to --bb-* tokens in Phase 9).  */}
+        {/* Empty state: CTA linking to /settings is handled inside the component. */}
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        <BudgetProgressSection budgetProgress={budgetProgress} />
+
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        {/* Section 3: Spending by Category Chart                                  */}
+        {/* Donut chart wrapped in shadcn/ui ChartContainer.                       */}
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">
+            Spending by category
+          </h2>
+          <SpendingByCategoryChart data={categoryBreakdown} />
+        </section>
+
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        {/* Section 4: Edit Budgets Link                                           */}
+        {/* Points to /settings where BudgetSettings component lives.              */}
+        {/* ────────────────────────────────────────────────────────────────────── */}
+        <div className="text-center">
+          <Link
+            href="/settings"
+            className="text-bb-sm text-bb-info underline-offset-4 hover:underline"
+          >
+            Edit budgets →
+          </Link>
+        </div>
+      </div>
+
+      {/* DB error inline note — calm, not alarming */}
+      {dataError && (
+        <p className="text-bb-sm text-bb-text-secondary text-center mt-bb-4">
+          Couldn&apos;t load budget data. Try refreshing.
+        </p>
+      )}
     </>
   );
 }

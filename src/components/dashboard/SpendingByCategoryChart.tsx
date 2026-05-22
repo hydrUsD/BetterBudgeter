@@ -84,10 +84,10 @@ export function SpendingByCategoryChart({
       <div
         className={`flex flex-col items-center justify-center h-64 ${className ?? ""}`}
       >
-        <p className="text-muted-foreground text-sm">
+        <p className="text-bb-sm text-bb-text-secondary">
           No expense data for this month
         </p>
-        <p className="text-muted-foreground text-xs mt-1">
+        <p className="text-bb-xs text-bb-text-secondary mt-bb-1">
           Import transactions to see your spending breakdown
         </p>
       </div>
@@ -147,12 +147,12 @@ export function SpendingByCategoryChart({
         </PieChart>
       </ChartContainer>
 
-      {/* Legend - Simple list below chart */}
-      <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+      {/* Legend — simple list below chart, capped at 6 categories */}
+      <div className="mt-bb-4 grid grid-cols-2 gap-bb-2 text-bb-sm">
         {data.slice(0, 6).map((item) => (
-          <div key={item.category} className="flex items-center gap-2">
+          <div key={item.category} className="flex items-center gap-bb-2">
             <div
-              className="w-3 h-3 rounded-full"
+              className="w-3 h-3 rounded-full flex-shrink-0"
               style={{
                 backgroundColor:
                   CATEGORY_COLORS[
@@ -160,10 +160,10 @@ export function SpendingByCategoryChart({
                   ] ?? CATEGORY_COLORS.Other,
               }}
             />
-            <span className="text-muted-foreground truncate">
+            <span className="text-bb-text-secondary truncate">
               {item.category}
             </span>
-            <span className="ml-auto font-medium">
+            <span className="ml-auto font-bold text-bb-text">
               {formatCurrency(item.amount)}
             </span>
           </div>
@@ -171,9 +171,9 @@ export function SpendingByCategoryChart({
       </div>
 
       {/* Total display */}
-      <div className="mt-4 pt-4 border-t text-center">
-        <p className="text-sm text-muted-foreground">Total Expenses</p>
-        <p className="text-xl font-bold">{formatCurrency(total)}</p>
+      <div className="mt-bb-4 pt-bb-4 border-t border-bb-border text-center">
+        <p className="text-bb-sm text-bb-text-secondary">Total Expenses</p>
+        <p className="text-bb-xl font-bold text-bb-text">{formatCurrency(total)}</p>
       </div>
     </div>
   );
