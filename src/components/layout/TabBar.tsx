@@ -122,6 +122,7 @@ export function TabBar() {
                   "flex flex-col items-center justify-center gap-1",
                   "min-w-[44px] min-h-[44px] h-full",
                   "transition-colors",
+                  "rounded-md focus-visible:ring-2 focus-visible:ring-bb-info focus-visible:ring-offset-2 outline-none",
                   isActive ? "text-bb-info" : "text-bb-text-secondary"
                 )}
               >

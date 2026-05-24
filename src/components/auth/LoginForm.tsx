@@ -192,7 +192,7 @@ export default function LoginForm() {
         <button
           type="button"
           onClick={toggleMode}
-          className="text-primary underline-offset-4 hover:underline"
+          className="text-primary underline-offset-4 hover:underline rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 outline-none"
           disabled={isLoading}
         >
           {mode === "login" ? "Sign up" : "Sign in"}

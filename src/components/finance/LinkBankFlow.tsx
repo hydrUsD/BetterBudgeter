@@ -146,7 +146,7 @@ export function LinkBankFlow({ banks, linkedBankIds }: LinkBankFlowProps) {
                 {linkedBankIds.length === 1 ? "" : "s"} linked.{" "}
                 <button
                   onClick={handleGoToDashboard}
-                  className="underline hover:no-underline"
+                  className="underline hover:no-underline rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 outline-none"
                 >
                   Go to Dashboard
                 </button>
