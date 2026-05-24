@@ -55,6 +55,8 @@ export function PageShell({ children, className }: PageShellProps) {
         "pb-[calc(56px+env(safe-area-inset-bottom)+1rem)]",
         // Colors: explicit background + text so shell is self-contained (TOKEN-01)
         "bg-bb-bg text-bb-text",
+        // Functional motion: subtle opacity fade on page mount (MOTION-01 §Page fade)
+        "animate-fadeIn",
         // Per-page overrides (e.g. remove top padding on a page with a hero image)
         className
       )}
