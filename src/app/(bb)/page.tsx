@@ -72,6 +72,7 @@ import { formatCurrency } from "@/utils/currency";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/common/EmptyState";
 import {
   SyncTransactionsButton,
   TransactionItem,
@@ -298,21 +299,16 @@ export default async function HomePage() {
   // serves the h1 role. Rendering both would create two competing page titles.
   if (accounts.length === 0 && !dataError) {
     return (
-      <div className="bg-bb-surface-raised border border-dashed border-bb-border rounded-bb-xl p-bb-10 flex flex-col items-center text-center">
-        {/* h1 is the heading for this edge state — no separate <PageHeader> (UI-SPEC § Edge State: 0 Accounts) */}
-        <h1 className="text-bb-xl font-bold text-bb-text mb-bb-4">
-          Link your bank to get started
-        </h1>
-        <p className="text-bb-base text-bb-text-secondary mb-bb-8">
-          Connect a bank account to see your spending and start budgeting.
-        </p>
-        {/* Primary CTA: direct Next.js Link wrapping a shadcn Button.
-            Target: /link-bank (existing standalone page, OUTSIDE the (bb) group per Phase 7 D-02).
-            No secondary CTA — one primary action per view (DESIGN_SYSTEM §5.6). */}
-        <Link href="/link-bank">
-          <Button>Link your bank</Button>
-        </Link>
-      </div>
+      <EmptyState
+        variant="page"
+        heading="Link your bank to get started"
+        description="Connect a bank account to see your spending and start budgeting."
+        action={
+          <Link href="/link-bank">
+            <Button>Link your bank</Button>
+          </Link>
+        }
+      />
     );
   }
 
@@ -376,20 +372,17 @@ export default async function HomePage() {
           <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Budget status</h2>
 
           {sortedBudgets.length === 0 ? (
-            // 0-budgets inline empty state (CONTEXT D-CUT-02 + UI-SPEC § Section 2).
-            // Two-part: statement + inline link. No dashed border — Phase 10 adds EmptyState primitive.
-            // /settings is the link target (D-CUT-03). Phase 9 fills the destination with BudgetSettings.
-            <div>
-              <p className="text-bb-sm text-bb-text-secondary">
-                Set up your first budget
-              </p>
-              <Link
-                href="/settings"
-                className="text-bb-sm text-bb-info underline-offset-4 hover:underline mt-bb-1 inline-block"
-              >
-                Go to settings
-              </Link>
-            </div>
+            <EmptyState
+              heading="Set up your first budget"
+              action={
+                <Link
+                  href="/settings"
+                  className="text-bb-sm text-bb-info underline-offset-4 hover:underline"
+                >
+                  Go to settings
+                </Link>
+              }
+            />
           ) : (
             // Budget rows: one BudgetStatusRow per active budget, alphabetically sorted.
             <div>
@@ -409,16 +402,10 @@ export default async function HomePage() {
           <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Recent transactions</h2>
 
           {transactionItems.length === 0 ? (
-            // 0-transactions inline empty state (CONTEXT D-CUT-02).
-            // Factual message + SyncTransactionsButton prevents a dead-end empty state.
-            // At this point accounts.length > 0 (0-accounts guard above), so
-            // SyncTransactionsButton renders as "Sync Transactions" (not "Link a Bank").
-            <div>
-              <p className="text-bb-sm text-bb-text-secondary mb-bb-4">
-                Your transactions will appear here.
-              </p>
-              <SyncTransactionsButton accountCount={accounts.length} />
-            </div>
+            <EmptyState
+              heading="Your transactions will appear here."
+              action={<SyncTransactionsButton accountCount={accounts.length} />}
+            />
           ) : (
             // Transaction list: each row is a TransactionItem.
             // Key synthesized from merchant + date + index because the view-model does not

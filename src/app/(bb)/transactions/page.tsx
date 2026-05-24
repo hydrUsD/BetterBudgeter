@@ -39,6 +39,7 @@ import { getCurrentMonthStart, getCurrentMonthEnd } from "@/lib/budgets";
 import { formatCurrency } from "@/utils/currency";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { EmptyState } from "@/components/common/EmptyState";
 import {
   SyncTransactionsButton,
   TransactionItem,
@@ -173,10 +174,10 @@ export default async function TransactionsPage() {
         {/* ────────────────────────────────────────────────────────────────────── */}
         {transactions.length === 0 ? (
           <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
-            <p className="text-bb-sm text-bb-text-secondary mb-bb-4">
-              Your transactions will appear here after syncing.
-            </p>
-            <SyncTransactionsButton accountCount={accounts.length} />
+            <EmptyState
+              heading="Your transactions will appear here after syncing."
+              action={<SyncTransactionsButton accountCount={accounts.length} />}
+            />
           </section>
         ) : (
           <section className="flex flex-col gap-bb-6">
