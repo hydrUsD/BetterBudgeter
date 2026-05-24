@@ -62,12 +62,12 @@ export default function LoginForm() {
 
     // Basic validation
     if (!email || !password) {
-      toast.error("Please enter both email and password");
+      toast.error("Enter your email and password to continue.");
       return;
     }
 
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error("Passwords need at least 6 characters.");
       return;
     }
 
@@ -162,7 +162,7 @@ export default function LoginForm() {
           autoComplete={mode === "login" ? "current-password" : "new-password"}
         />
         {mode === "signup" && (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-bb-text-secondary">
             Must be at least 6 characters
           </p>
         )}
@@ -184,7 +184,7 @@ export default function LoginForm() {
 
       {/* Toggle Mode */}
       <div className="text-center text-sm">
-        <span className="text-muted-foreground">
+        <span className="text-bb-text-secondary">
           {mode === "login"
             ? "Don't have an account? "
             : "Already have an account? "}

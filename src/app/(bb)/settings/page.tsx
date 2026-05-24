@@ -86,7 +86,7 @@ export default async function SettingsPage() {
               <p className="text-bb-base text-bb-text">
                 {user?.email ?? "Not signed in"}
               </p>
-              <p className="text-bb-sm text-bb-text-secondary">Signed in via Supabase Auth</p>
+              <p className="text-bb-sm text-bb-text-secondary">Email login</p>
             </div>
             <SignOutButton variant="outline" size="sm" />
           </div>

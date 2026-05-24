@@ -37,8 +37,8 @@ export default async function LoginPage() {
         {/* Page Header */}
         <div className="text-center">
           <h1 className="text-2xl font-bold">Welcome to BetterBudget</h1>
-          <p className="text-muted-foreground mt-2">
-            Sign in to access your financial dashboard
+          <p className="text-bb-text-secondary mt-2">
+            Sign in to continue to your dashboard
           </p>
         </div>
 
@@ -51,16 +51,16 @@ export default async function LoginPage() {
          * statically generated and the Suspense boundary is required.
          */}
         <div className="border rounded-lg p-6 bg-card">
-          <Suspense fallback={<div className="text-sm text-muted-foreground text-center">Loading…</div>}>
+          <Suspense fallback={<div className="text-sm text-bb-text-secondary text-center">Loading…</div>}>
             <LoginForm />
           </Suspense>
         </div>
 
         {/* Legacy Link */}
-        <div className="text-center text-sm text-muted-foreground">
+        <div className="text-center text-sm text-bb-text-secondary">
           <p>
             Legacy passcode login is still available at{" "}
-            <Link href="/" className="underline hover:text-foreground">
+            <Link href="/" className="underline hover:text-bb-text">
               the home page
             </Link>
           </p>

@@ -101,7 +101,7 @@ export function LinkBankFlow({ banks, linkedBankIds }: LinkBankFlowProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to link bank");
+        throw new Error(data.error || "Couldn't connect to the bank. Try again?");
       }
 
       // Success!
@@ -115,7 +115,7 @@ export function LinkBankFlow({ banks, linkedBankIds }: LinkBankFlowProps) {
       }, 2000);
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "An unexpected error occurred"
+        error instanceof Error ? error.message : "Something went wrong. Try again?"
       );
       setState("error");
     }
@@ -158,7 +158,7 @@ export function LinkBankFlow({ banks, linkedBankIds }: LinkBankFlowProps) {
         {/* Available banks */}
         {availableBanks.length > 0 ? (
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-bb-text-secondary">
               Select a bank to connect:
             </p>
             {availableBanks.map((bank) => (
@@ -170,7 +170,7 @@ export function LinkBankFlow({ banks, linkedBankIds }: LinkBankFlowProps) {
                 <CardContent className="flex items-center justify-between p-4">
                   <div>
                     <p className="font-medium">{bank.name}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-bb-text-secondary">
                       {bank.country} · {bank.bic}
                     </p>
                   </div>
@@ -184,7 +184,7 @@ export function LinkBankFlow({ banks, linkedBankIds }: LinkBankFlowProps) {
         ) : (
           <Card>
             <CardContent className="pt-6 text-center">
-              <p className="text-muted-foreground">
+              <p className="text-bb-text-secondary">
                 All available banks are already linked.
               </p>
               <Button onClick={handleGoToDashboard} className="mt-4">
@@ -216,7 +216,7 @@ export function LinkBankFlow({ banks, linkedBankIds }: LinkBankFlowProps) {
             <p className="text-sm font-medium mb-2">
               This will allow BetterBudget to:
             </p>
-            <ul className="text-sm text-muted-foreground space-y-1">
+            <ul className="text-sm text-bb-text-secondary space-y-1">
               <li className="flex items-center gap-2">
                 <span className="text-green-600">✓</span>
                 View your account balances
@@ -233,7 +233,7 @@ export function LinkBankFlow({ banks, linkedBankIds }: LinkBankFlowProps) {
           </div>
 
           {/* What we don't do */}
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-bb-text-secondary">
             <p className="font-medium mb-1">BetterBudget will NOT:</p>
             <ul className="space-y-1">
               <li>• Make any payments on your behalf</li>
@@ -243,7 +243,7 @@ export function LinkBankFlow({ banks, linkedBankIds }: LinkBankFlowProps) {
           </div>
 
           {/* PSD2 simulation notice */}
-          <div className="text-xs text-muted-foreground border-t pt-4">
+          <div className="text-xs text-bb-text-secondary border-t pt-4">
             <p>
               <strong>Demo Note:</strong> This is a simulated PSD2 consent flow.
               In production, you would be redirected to your bank&apos;s secure
@@ -271,8 +271,8 @@ export function LinkBankFlow({ banks, linkedBankIds }: LinkBankFlowProps) {
         <CardContent className="py-12 text-center">
           <div className="animate-pulse space-y-4">
             <div className="text-4xl">🔗</div>
-            <p className="text-muted-foreground">
-              Linking {selectedBank?.name}...
+            <p className="text-bb-text-secondary">
+              Connecting to {selectedBank?.name}...
             </p>
           </div>
         </CardContent>
@@ -313,7 +313,7 @@ export function LinkBankFlow({ banks, linkedBankIds }: LinkBankFlowProps) {
           <div className="space-y-4">
             <div className="text-4xl">✕</div>
             <p className="font-medium text-red-800 dark:text-red-200">
-              Failed to link bank
+              Couldn&apos;t connect to the bank
             </p>
             <p className="text-sm text-red-700 dark:text-red-300">
               {errorMessage}

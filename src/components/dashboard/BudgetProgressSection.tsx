@@ -61,7 +61,7 @@ function statusTokens(status: BudgetStatus) {
     bg: "bg-bb-negative-bg",
     bar: "bg-bb-negative",
     text: "text-bb-negative",
-    label: "Over Budget",
+    label: "Limit reached",
   };
 }
 

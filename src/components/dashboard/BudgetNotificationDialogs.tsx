@@ -20,7 +20,7 @@
  * ADHD CONSIDERATIONS:
  * - Clear, simple messaging
  * - No flashing or alarming colors
- * - Single action button ("Verstanden" / "OK")
+ * - Single action button ("Got it")
  * - Dialog stays until user acknowledges
  *
  * EXTENSION POINT:
@@ -117,24 +117,24 @@ function getDialogContent(alert: BudgetAlertData): {
   const percentage = Math.round(alert.usagePercentage);
 
   if (alert.status === "over_budget") {
-    // Over budget - clear but non-judgmental
+    // Limit reached — clear but non-judgmental (no blame, just information)
     return {
       variant: "limit",
-      title: `${alert.category}: Budget erreicht`,
+      title: `${alert.category}: Limit reached`,
       description:
-        `Du hast ${spent} von deinem ${limit}-Budget ausgegeben (${percentage}%). ` +
-        `Das Budget ist erreicht. Keine Sorge, das passiert! ` +
-        `Du kannst deine Ausgaben in den Einstellungen anpassen.`,
+        `You've spent ${spent} of your ${limit} limit (${percentage}%). ` +
+        `No worries — this happens! ` +
+        `You can adjust your limits in Settings.`,
     };
   }
 
-  // Warning - gentle heads-up
+  // Warning — gentle heads-up with remaining amount
   return {
     variant: "warning",
-    title: `${alert.category}: Fast am Limit`,
+    title: `${alert.category}: Getting close`,
     description:
-      `Du hast bereits ${spent} von deinem ${limit}-Budget ausgegeben (${percentage}%). ` +
-      `Noch ${formatCurrency(alert.monthlyLimit - alert.spentAmount)} übrig für diesen Monat.`,
+      `You've spent ${spent} of your ${limit} limit (${percentage}%). ` +
+      `${formatCurrency(alert.monthlyLimit - alert.spentAmount)} left for this month.`,
   };
 }
 
@@ -302,7 +302,7 @@ export function BudgetNotificationDialogs({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogAction onClick={handleAcknowledge}>
-            Verstanden
+            Got it
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

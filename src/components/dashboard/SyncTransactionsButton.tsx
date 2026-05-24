@@ -134,7 +134,7 @@ export function SyncTransactionsButton({
             `Imported ${data.totalImported} transactions. ${data.totalErrors} failed.`
           );
         } else if (data.totalErrors > 0) {
-          toast.error("Import failed. Please try again.");
+          toast.error("Couldn't sync your transactions. Try again?");
         } else {
           toast.success(`Imported ${data.totalImported} transactions`);
         }
@@ -145,7 +145,7 @@ export function SyncTransactionsButton({
     } catch (error) {
       // Network or unexpected error
       const message =
-        error instanceof Error ? error.message : "Import failed";
+        error instanceof Error ? error.message : "Something went wrong. Try again?";
       toast.error(message);
     } finally {
       setIsLoading(false);

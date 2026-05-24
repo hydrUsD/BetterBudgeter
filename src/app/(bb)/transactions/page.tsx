@@ -146,7 +146,7 @@ export default async function TransactionsPage() {
 
   return (
     <>
-      <PageHeader title="Transactions" subtitle="Your spending history" />
+      <PageHeader title="Transactions" subtitle="This month's activity" />
 
       <div className="flex flex-col gap-bb-8">
 

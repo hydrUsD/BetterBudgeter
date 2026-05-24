@@ -92,7 +92,7 @@ export function BudgetSettings({ currentBudgets }: BudgetSettingsProps) {
     }
 
     if (budgetsToSave.length === 0 && budgetsToDelete.length === 0) {
-      toast.info("No changes to save");
+      toast.info("Nothing has changed yet.");
       return;
     }
 
@@ -116,7 +116,7 @@ export function BudgetSettings({ currentBudgets }: BudgetSettingsProps) {
         setModified(new Set());
         router.refresh();
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Failed to save";
+        const message = error instanceof Error ? error.message : "Couldn't save your budgets. Try again?";
         toast.error(message);
       }
     });
@@ -131,9 +131,9 @@ export function BudgetSettings({ currentBudgets }: BudgetSettingsProps) {
   return (
     <div className="space-y-6">
       {/* Header with explanation */}
-      <div className="text-sm text-muted-foreground">
-        Set monthly spending limits for each category. Leave empty to not track
-        a category. You&apos;ll get notifications at 80% and 100% of your budget.
+      <div className="text-sm text-bb-text-secondary">
+        Set monthly spending limits for each category. Leave empty to skip
+        a category. You&apos;ll get a heads-up at 80% and 100% of your limit.
       </div>
 
       {/* Budget inputs grid */}
@@ -190,12 +190,12 @@ function BudgetInputRow({
             <span className="text-xs text-amber-500">•</span>
           )}
         </Label>
-        <p className="text-xs text-muted-foreground truncate">{description}</p>
+        <p className="text-xs text-bb-text-secondary truncate">{description}</p>
       </div>
 
       {/* Input field */}
       <div className="w-32 flex items-center gap-1">
-        <span className="text-muted-foreground">€</span>
+        <span className="text-bb-text-secondary">€</span>
         <Input
           id={`budget-${category}`}
           type="text"

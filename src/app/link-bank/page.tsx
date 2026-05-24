@@ -52,7 +52,7 @@ export default async function LinkBankPage() {
         {/* Page Header */}
         <div className="text-center">
           <h1 className="text-2xl font-bold">Link Your Bank Account</h1>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-bb-text-secondary mt-2">
             Connect your bank to automatically import transactions
           </p>
         </div>
@@ -61,7 +61,7 @@ export default async function LinkBankPage() {
         <LinkBankFlow banks={MOCK_BANKS} linkedBankIds={linkedBankIds} />
 
         {/* Info Footer */}
-        <div className="text-center text-xs text-muted-foreground space-y-2">
+        <div className="text-center text-xs text-bb-text-secondary space-y-2">
           <p>
             Your data is protected by Row Level Security. Only you can access
             your financial information.
