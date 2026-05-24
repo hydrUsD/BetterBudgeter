@@ -13,9 +13,47 @@
 - [x] **Phase 6: Design Tokens** — Establish all `--bb-*` CSS custom properties in globals.css (colors, typography, spacing, radius, shadows). No visible UI change — foundation for all subsequent phases. *(Complete — 3 plans)*
 - [x] **Phase 7: Layout Shell & Navigation** — Create shared layout components (PageShell, PageHeader, TabBar) and wire up bottom tab bar across the four main pages. Legacy routes excluded. (completed 2026-05-20)
 - [x] **Phase 8: Home Hub** — Restructure the Home page (`/`) into a hub: Safe-to-Spend hero metric, compact budget status indicators, recent transactions, quick-action sync button. Implement `lib/safe-to-spend.ts`. (completed 2026-05-20)
-- [ ] **Phase 9: Spoke Pages** — Build Budgets (`/budgets`), Transactions (`/transactions`), and expanded Settings (`/settings`) pages. Migrate Spending by Category chart to Budgets; migrate Linked Accounts to Settings.
-- [ ] **Phase 10: Component System** — Build and integrate the full component library: KPI Card, Budget Progress Card, Transaction Item, Empty State, Alert Banner, button variants, loading states, confirmation dialogs, feedback patterns.
+- [x] **Phase 9: Spoke Pages** — Build Budgets (`/budgets`), Transactions (`/transactions`), and expanded Settings (`/settings`) pages. Migrate Spending by Category chart to Budgets; migrate Linked Accounts to Settings. (completed 2026-05-22)
+- [x] **Phase 10: Component System** — Build and integrate the full component library: KPI Card, Budget Progress Card, Transaction Item, Empty State, Alert Banner, button variants, loading states, confirmation dialogs, feedback patterns. (completed 2026-05-24)
 - [ ] **Phase 11: Copy, Accessibility & Motion** — Non-judgmental copy pass, WCAG 2.2 AA compliance audit, semantic HTML, motion system (functional animations + reduced-motion support).
+
+---
+
+## Cross-Cutting Design Reference: `docs/DESIGN.md`
+
+**Added:** 2026-05-21 (between Phase 8 and Phase 9)
+
+BetterBudgeter now has a `docs/DESIGN.md` file following **Google's open DESIGN.md specification** (Apache 2.0, April 2026). This file is the authoritative design language reference for all phases going forward.
+
+### What it is
+
+A machine-readable + human-readable design language file with two parts:
+
+1. **YAML frontmatter** — structured tokens (colors, typography, spacing, radii, component compositions) that tools and LLMs can parse programmatically. Color values are hex (sRGB approximations) per Google spec requirement.
+2. **Markdown prose sections** — the human-readable design rationale with authoritative `oklch` color values, research citations, and Do's/Don'ts guardrails.
+
+### How to use it (for Claude Code agents)
+
+When implementing UI in **any** phase:
+
+1. **Read the YAML frontmatter** to get the correct token values for any component you're building. Component entries (e.g., `button-primary`, `kpi-card`, `budget-progress-card`) use `{path.to.token}` references — resolve these against the `colors`, `typography`, `rounded`, and `spacing` blocks.
+2. **Read the prose section** for the component or design area you're working on to understand the *why* behind each decision and any constraints (e.g., "maximum 1 primary button per view," "no auto-dismiss on alerts").
+3. **Use oklch values from the prose sections**, not the hex values from the YAML frontmatter. The YAML hex values are sRGB approximations for spec tooling compatibility only.
+4. **Check Do's and Don'ts** before making any visual or copy decision — these are research-backed guardrails with citations.
+5. **Cross-reference with `docs/DESIGN_SYSTEM.md`** for full implementation-level detail (component ASCII wireframes, interaction guidelines, page architecture, copy rewrite table). DESIGN.md is the spec-format summary; DESIGN_SYSTEM.md is the detailed implementation blueprint.
+
+### Relationship to existing files
+
+| File | Role | When to read |
+|------|------|--------------|
+| `docs/DESIGN.md` | Spec-format design language (tokens + rationale + guardrails) | Before any UI implementation — check tokens, components, Do's/Don'ts |
+| `docs/DESIGN_SYSTEM.md` | Full implementation blueprint (detailed patterns, wireframes, copy table) | When building specific components or pages — use as detailed reference |
+| `docs/ADHD_UX_RESEARCH.md` | Underlying research report | When you need to understand *why* a design decision exists at a deeper level |
+| `src/app/globals.css` | Live CSS custom properties (the actual `--bb-*` tokens in code) | When writing CSS/Tailwind — these are the runtime values |
+
+### Key change: warm canvas
+
+DESIGN.md introduces a warm cream canvas (`oklch(0.985 0.008 80)`) replacing the previous near-white (`oklch(0.985 0.002 280)`). This applies to `--bb-bg` in light mode only. Dark mode canvas remains cool-tinted. The globals.css `--bb-bg` token should be updated to match when convenient (Phase 9 or Phase 11). This is a single-line change.
 
 ---
 
@@ -86,6 +124,7 @@
 **Goal**: Users can access complete, functional Budgets, Transactions, and Settings pages. The Spending by Category chart lives on the Budgets page (removed from Home). Linked Accounts management lives on Settings (removed from Home). Each page uses PageShell and design tokens.
 **Depends on**: Phase 8
 **Requirements**: PAGE-04, PAGE-05, PAGE-06, PAGE-09
+**Design reference**: `docs/DESIGN.md` — read YAML `components:` block for token-composed component specs (kpi-card, budget-progress-card, transaction-item, alert-banner, tab-bar). Read prose §Components for detailed rules. Read §Do's and Don'ts before any copy or visual decision.
 **Success Criteria** (what must be TRUE):
   1. Budgets page (`/budgets`) shows monthly overview, one Budget Progress Card per active budget, Spending by Category donut chart (shadcn/ui chart — no direct Recharts imports), and "Edit budgets" link
   2. Transactions page (`/transactions`) shows Income + Expenses KPI cards in a two-column grid at ≥640px (single-column below), full transaction history grouped by date, and a Sync button
@@ -99,6 +138,7 @@
 **Goal**: A complete, consistent set of purpose-built ADHD-optimized components is available and in use across all pages: KPI Card, Budget Progress Card, Transaction Item, Empty State, Alert Banner, button variants, loading/feedback patterns, and confirmation dialogs.
 **Depends on**: Phase 9
 **Requirements**: COMP-01, COMP-02, COMP-03, COMP-04, COMP-05, COMP-06, COMP-07, COMP-08, COMP-09
+**Design reference**: `docs/DESIGN.md` — YAML `components:` block defines token-composed specs for every component. Prose §Components has detailed rules (e.g., "one metric per KPI card," "no percentage in default budget view," "exactly one CTA in empty states"). §Shapes explains the border-radius philosophy.
 **Success Criteria** (what must be TRUE):
   1. KPI Card, Budget Progress Card, Transaction Item, Empty State, and Alert Banner are built as standalone reusable components and used on their respective pages
   2. Budget Progress Card shows three distinct visual states: On Track (green bar), Warning (amber bar + "Getting close"), Over Budget (coral bar + "Over by €X" — never "Budget failed")
@@ -113,6 +153,7 @@
 **Goal**: Every user-facing string passes the shame test and explains errors actionably. All interactive elements meet WCAG 2.2 AA. Semantic HTML is correct throughout. Functional motion is implemented; decorative motion is absent. Light and dark mode both pass contrast checks.
 **Depends on**: Phase 10
 **Requirements**: COPY-01, COPY-02, A11Y-01, A11Y-02, A11Y-03, A11Y-04, MOTION-01, MOTION-02
+**Design reference**: `docs/DESIGN.md` — §Do's and Don'ts is the primary checklist for the copy shame-test. §Motion & Animation defines allowed/prohibited animations. §Accessibility lists WCAG 2.2 AA + ADHD-specific requirements. §Copy & Language has the rewrite table. Also apply the warm canvas token update (`--bb-bg` light mode → `oklch(0.985 0.008 80)`) if not already done in Phase 9.
 **Success Criteria** (what must be TRUE):
   1. No user-facing string contains blame, penalty, or shame language — all strings match or follow the rewrite table in DESIGN_SYSTEM.md §9.3
   2. All error messages state what happened AND what the user can do next; no technical codes or stack traces are shown to users
@@ -129,11 +170,11 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 6. Design Tokens | 0/3 | Planned | - |
-| 7. Layout Shell & Navigation | 4/4 | Complete   | 2026-05-20 |
-| 8. Home Hub | 6/6 | Complete   | 2026-05-20 |
-| 9. Spoke Pages | 0/? | Not started | - |
-| 10. Component System | 0/? | Not started | - |
+| 6. Design Tokens | 3/3 | Complete | 2026-05-19 |
+| 7. Layout Shell & Navigation | 4/4 | Complete | 2026-05-20 |
+| 8. Home Hub | 6/6 | Complete | 2026-05-20 |
+| 9. Spoke Pages | 5/5 | Complete | 2026-05-22 |
+| 10. Component System | 3/3 | Complete | 2026-05-24 |
 | 11. Copy, Accessibility & Motion | 0/? | Not started | - |
 
 ---

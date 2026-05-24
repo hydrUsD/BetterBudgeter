@@ -43,16 +43,16 @@ Prepared the codebase for redesign work:
 
 ### Active — v2.0 ADHD-Optimized UI Redesign
 
-- [ ] Design tokens defined as CSS custom properties in `globals.css`
+- [x] Design tokens defined as CSS custom properties in `globals.css` *(Validated in Phase 6: Design Tokens)*
 - [x] Hub-and-spoke navigation with persistent 4-tab bottom bar *(Validated in Phase 7: Layout Shell & Navigation)*
-- [ ] Home page (hub) shows Safe-to-Spend as primary metric
-- [ ] Budgets spoke page with budget progress cards
-- [ ] Transactions spoke page with transaction list
-- [ ] Settings spoke page consolidating config and account management
-- [ ] New components: KPI card, budget progress card, transaction item, empty state, alert banner
-- [ ] Existing components updated to use `--bb-*` design tokens
-- [ ] Non-judgmental copy pass across all user-facing strings
-- [ ] Legacy OopsBudgeter routes remain untouched
+- [x] Home page (hub) shows Safe-to-Spend as primary metric *(Validated in Phase 8: Home Hub)*
+- [x] Budgets spoke page with budget progress cards *(Validated in Phase 9: Spoke Pages)*
+- [x] Transactions spoke page with transaction list *(Validated in Phase 9: Spoke Pages)*
+- [x] Settings spoke page consolidating config and account management *(Validated in Phase 9: Spoke Pages)*
+- [ ] New components: KPI card, budget progress card, transaction item, empty state, alert banner *(Phase 10)*
+- [x] Existing components updated to use `--bb-*` design tokens *(Validated in Phase 9: token audit)*
+- [ ] Non-judgmental copy pass across all user-facing strings *(Phase 11)*
+- [x] Legacy OopsBudgeter routes remain untouched *(Verified continuously)*
 
 ### Validated — v1.0 UI Cleanup & Redesign Preparation ✅
 
@@ -117,15 +117,15 @@ Prepared the codebase for redesign work:
 
 v2.0 is complete when:
 
-- [ ] Bottom tab bar renders on all four pages (Home, Budgets, Transactions, Settings)
-- [ ] Home page shows Safe-to-Spend and budget status summary
-- [ ] Budgets page shows all budget progress cards with ADHD-appropriate states
-- [ ] Transactions page shows grouped transaction list
-- [ ] Settings page consolidates budget config + account management
-- [ ] All `--bb-*` design tokens defined and in use
-- [ ] All user-facing strings pass the compassion/shame test
-- [ ] Legacy routes (`/legacy`, `/analytics`, `/achievements`, `/dashboard`) still work
-- [ ] Build passes (`bun run build`)
+- [x] Bottom tab bar renders on all four pages (Home, Budgets, Transactions, Settings) *(Phase 7)*
+- [x] Home page shows Safe-to-Spend and budget status summary *(Phase 8)*
+- [x] Budgets page shows all budget progress cards with ADHD-appropriate states *(Phase 9)*
+- [x] Transactions page shows grouped transaction list *(Phase 9)*
+- [x] Settings page consolidates budget config + account management *(Phase 9)*
+- [x] All `--bb-*` design tokens defined and in use *(Phase 6 + Phase 9 token audit)*
+- [ ] All user-facing strings pass the compassion/shame test *(Phase 11)*
+- [x] Legacy routes (`/legacy`, `/analytics`, `/achievements`, `/dashboard`) still work *(Verified continuously)*
+- [x] Build passes (`bun run build`) *(Verified 2026-05-22)*
 
 ---
 

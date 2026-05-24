@@ -282,7 +282,9 @@ All category colors sit at similar lightness values (0.58–0.68) to ensure no s
 BetterBudgeter uses the system sans-serif stack exclusively:
 
 ```
--apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif
+  --bb-font-sans: "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Verdana,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --bb-font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
 ```
 
 **Why system fonts:** The British Dyslexia Association recommends sans-serif typefaces with clear character differentiation. System fonts meet this requirement while loading instantly (zero network cost) and feeling native to each platform. Research from the Neurodiversity Design System confirms that the primary readability benefit comes from spacing and sizing, not font shape — making the case for system fonts over custom typefaces even stronger for an accessibility-focused app.
