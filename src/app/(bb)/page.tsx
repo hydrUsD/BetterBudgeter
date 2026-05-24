@@ -330,7 +330,7 @@ export default async function HomePage() {
         {/* Section 1: Greeting + Safe-to-Spend Hero                               */}
         {/* 08-UI-SPEC.md § Section 1 — card with greeting + label + EUR number    */}
         {/* ────────────────────────────────────────────────────────────────────── */}
-        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+        <section aria-label="Safe to spend" className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
           {/* Greeting line: text-bb-base (16px), secondary text color.
               Examples: "Good morning, Paul." or "Good morning."
               The greeting is body text, NOT a heading (PageHeader owns the h1). */}
@@ -368,8 +368,8 @@ export default async function HomePage() {
         {/* BudgetProgressSection (full cards) is NOT used here — it moves to      */}
         {/* /budgets in Phase 9.                                                   */}
         {/* ────────────────────────────────────────────────────────────────────── */}
-        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
-          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Budget status</h2>
+        <section aria-labelledby="home-budget-status" className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 id="home-budget-status" className="text-bb-xl font-bold text-bb-text mb-bb-4">Budget status</h2>
 
           {sortedBudgets.length === 0 ? (
             <EmptyState
@@ -398,8 +398,8 @@ export default async function HomePage() {
         {/* PAGE-03 — 08-UI-SPEC.md § Section 3.                                  */}
         {/* getRecentTransactions(5) fetches the 5 most recent transactions.       */}
         {/* ────────────────────────────────────────────────────────────────────── */}
-        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
-          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Recent transactions</h2>
+        <section aria-labelledby="home-recent-tx" className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 id="home-recent-tx" className="text-bb-xl font-bold text-bb-text mb-bb-4">Recent transactions</h2>
 
           {transactionItems.length === 0 ? (
             <EmptyState

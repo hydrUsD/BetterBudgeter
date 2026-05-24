@@ -154,7 +154,7 @@ export default async function TransactionsPage() {
         {/* Section 1: Income + Expenses KPI Cards                                */}
         {/* 2-col grid at sm:, 1-col below. Shows current month totals.           */}
         {/* ────────────────────────────────────────────────────────────────────── */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 gap-bb-4">
+        <section aria-label="Income and expenses summary" className="grid grid-cols-1 sm:grid-cols-2 gap-bb-4">
           <KpiCard
             label="Income"
             value={formatCurrency(summary.totalIncome)}
@@ -173,14 +173,14 @@ export default async function TransactionsPage() {
         {/* No filtering in Phase 9 — post-MVP per DESIGN_SYSTEM §7.2.            */}
         {/* ────────────────────────────────────────────────────────────────────── */}
         {transactions.length === 0 ? (
-          <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <section aria-label="Transactions" className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
             <EmptyState
               heading="Your transactions will appear here after syncing."
               action={<SyncTransactionsButton accountCount={accounts.length} />}
             />
           </section>
         ) : (
-          <section className="flex flex-col gap-bb-6">
+          <section aria-label="Transactions" className="flex flex-col gap-bb-6">
             {grouped.map(([date, items]) => (
               <div key={date}>
                 {/* Date group heading */}

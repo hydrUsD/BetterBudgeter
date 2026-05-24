@@ -79,8 +79,8 @@ export default async function SettingsPage() {
         {/* ────────────────────────────────────────────────────────────────────── */}
         {/* Section 1: Account — email + sign out                                  */}
         {/* ────────────────────────────────────────────────────────────────────── */}
-        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
-          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Account</h2>
+        <section aria-labelledby="settings-account" className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 id="settings-account" className="text-bb-xl font-bold text-bb-text mb-bb-4">Account</h2>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-bb-base text-bb-text">
@@ -96,8 +96,8 @@ export default async function SettingsPage() {
         {/* Section 2: Monthly Budgets — existing BudgetSettings component         */}
         {/* BudgetSettings is a "use client" component for form interactivity.     */}
         {/* ────────────────────────────────────────────────────────────────────── */}
-        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
-          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Monthly Budgets</h2>
+        <section aria-labelledby="settings-budgets" className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 id="settings-budgets" className="text-bb-xl font-bold text-bb-text mb-bb-4">Monthly Budgets</h2>
           <BudgetSettings currentBudgets={currentBudgets} />
         </section>
 
@@ -105,8 +105,8 @@ export default async function SettingsPage() {
         {/* Section 3: Linked Accounts — real data from getAccounts()              */}
         {/* Shows bank name, account name, account type, and balance for each.    */}
         {/* ────────────────────────────────────────────────────────────────────── */}
-        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
-          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Linked Accounts</h2>
+        <section aria-labelledby="settings-linked" className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 id="settings-linked" className="text-bb-xl font-bold text-bb-text mb-bb-4">Linked Accounts</h2>
 
           {accounts.length === 0 ? (
             <div>
@@ -152,8 +152,8 @@ export default async function SettingsPage() {
         {/* ────────────────────────────────────────────────────────────────────── */}
         {/* Section 4: Display Preferences — placeholder                           */}
         {/* ────────────────────────────────────────────────────────────────────── */}
-        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
-          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Display Preferences</h2>
+        <section aria-labelledby="settings-display" className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 id="settings-display" className="text-bb-xl font-bold text-bb-text mb-bb-4">Display Preferences</h2>
           <div className="flex flex-col gap-bb-4">
             <div className="flex justify-between items-center">
               <div>
@@ -179,8 +179,8 @@ export default async function SettingsPage() {
         {/* ────────────────────────────────────────────────────────────────────── */}
         {/* Section 5: Notifications — placeholder                                 */}
         {/* ────────────────────────────────────────────────────────────────────── */}
-        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
-          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">Notifications</h2>
+        <section aria-labelledby="settings-notifications" className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 id="settings-notifications" className="text-bb-xl font-bold text-bb-text mb-bb-4">Notifications</h2>
           <div className="flex flex-col gap-bb-4">
             <div className="flex justify-between items-center">
               <div>

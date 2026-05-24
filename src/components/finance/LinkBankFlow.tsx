@@ -164,8 +164,17 @@ export function LinkBankFlow({ banks, linkedBankIds }: LinkBankFlowProps) {
             {availableBanks.map((bank) => (
               <Card
                 key={bank.bankId}
-                className="cursor-pointer transition-colors hover:border-primary hover:bg-accent/50"
+                role="button"
+                tabIndex={0}
+                aria-label={`Connect ${bank.name}`}
+                className="cursor-pointer transition-colors hover:border-primary hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 onClick={() => handleSelectBank(bank)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleSelectBank(bank);
+                  }
+                }}
               >
                 <CardContent className="flex items-center justify-between p-4">
                   <div>

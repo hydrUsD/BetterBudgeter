@@ -72,8 +72,8 @@ function statusTokens(status: BudgetStatus) {
 export function BudgetProgressSection({ budgetProgress }: BudgetProgressSectionProps) {
   if (budgetProgress.length === 0) {
     return (
-      <section className="border border-dashed border-bb-border rounded-bb-lg p-bb-6">
-        <h2 className="text-bb-xl font-bold text-bb-text mb-bb-2">Budget Tracking</h2>
+      <section aria-labelledby="budget-tracking-empty" className="border border-dashed border-bb-border rounded-bb-lg p-bb-6">
+        <h2 id="budget-tracking-empty" className="text-bb-xl font-bold text-bb-text mb-bb-2">Budget Tracking</h2>
         <p className="text-bb-sm text-bb-text-secondary mb-bb-4">
           Set monthly budgets to track your spending by category.
         </p>
@@ -88,9 +88,9 @@ export function BudgetProgressSection({ budgetProgress }: BudgetProgressSectionP
   }
 
   return (
-    <section className="border border-bb-border rounded-bb-lg p-bb-5 bg-bb-surface">
+    <section aria-labelledby="budget-progress-heading" className="border border-bb-border rounded-bb-lg p-bb-5 bg-bb-surface">
       <div className="flex justify-between items-center mb-bb-4">
-        <h2 className="text-bb-xl font-bold text-bb-text">Budget Progress</h2>
+        <h2 id="budget-progress-heading" className="text-bb-xl font-bold text-bb-text">Budget Progress</h2>
         <Link
           href="/settings"
           className="text-bb-sm text-bb-text-secondary hover:text-bb-text underline-offset-4 hover:underline"

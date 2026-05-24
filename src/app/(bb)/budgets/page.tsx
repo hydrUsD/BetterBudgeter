@@ -97,8 +97,8 @@ export default async function BudgetsPage() {
         {/* Only renders when the user has at least one budget configured.         */}
         {/* ────────────────────────────────────────────────────────────────────── */}
         {budgetProgress.length > 0 && (
-          <section>
-            <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">This month</h2>
+          <section aria-labelledby="budgets-this-month">
+            <h2 id="budgets-this-month" className="text-bb-xl font-bold text-bb-text mb-bb-4">This month</h2>
             <div className="grid grid-cols-3 gap-bb-4 text-center">
               <KpiCard label="Budgeted" value={formatCurrency(totalBudgeted)} />
               <KpiCard label="Spent" value={formatCurrency(totalSpent)} />
@@ -122,8 +122,8 @@ export default async function BudgetsPage() {
         {/* Section 3: Spending by Category Chart                                  */}
         {/* Donut chart wrapped in shadcn/ui ChartContainer.                       */}
         {/* ────────────────────────────────────────────────────────────────────── */}
-        <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
-          <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">
+        <section aria-labelledby="budgets-spending-chart" className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <h2 id="budgets-spending-chart" className="text-bb-xl font-bold text-bb-text mb-bb-4">
             Spending by category
           </h2>
           <SpendingByCategoryChart data={categoryBreakdown} />
