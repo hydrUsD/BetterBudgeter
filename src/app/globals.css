@@ -129,6 +129,7 @@
 }
 
 :root {
+  color-scheme: light dark;
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
@@ -380,5 +381,19 @@
 
   .animate-fadeInUp {
     animation: fadeInUp 0.3s ease-out forwards;
+  }
+}
+
+/* Accessibility: respect user's motion preference (A11Y-04).
+   Kills all animations and transitions globally — CSS-only, no JS needed.
+   tailwindcss-animate keyframes (dialog, popover, tooltip) are also caught. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
