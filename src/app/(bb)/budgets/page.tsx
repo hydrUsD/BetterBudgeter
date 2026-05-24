@@ -43,7 +43,7 @@ import { getCurrentMonthStart, getCurrentMonthEnd } from "@/lib/budgets";
 import { formatCurrency } from "@/utils/currency";
 
 import { PageHeader } from "@/components/layout/PageHeader";
-import { BudgetProgressSection, SpendingByCategoryChart } from "@/components/dashboard";
+import { BudgetProgressSection, SpendingByCategoryChart, KpiCard } from "@/components/dashboard";
 import type { BudgetProgress } from "@/types/finance";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -97,27 +97,16 @@ export default async function BudgetsPage() {
         {/* Only renders when the user has at least one budget configured.         */}
         {/* ────────────────────────────────────────────────────────────────────── */}
         {budgetProgress.length > 0 && (
-          <section className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
+          <section>
             <h2 className="text-bb-xl font-bold text-bb-text mb-bb-4">This month</h2>
             <div className="grid grid-cols-3 gap-bb-4 text-center">
-              <div>
-                <p className="text-bb-sm text-bb-text-secondary">Budgeted</p>
-                <p className="text-bb-xl font-bold text-bb-text">
-                  {formatCurrency(totalBudgeted)}
-                </p>
-              </div>
-              <div>
-                <p className="text-bb-sm text-bb-text-secondary">Spent</p>
-                <p className="text-bb-xl font-bold text-bb-text">
-                  {formatCurrency(totalSpent)}
-                </p>
-              </div>
-              <div>
-                <p className="text-bb-sm text-bb-text-secondary">Remaining</p>
-                <p className="text-bb-xl font-bold text-bb-positive">
-                  {formatCurrency(totalRemaining)}
-                </p>
-              </div>
+              <KpiCard label="Budgeted" value={formatCurrency(totalBudgeted)} />
+              <KpiCard label="Spent" value={formatCurrency(totalSpent)} />
+              <KpiCard
+                label="Remaining"
+                value={formatCurrency(totalRemaining)}
+                valueColor="text-bb-positive"
+              />
             </div>
           </section>
         )}

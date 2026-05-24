@@ -56,6 +56,15 @@ export { BudgetNotificationDialogs } from "./BudgetNotificationDialogs";
  */
 export { TransactionItem, type TransactionItemProps } from "./TransactionItem";
 
+/**
+ * KpiCard: Compact metric display card (label + value).
+ * Reusable across pages that show numeric summaries (e.g. Income/Expenses,
+ * Budgeted/Spent/Remaining).
+ *
+ * @see docs/DESIGN_SYSTEM.md §5.1
+ */
+export { KpiCard, type KpiCardProps } from "./KpiCard";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Placeholder Exports (Future Implementation)
 // ─────────────────────────────────────────────────────────────────────────────

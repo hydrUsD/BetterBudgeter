@@ -42,6 +42,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import {
   SyncTransactionsButton,
   TransactionItem,
+  KpiCard,
   type TransactionItemProps,
 } from "@/components/dashboard";
 
@@ -153,18 +154,16 @@ export default async function TransactionsPage() {
         {/* 2-col grid at sm:, 1-col below. Shows current month totals.           */}
         {/* ────────────────────────────────────────────────────────────────────── */}
         <section className="grid grid-cols-1 sm:grid-cols-2 gap-bb-4">
-          <div className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
-            <p className="text-bb-sm text-bb-text-secondary">Income</p>
-            <p className="text-bb-xl font-bold text-bb-positive">
-              {formatCurrency(summary.totalIncome)}
-            </p>
-          </div>
-          <div className="bg-bb-surface border border-bb-border rounded-bb-lg p-bb-5">
-            <p className="text-bb-sm text-bb-text-secondary">Expenses</p>
-            <p className="text-bb-xl font-bold text-bb-negative">
-              {formatCurrency(summary.totalExpenses)}
-            </p>
-          </div>
+          <KpiCard
+            label="Income"
+            value={formatCurrency(summary.totalIncome)}
+            valueColor="text-bb-positive"
+          />
+          <KpiCard
+            label="Expenses"
+            value={formatCurrency(summary.totalExpenses)}
+            valueColor="text-bb-negative"
+          />
         </section>
 
         {/* ────────────────────────────────────────────────────────────────────── */}
