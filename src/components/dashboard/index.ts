@@ -28,6 +28,15 @@ export { SyncTransactionsButton } from "./SyncTransactionsButton";
 export { BudgetProgressSection } from "./BudgetProgressSection";
 
 /**
+ * BudgetProgressCard: Standalone card for a single category's budget progress.
+ * Uses 3-level traffic-light status (on_track/warning/over_budget).
+ * Extracted from BudgetProgressSection for direct import and testing.
+ *
+ * @see docs/BUDGET_STRATEGY.md
+ */
+export { BudgetProgressCard, type BudgetProgressCardProps } from "./BudgetProgressCard";
+
+/**
  * SpendingByCategoryChart: Donut chart showing expense breakdown by category.
  * Uses Recharts (via shadcn/ui charts) for visualization. ADHD-friendly visual overview.
  *
@@ -65,33 +74,3 @@ export { TransactionItem, type TransactionItemProps } from "./TransactionItem";
  */
 export { KpiCard, type KpiCardProps } from "./KpiCard";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Placeholder Exports (Future Implementation)
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Dashboard component names for future implementation
- */
-export const DASHBOARD_COMPONENTS = [
-  "BalanceSummaryCard",
-  "IncomeExpenseCards",
-  "SpendingChart",
-  "TrendChart",
-  "RecentTransactions",
-  "BudgetProgress",
-  "SyncTransactionsButton", // Implemented
-] as const;
-
-/**
- * Check if a dashboard component is implemented
- * @param name - Component name
- * @returns true if component is implemented
- */
-export function isComponentImplemented(name: string): boolean {
-  const implementedComponents = [
-    "SyncTransactionsButton",
-    "BudgetProgress",
-    "SpendingChart",
-  ];
-  return implementedComponents.includes(name);
-}
