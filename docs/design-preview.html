@@ -1,0 +1,2640 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>BetterBudgeter — Design Language (Live Preview)</title>
+    <meta
+      name="description"
+      content="Live preview of the BetterBudgeter DESIGN.md — an evidence-based, ADHD-optimized design system."
+    />
+
+    <!--
+      Live preview of docs/DESIGN.md.
+
+      This page renders every section of DESIGN.md using the very tokens it documents
+      (eating our own dogfood). Authoritative color values are in oklch; hex strings
+      shown alongside are sRGB approximations for tooling compatibility.
+
+      Self-contained: no build step, no dependencies. Open directly in a browser
+      or serve any way you like.
+
+      Section index (matches DESIGN.md):
+        1. Overview + Design Principles
+        2. Visual Identity
+        3. Colors (canvas / text / semantic / category)
+        4. Typography
+        5. Layout (spacing / constraints / patterns / architecture)
+        6. Elevation & Depth
+        7. Shapes
+        8. Components (live examples)
+        9. Do's and Don'ts
+       10. Motion & Animation
+       11. Copy & Language
+       12. Accessibility
+       13. Research Citations
+    -->
+
+    <style>
+      /* ---------------------------------------------------------------------- *
+       *  TOKENS — light mode (default).
+       *  Authoritative values are oklch. Hex shown elsewhere is for reference. *
+       * ---------------------------------------------------------------------- */
+      :root,
+      [data-theme="light"] {
+        /* Canvas & Surface */
+        --bb-bg: oklch(0.985 0.008 80);
+        --bb-surface: oklch(1 0 0);
+        --bb-surface-raised: oklch(0.975 0.002 280);
+        --bb-border: oklch(0.91 0.004 280);
+        --bb-border-soft: oklch(0.945 0.003 280);
+
+        /* Text */
+        --bb-text: oklch(0.205 0.006 280);
+        --bb-text-secondary: oklch(0.48 0.012 280);
+        --bb-text-tertiary: oklch(0.6 0.012 280);
+
+        /* Semantic */
+        --bb-positive: oklch(0.62 0.14 155);
+        --bb-positive-bg: oklch(0.95 0.04 155);
+        --bb-caution: oklch(0.72 0.14 75);
+        --bb-caution-bg: oklch(0.95 0.04 75);
+        --bb-negative: oklch(0.58 0.16 25);
+        --bb-negative-bg: oklch(0.95 0.04 25);
+        --bb-info: oklch(0.6 0.12 245);
+        --bb-info-bg: oklch(0.95 0.03 245);
+
+        /* Category */
+        --bb-cat-essentials: oklch(0.62 0.1 245);
+        --bb-cat-discretionary: oklch(0.65 0.12 165);
+        --bb-cat-savings: oklch(0.62 0.14 155);
+        --bb-cat-food: oklch(0.68 0.1 55);
+        --bb-cat-transport: oklch(0.62 0.1 200);
+        --bb-cat-entertainment: oklch(0.65 0.12 290);
+        --bb-cat-other: oklch(0.58 0.02 280);
+
+        /* Elevation */
+        --bb-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.04);
+        --bb-shadow-md: 0 2px 8px oklch(0 0 0 / 0.06);
+        --bb-shadow-lg: 0 4px 16px oklch(0 0 0 / 0.08);
+
+        color-scheme: light;
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  TOKENS — dark mode.                                                    *
+       *  Cool-tinted darks (NDS) with lifted semantic colors to preserve        *
+       *  contrast ratios against dark surfaces.                                 *
+       * ---------------------------------------------------------------------- */
+      [data-theme="dark"] {
+        --bb-bg: oklch(0.155 0.005 280);
+        --bb-surface: oklch(0.195 0.005 280);
+        --bb-surface-raised: oklch(0.235 0.006 280);
+        --bb-border: oklch(0.28 0.006 280);
+        --bb-border-soft: oklch(0.235 0.006 280);
+
+        --bb-text: oklch(0.965 0.002 280);
+        --bb-text-secondary: oklch(0.66 0.012 280);
+        --bb-text-tertiary: oklch(0.52 0.012 280);
+
+        --bb-positive: oklch(0.72 0.14 155);
+        --bb-positive-bg: oklch(0.22 0.04 155);
+        --bb-caution: oklch(0.78 0.14 75);
+        --bb-caution-bg: oklch(0.22 0.04 75);
+        --bb-negative: oklch(0.68 0.18 25);
+        --bb-negative-bg: oklch(0.22 0.04 25);
+        --bb-info: oklch(0.7 0.12 245);
+        --bb-info-bg: oklch(0.22 0.03 245);
+
+        --bb-cat-essentials: oklch(0.72 0.1 245);
+        --bb-cat-discretionary: oklch(0.75 0.12 165);
+        --bb-cat-savings: oklch(0.72 0.14 155);
+        --bb-cat-food: oklch(0.78 0.1 55);
+        --bb-cat-transport: oklch(0.72 0.1 200);
+        --bb-cat-entertainment: oklch(0.75 0.12 290);
+        --bb-cat-other: oklch(0.68 0.02 280);
+
+        --bb-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.25);
+        --bb-shadow-md: 0 2px 8px oklch(0 0 0 / 0.35);
+        --bb-shadow-lg: 0 4px 16px oklch(0 0 0 / 0.45);
+
+        color-scheme: dark;
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  Type scale tokens.                                                     *
+       * ---------------------------------------------------------------------- */
+      :root {
+        --bb-font-sans:
+          "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Verdana,
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        --bb-font-mono:
+          ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+
+        /* Spacing scale */
+        --bb-space-1: 4px;
+        --bb-space-2: 8px;
+        --bb-space-3: 12px;
+        --bb-space-4: 16px;
+        --bb-space-5: 20px;
+        --bb-space-6: 24px;
+        --bb-space-8: 32px;
+        --bb-space-10: 40px;
+        --bb-space-12: 48px;
+
+        /* Radius scale */
+        --bb-radius-sm: 6px;
+        --bb-radius-md: 10px;
+        --bb-radius-lg: 14px;
+        --bb-radius-xl: 20px;
+        --bb-radius-pill: 9999px;
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  Resets & base.                                                         *
+       * ---------------------------------------------------------------------- */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--bb-font-sans);
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 1.6;
+        letter-spacing: 0.01em;
+        color: var(--bb-text);
+        background-color: var(--bb-bg);
+        transition:
+          color 200ms ease-out,
+          background-color 200ms ease-out;
+      }
+
+      a {
+        color: var(--bb-info);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      a:focus-visible,
+      button:focus-visible {
+        outline: 2px solid var(--bb-info);
+        outline-offset: 2px;
+        border-radius: var(--bb-radius-sm);
+      }
+
+      /* Section/page hierarchy */
+      .page {
+        max-width: 1024px;
+        margin: 0 auto;
+        padding: 0 var(--bb-space-4);
+      }
+      @media (min-width: 640px) {
+        .page {
+          padding: 0 var(--bb-space-6);
+        }
+      }
+
+      .prose {
+        max-width: 768px; /* enforces 65–75ch line length */
+      }
+
+      .section {
+        padding-block: var(--bb-space-12);
+        border-top: 1px solid var(--bb-border-soft);
+      }
+      .section:first-of-type {
+        border-top: none;
+      }
+
+      .section__eyebrow {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--bb-text-tertiary);
+        margin: 0 0 var(--bb-space-2);
+      }
+
+      .section__title {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: -0.3px;
+        margin: 0 0 var(--bb-space-4);
+        color: var(--bb-text);
+      }
+
+      .section__lede {
+        font-size: 18px;
+        line-height: 1.55;
+        color: var(--bb-text-secondary);
+        margin: 0 0 var(--bb-space-8);
+      }
+
+      .subsection {
+        margin-top: var(--bb-space-10);
+      }
+      .subsection__title {
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 1.4;
+        margin: 0 0 var(--bb-space-3);
+        color: var(--bb-text);
+      }
+      .subsection__body {
+        color: var(--bb-text-secondary);
+        margin: 0 0 var(--bb-space-5);
+      }
+
+      p {
+        margin: 0 0 var(--bb-space-4);
+      }
+      p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  Header.                                                                *
+       * ---------------------------------------------------------------------- */
+      .topnav {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: color-mix(in oklab, var(--bb-bg) 92%, transparent);
+        backdrop-filter: saturate(120%) blur(8px);
+        -webkit-backdrop-filter: saturate(120%) blur(8px);
+        border-bottom: 1px solid var(--bb-border-soft);
+      }
+      .topnav__inner {
+        max-width: 1024px;
+        margin: 0 auto;
+        padding: var(--bb-space-3) var(--bb-space-4);
+        display: flex;
+        align-items: center;
+        gap: var(--bb-space-4);
+      }
+      @media (min-width: 640px) {
+        .topnav__inner {
+          padding: var(--bb-space-3) var(--bb-space-6);
+        }
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: var(--bb-space-3);
+        text-decoration: none;
+        color: var(--bb-text);
+      }
+      .brand__mark {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: linear-gradient(
+          135deg,
+          var(--bb-info) 0%,
+          var(--bb-cat-discretionary) 100%
+        );
+        display: grid;
+        place-items: center;
+        color: white;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: -0.02em;
+      }
+      .brand__name {
+        font-weight: 600;
+        font-size: 16px;
+      }
+      .brand__suffix {
+        color: var(--bb-text-tertiary);
+        font-size: 14px;
+      }
+      .topnav__spacer {
+        flex: 1;
+      }
+      .topnav__meta {
+        display: none;
+        font-size: 13px;
+        color: var(--bb-text-tertiary);
+      }
+      @media (min-width: 720px) {
+        .topnav__meta {
+          display: inline;
+        }
+      }
+
+      /* Theme toggle */
+      .theme-toggle {
+        appearance: none;
+        background: var(--bb-surface);
+        border: 1px solid var(--bb-border);
+        color: var(--bb-text);
+        padding: 8px 12px;
+        border-radius: var(--bb-radius-md);
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 36px;
+        min-width: 44px;
+        transition:
+          background-color 150ms ease-out,
+          border-color 150ms ease-out;
+      }
+      .theme-toggle:hover {
+        background-color: var(--bb-surface-raised);
+      }
+      .theme-toggle__icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  Hero.                                                                  *
+       * ---------------------------------------------------------------------- */
+      .hero {
+        padding-block: var(--bb-space-12);
+      }
+      .hero__meta {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--bb-space-2);
+        padding: 4px 10px;
+        border-radius: var(--bb-radius-pill);
+        background-color: var(--bb-info-bg);
+        color: var(--bb-info);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin-bottom: var(--bb-space-4);
+      }
+      .hero__meta__dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: currentColor;
+      }
+      .hero__title {
+        font-size: 36px;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.5px;
+        margin: 0 0 var(--bb-space-4);
+        color: var(--bb-text);
+      }
+      @media (min-width: 720px) {
+        .hero__title {
+          font-size: 44px;
+        }
+      }
+      .hero__subtitle {
+        font-size: 18px;
+        line-height: 1.55;
+        color: var(--bb-text-secondary);
+        margin: 0 0 var(--bb-space-6);
+      }
+      .hero__chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--bb-space-2);
+        margin-top: var(--bb-space-6);
+      }
+      .chip {
+        font-size: 13px;
+        padding: 6px 12px;
+        border-radius: var(--bb-radius-pill);
+        background-color: var(--bb-surface);
+        border: 1px solid var(--bb-border);
+        color: var(--bb-text-secondary);
+        font-weight: 500;
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  Cards / generic surfaces.                                              *
+       * ---------------------------------------------------------------------- */
+      .card {
+        background-color: var(--bb-surface);
+        border: 1px solid var(--bb-border-soft);
+        border-radius: var(--bb-radius-lg);
+        padding: var(--bb-space-5);
+        box-shadow: var(--bb-shadow-sm);
+      }
+
+      .grid {
+        display: grid;
+        gap: var(--bb-space-4);
+      }
+      .grid--two {
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 640px) {
+        .grid--two {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .grid--swatches {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      }
+      .grid--cats {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  Principles grid.                                                       *
+       * ---------------------------------------------------------------------- */
+      .principles {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--bb-space-4);
+        margin-top: var(--bb-space-6);
+      }
+      @media (min-width: 640px) {
+        .principles {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .principle {
+        background-color: var(--bb-surface);
+        border: 1px solid var(--bb-border-soft);
+        border-radius: var(--bb-radius-lg);
+        padding: var(--bb-space-5);
+      }
+      .principle__tag {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--bb-info);
+      }
+      .principle__title {
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 1.4;
+        margin: var(--bb-space-2) 0 var(--bb-space-2);
+        color: var(--bb-text);
+      }
+      .principle__body {
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--bb-text-secondary);
+        margin: 0;
+      }
+      .principle__cite {
+        display: block;
+        margin-top: var(--bb-space-3);
+        font-size: 12px;
+        color: var(--bb-text-tertiary);
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  Color swatches.                                                        *
+       * ---------------------------------------------------------------------- */
+      .swatch {
+        background-color: var(--bb-surface);
+        border: 1px solid var(--bb-border-soft);
+        border-radius: var(--bb-radius-lg);
+        overflow: hidden;
+      }
+      .swatch__bar {
+        height: 88px;
+        position: relative;
+      }
+      .swatch__bar::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-bottom: 1px solid oklch(0 0 0 / 0.04);
+      }
+      .swatch__body {
+        padding: var(--bb-space-4);
+      }
+      .swatch__name {
+        font-weight: 600;
+        font-size: 14px;
+        margin: 0 0 4px;
+        color: var(--bb-text);
+      }
+      .swatch__desc {
+        font-size: 12px;
+        color: var(--bb-text-secondary);
+        margin: 0 0 var(--bb-space-2);
+        line-height: 1.5;
+      }
+      .swatch__values {
+        display: grid;
+        gap: 2px;
+      }
+      .swatch__value {
+        font-family: var(--bb-font-mono);
+        font-size: 11px;
+        color: var(--bb-text-tertiary);
+        line-height: 1.4;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .swatch__value strong {
+        color: var(--bb-text);
+        font-weight: 600;
+      }
+
+      .cat-swatch {
+        display: flex;
+        align-items: center;
+        gap: var(--bb-space-3);
+        padding: var(--bb-space-3);
+        background-color: var(--bb-surface);
+        border: 1px solid var(--bb-border-soft);
+        border-radius: var(--bb-radius-md);
+      }
+      .cat-swatch__dot {
+        width: 32px;
+        height: 32px;
+        border-radius: var(--bb-radius-md);
+        flex-shrink: 0;
+      }
+      .cat-swatch__label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--bb-text);
+        margin: 0;
+      }
+      .cat-swatch__value {
+        font-size: 11px;
+        font-family: var(--bb-font-mono);
+        color: var(--bb-text-tertiary);
+        margin: 2px 0 0;
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  Typography display.                                                    *
+       * ---------------------------------------------------------------------- */
+      .type-row {
+        display: grid;
+        gap: var(--bb-space-2);
+        padding: var(--bb-space-5) 0;
+        border-bottom: 1px solid var(--bb-border-soft);
+      }
+      .type-row:last-child {
+        border-bottom: none;
+      }
+      .type-row__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--bb-space-3);
+        align-items: baseline;
+        font-family: var(--bb-font-mono);
+        font-size: 12px;
+        color: var(--bb-text-tertiary);
+      }
+      .type-row__token {
+        color: var(--bb-info);
+        font-weight: 600;
+      }
+      .type-row__sample {
+        color: var(--bb-text);
+        font-family: var(--bb-font-sans);
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  Spacing display.                                                       *
+       * ---------------------------------------------------------------------- */
+      .spacing-row {
+        display: grid;
+        grid-template-columns: 90px 60px 1fr;
+        align-items: center;
+        gap: var(--bb-space-3);
+        padding: var(--bb-space-3) 0;
+        border-bottom: 1px dashed var(--bb-border-soft);
+      }
+      .spacing-row:last-child {
+        border-bottom: none;
+      }
+      .spacing-row__token {
+        font-family: var(--bb-font-mono);
+        font-size: 13px;
+        color: var(--bb-info);
+        font-weight: 600;
+      }
+      .spacing-row__value {
+        font-family: var(--bb-font-mono);
+        font-size: 12px;
+        color: var(--bb-text-tertiary);
+      }
+      .spacing-row__bar {
+        height: 14px;
+        background-color: var(--bb-info);
+        border-radius: 3px;
+        opacity: 0.85;
+      }
+      .spacing-row__usage {
+        grid-column: 1 / -1;
+        font-size: 12px;
+        color: var(--bb-text-secondary);
+        margin: 4px 0 0 0;
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  Radius display.                                                        *
+       * ---------------------------------------------------------------------- */
+      .radius-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: var(--bb-space-4);
+      }
+      .radius-card {
+        text-align: center;
+      }
+      .radius-card__box {
+        height: 80px;
+        background-color: var(--bb-info-bg);
+        border: 1px solid var(--bb-info);
+        margin-bottom: var(--bb-space-3);
+      }
+      .radius-card__token {
+        font-family: var(--bb-font-mono);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--bb-text);
+        margin: 0;
+      }
+      .radius-card__value {
+        font-family: var(--bb-font-mono);
+        font-size: 11px;
+        color: var(--bb-text-tertiary);
+        margin: 2px 0 0;
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  Shadow display.                                                        *
+       * ---------------------------------------------------------------------- */
+      .shadow-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: var(--bb-space-6);
+        padding: var(--bb-space-4) 0;
+      }
+      .shadow-card {
+        text-align: center;
+      }
+      .shadow-card__box {
+        height: 80px;
+        background-color: var(--bb-surface);
+        border-radius: var(--bb-radius-lg);
+        margin-bottom: var(--bb-space-3);
+      }
+      .shadow-card__box--sm {
+        box-shadow: var(--bb-shadow-sm);
+      }
+      .shadow-card__box--md {
+        box-shadow: var(--bb-shadow-md);
+      }
+      .shadow-card__box--lg {
+        box-shadow: var(--bb-shadow-lg);
+      }
+      .shadow-card__token {
+        font-family: var(--bb-font-mono);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--bb-text);
+        margin: 0;
+      }
+      .shadow-card__use {
+        font-size: 12px;
+        color: var(--bb-text-secondary);
+        margin: 2px 0 0;
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  Component demos.                                                       *
+       * ---------------------------------------------------------------------- */
+      .demo {
+        background-color: var(--bb-surface-raised);
+        border: 1px solid var(--bb-border-soft);
+        border-radius: var(--bb-radius-xl);
+        padding: var(--bb-space-6);
+      }
+      .demo__label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--bb-text-tertiary);
+        margin-bottom: var(--bb-space-4);
+      }
+
+      /* KPI card */
+      .kpi {
+        background-color: var(--bb-surface);
+        border: 1px solid var(--bb-border-soft);
+        border-radius: var(--bb-radius-lg);
+        padding: var(--bb-space-5);
+        box-shadow: var(--bb-shadow-sm);
+      }
+      .kpi__label {
+        font-size: 14px;
+        color: var(--bb-text-secondary);
+        margin: 0 0 var(--bb-space-2);
+      }
+      .kpi__value {
+        font-size: 36px;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.5px;
+        color: var(--bb-text);
+        margin: 0;
+      }
+      .kpi__value--secondary {
+        font-size: 28px;
+        letter-spacing: -0.3px;
+      }
+      .kpi__delta {
+        font-size: 12px;
+        color: var(--bb-text-tertiary);
+        margin: var(--bb-space-2) 0 0;
+      }
+      .kpi--positive {
+        background-color: var(--bb-positive-bg);
+        border-color: color-mix(in oklab, var(--bb-positive) 25%, transparent);
+      }
+      .kpi--caution {
+        background-color: var(--bb-caution-bg);
+        border-color: color-mix(in oklab, var(--bb-caution) 25%, transparent);
+      }
+      .kpi--negative {
+        background-color: var(--bb-negative-bg);
+        border-color: color-mix(in oklab, var(--bb-negative) 25%, transparent);
+      }
+
+      /* Budget progress */
+      .budget {
+        background-color: var(--bb-surface);
+        border: 1px solid var(--bb-border-soft);
+        border-radius: var(--bb-radius-lg);
+        padding: var(--bb-space-5);
+      }
+      .budget__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: var(--bb-space-3);
+      }
+      .budget__name {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+        color: var(--bb-text);
+      }
+      .budget__remaining {
+        font-size: 14px;
+        color: var(--bb-text-secondary);
+      }
+      .budget__bar {
+        height: 8px;
+        background-color: var(--bb-surface-raised);
+        border-radius: var(--bb-radius-pill);
+        overflow: hidden;
+      }
+      .budget__bar__fill {
+        height: 100%;
+        border-radius: inherit;
+        transition: width 300ms ease-out;
+      }
+      .budget__bar__fill--ok {
+        background-color: var(--bb-positive);
+      }
+      .budget__bar__fill--warn {
+        background-color: var(--bb-caution);
+      }
+      .budget__bar__fill--over {
+        background-color: var(--bb-negative);
+      }
+      .budget__note {
+        font-size: 12px;
+        color: var(--bb-text-tertiary);
+        margin: var(--bb-space-3) 0 0;
+      }
+
+      /* Transaction list */
+      .txns {
+        background-color: var(--bb-surface);
+        border: 1px solid var(--bb-border-soft);
+        border-radius: var(--bb-radius-lg);
+        overflow: hidden;
+      }
+      .txn {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: var(--bb-space-3);
+        padding: var(--bb-space-4) var(--bb-space-5);
+        border-bottom: 1px solid var(--bb-border-soft);
+      }
+      .txn:last-child {
+        border-bottom: none;
+      }
+      .txn__name {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--bb-text);
+        margin: 0;
+      }
+      .txn__meta {
+        font-size: 12px;
+        color: var(--bb-text-tertiary);
+        margin: 4px 0 0;
+        letter-spacing: 0.02em;
+      }
+      .txn__amount {
+        font-size: 16px;
+        font-weight: 600;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .txn__amount--neg {
+        color: var(--bb-negative);
+      }
+      .txn__amount--pos {
+        color: var(--bb-positive);
+      }
+
+      /* Empty state */
+      .empty {
+        background-color: var(--bb-surface);
+        border: 2px dashed var(--bb-border);
+        border-radius: var(--bb-radius-lg);
+        padding: var(--bb-space-8);
+        text-align: center;
+      }
+      .empty__title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 var(--bb-space-2);
+        color: var(--bb-text);
+      }
+      .empty__body {
+        font-size: 14px;
+        color: var(--bb-text-secondary);
+        max-width: 360px;
+        margin: 0 auto var(--bb-space-5);
+      }
+
+      /* Alert banner */
+      .alert {
+        border-radius: var(--bb-radius-md);
+        padding: var(--bb-space-4);
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: var(--bb-space-4);
+        align-items: start;
+      }
+      .alert--caution {
+        background-color: var(--bb-caution-bg);
+        color: var(--bb-text);
+      }
+      .alert--negative {
+        background-color: var(--bb-negative-bg);
+        color: var(--bb-text);
+      }
+      .alert__title {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .alert__body {
+        font-size: 14px;
+        color: var(--bb-text-secondary);
+        margin: 0;
+      }
+      .alert__dismiss {
+        appearance: none;
+        background: transparent;
+        border: none;
+        color: var(--bb-text-secondary);
+        cursor: pointer;
+        font-size: 14px;
+        padding: 6px;
+        min-width: 32px;
+        min-height: 32px;
+        border-radius: var(--bb-radius-sm);
+      }
+      .alert__dismiss:hover {
+        background-color: oklch(0 0 0 / 0.05);
+      }
+
+      /* Buttons */
+      .btn {
+        appearance: none;
+        font-family: inherit;
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+        line-height: 1;
+        padding: 12px 20px;
+        height: 44px;
+        min-width: 44px;
+        border-radius: var(--bb-radius-md);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition:
+          background-color 150ms ease-out,
+          border-color 150ms ease-out,
+          color 150ms ease-out;
+        border: 1px solid transparent;
+      }
+      .btn--primary {
+        background-color: var(--bb-info);
+        color: oklch(1 0 0);
+        border-color: var(--bb-info);
+      }
+      .btn--primary:hover {
+        background-color: oklch(0.54 0.13 245);
+      }
+      .btn--secondary {
+        background-color: var(--bb-surface);
+        color: var(--bb-text);
+        border-color: var(--bb-border);
+      }
+      .btn--secondary:hover {
+        background-color: var(--bb-surface-raised);
+      }
+      .btn--ghost {
+        background-color: transparent;
+        color: var(--bb-text);
+      }
+      .btn--ghost:hover {
+        background-color: var(--bb-surface-raised);
+      }
+      .btn--destructive {
+        background-color: transparent;
+        color: var(--bb-negative);
+        border-color: var(--bb-negative);
+      }
+      .btn--destructive:hover {
+        background-color: var(--bb-negative-bg);
+      }
+      .btn-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--bb-space-3);
+      }
+
+      /* Tab bar */
+      .tabbar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        background-color: var(--bb-surface);
+        border: 1px solid var(--bb-border-soft);
+        border-radius: var(--bb-radius-lg);
+        overflow: hidden;
+      }
+      .tab {
+        appearance: none;
+        background: transparent;
+        border: none;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--bb-text-secondary);
+        padding: 12px 4px;
+        min-height: 56px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        cursor: pointer;
+      }
+      .tab svg {
+        width: 22px;
+        height: 22px;
+      }
+      .tab[aria-current="page"] {
+        color: var(--bb-info);
+      }
+      .tab[aria-current="page"] svg {
+        stroke-width: 2.5;
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  Do / Don't blocks.                                                     *
+       * ---------------------------------------------------------------------- */
+      .ddo-grid {
+        display: grid;
+        gap: var(--bb-space-4);
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 720px) {
+        .ddo-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .ddo {
+        background-color: var(--bb-surface);
+        border: 1px solid var(--bb-border-soft);
+        border-radius: var(--bb-radius-lg);
+        padding: var(--bb-space-5);
+        border-left-width: 4px;
+      }
+      .ddo--do {
+        border-left-color: var(--bb-positive);
+      }
+      .ddo--dont {
+        border-left-color: var(--bb-negative);
+      }
+      .ddo__tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin: 0 0 var(--bb-space-2);
+      }
+      .ddo--do .ddo__tag {
+        color: var(--bb-positive);
+      }
+      .ddo--dont .ddo__tag {
+        color: var(--bb-negative);
+      }
+      .ddo__body {
+        font-size: 15px;
+        color: var(--bb-text);
+        margin: 0 0 var(--bb-space-2);
+        line-height: 1.5;
+      }
+      .ddo__why {
+        font-size: 13px;
+        font-style: normal;
+        color: var(--bb-text-tertiary);
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      /* ---------------------------------------------------------------------- *
+       *  Generic table styling for rules / citations / rewrites.                *
+       * ---------------------------------------------------------------------- */
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--bb-border-soft);
+        border-radius: var(--bb-radius-lg);
+        background-color: var(--bb-surface);
+      }
+      table.tbl {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      table.tbl th,
+      table.tbl td {
+        text-align: left;
+        padding: var(--bb-space-3) var(--bb-space-4);
+        border-bottom: 1px solid var(--bb-border-soft);
+        vertical-align: top;
+        color: var(--bb-text);
+      }
+      table.tbl tr:last-child td {
+        border-bottom: none;
+      }
+      table.tbl th {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--bb-text-tertiary);
+        background-color: var(--bb-surface-raised);
+      }
+      table.tbl code {
+        font-family: var(--bb-font-mono);
+        font-size: 12px;
+        background-color: var(--bb-surface-raised);
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: var(--bb-info);
+      }
+
+      /* List with check/cross bullets */
+      .checklist {
+        list-style: none;
+        padding: 0;
+        margin: var(--bb-space-3) 0 0;
+        display: grid;
+        gap: var(--bb-space-2);
+      }
+      .checklist li {
+        display: grid;
+        grid-template-columns: 22px 1fr;
+        gap: var(--bb-space-3);
+        font-size: 14px;
+        color: var(--bb-text);
+        align-items: baseline;
+      }
+      .checklist li::before {
+        content: "✓";
+        color: var(--bb-positive);
+        font-weight: 700;
+      }
+      .checklist--no li::before {
+        content: "×";
+        color: var(--bb-negative);
+        font-size: 18px;
+      }
+
+      /* Pre/code blocks */
+      .code-block {
+        background-color: var(--bb-surface-raised);
+        border: 1px solid var(--bb-border-soft);
+        border-radius: var(--bb-radius-md);
+        padding: var(--bb-space-4);
+        font-family: var(--bb-font-mono);
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--bb-text);
+        overflow-x: auto;
+        white-space: pre;
+      }
+
+      /* Section anchor links */
+      .anchor {
+        text-decoration: none;
+        color: var(--bb-text-tertiary);
+        margin-left: var(--bb-space-2);
+        opacity: 0;
+        transition: opacity 150ms ease-out;
+      }
+      .section__title:hover .anchor {
+        opacity: 1;
+      }
+
+      /* Footer */
+      .footer {
+        padding-block: var(--bb-space-12);
+        text-align: center;
+        font-size: 13px;
+        color: var(--bb-text-tertiary);
+        border-top: 1px solid var(--bb-border-soft);
+      }
+      .footer a {
+        color: var(--bb-text-secondary);
+      }
+
+      /* Honor reduced motion */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ====================================================================== -->
+    <!--  Top nav / theme toggle                                                  -->
+    <!-- ====================================================================== -->
+    <header class="topnav" role="banner">
+      <div class="topnav__inner">
+        <a href="#top" class="brand" aria-label="BetterBudgeter design language">
+          <span class="brand__mark" aria-hidden="true">BB</span>
+          <span class="brand__name">BetterBudgeter</span>
+          <span class="brand__suffix">/ DESIGN.md</span>
+        </a>
+        <span class="topnav__spacer" aria-hidden="true"></span>
+        <span class="topnav__meta">Live preview · v-alpha</span>
+        <button
+          type="button"
+          class="theme-toggle"
+          id="themeToggle"
+          aria-label="Toggle color theme"
+        >
+          <svg
+            class="theme-toggle__icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <!-- Sun (visible in dark) / Moon (visible in light) is toggled via JS -->
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="m4.93 4.93 1.41 1.41"></path>
+            <path d="m17.66 17.66 1.41 1.41"></path>
+            <path d="M2 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="m6.34 17.66-1.41 1.41"></path>
+            <path d="m19.07 4.93-1.41 1.41"></path>
+          </svg>
+          <span id="themeToggleLabel">Dark</span>
+        </button>
+      </div>
+    </header>
+
+    <main id="top" class="page">
+      <!-- ====================================================================== -->
+      <!--  Hero                                                                    -->
+      <!-- ====================================================================== -->
+      <section class="hero" aria-labelledby="hero-title">
+        <span class="hero__meta">
+          <span class="hero__meta__dot" aria-hidden="true"></span>
+          alpha · design language
+        </span>
+        <h1 class="hero__title" id="hero-title">
+          BetterBudgeter — Design Language
+        </h1>
+        <p class="hero__subtitle prose">
+          An evidence-based, ADHD-optimized personal finance interface. Every
+          design decision is grounded in empirical research on cognitive
+          accessibility (W3C COGA, Neurodiversity Design System, British
+          Dyslexia Association). The system anchors on a warm cream canvas with
+          desaturated semantic colors — soft coral replaces red to avoid
+          financial anxiety, soft green signals progress without overstimulation.
+        </p>
+        <div class="hero__chips" role="list">
+          <span class="chip" role="listitem">Calm over comprehensive</span>
+          <span class="chip" role="listitem">Compassion over correction</span>
+          <span class="chip" role="listitem">Clarity over cleverness</span>
+          <span class="chip" role="listitem">Consistency over customization</span>
+          <span class="chip" role="listitem">Progressive over prescriptive</span>
+        </div>
+      </section>
+
+      <!-- ====================================================================== -->
+      <!--  1. Overview + Design Principles                                         -->
+      <!-- ====================================================================== -->
+      <section class="section" id="overview" aria-labelledby="overview-title">
+        <p class="section__eyebrow">01 · Overview</p>
+        <h2 class="section__title" id="overview-title">
+          Calm, clarity, compassion
+          <a class="anchor" href="#overview" aria-label="Anchor to Overview">#</a>
+        </h2>
+        <div class="prose">
+          <p class="section__lede">
+            BetterBudgeter is a personal finance tracker for users whose executive
+            function may be impaired by ADHD, anxiety, or cognitive fatigue —
+            conditions that conventional budgeting apps actively worsen through
+            information overload, judgmental language, and anxiety-inducing color
+            choices.
+          </p>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Design Principles</h3>
+          <p class="subsection__body prose">
+            Five principles guide every design decision, in priority order. When
+            two principles conflict, the lower-numbered one wins.
+          </p>
+          <div class="principles">
+            <article class="principle">
+              <span class="principle__tag">P1</span>
+              <h4 class="principle__title">Calm Over Comprehensive</h4>
+              <p class="principle__body">
+                Show only what the user needs right now. Every element must earn
+                its place on screen. The goal is a financial tool that feels
+                calm, not overwhelming.
+              </p>
+              <cite class="principle__cite">W3C COGA §4.6.3</cite>
+            </article>
+            <article class="principle">
+              <span class="principle__tag">P2</span>
+              <h4 class="principle__title">Compassion Over Correction</h4>
+              <p class="principle__body">
+                Never make the user feel bad about their financial decisions.
+                Frame setbacks as normal, celebrate progress quietly, and treat
+                overspending as information — not failure.
+              </p>
+              <cite class="principle__cite">Shame drives abandonment</cite>
+            </article>
+            <article class="principle">
+              <span class="principle__tag">P3</span>
+              <h4 class="principle__title">Clarity Over Cleverness</h4>
+              <p class="principle__body">
+                Prefer explicit, readable patterns over compact, clever ones. A
+                stressed user should understand the interface without
+                explanation.
+              </p>
+              <cite class="principle__cite">W3C COGA §4.3</cite>
+            </article>
+            <article class="principle">
+              <span class="principle__tag">P4</span>
+              <h4 class="principle__title">Consistency Over Customization</h4>
+              <p class="principle__body">
+                The same pattern should look and behave the same everywhere.
+                Predictability reduces cognitive load.
+              </p>
+              <cite class="principle__cite">W3C COGA §4.2</cite>
+            </article>
+            <article class="principle">
+              <span class="principle__tag">P5</span>
+              <h4 class="principle__title">Progressive Over Prescriptive</h4>
+              <p class="principle__body">
+                Start simple, let users discover complexity. Smart defaults for
+                the common case. Advanced options available but never required.
+              </p>
+              <cite class="principle__cite">ADHD UX research</cite>
+            </article>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Visual Identity</h3>
+          <p class="subsection__body prose">
+            The visual language is warm, quiet, and structured. A subtle cream
+            canvas (inspired by the humanist warmth of Anthropic's Claude design
+            language) replaces the sterile white of typical fintech apps,
+            reducing eye strain and creating a sense of comfort rather than
+            clinical efficiency. Colors are intentionally desaturated — soft
+            coral instead of alarm-red, muted amber instead of traffic-light
+            yellow. The overall impression should be a patient friend who's good
+            with money, not a stern financial advisor.
+          </p>
+        </div>
+      </section>
+
+      <!-- ====================================================================== -->
+      <!--  2. Colors                                                               -->
+      <!-- ====================================================================== -->
+      <section class="section" id="colors" aria-labelledby="colors-title">
+        <p class="section__eyebrow">02 · Colors</p>
+        <h2 class="section__title" id="colors-title">
+          Color system
+          <a class="anchor" href="#colors" aria-label="Anchor to Colors">#</a>
+        </h2>
+        <p class="section__lede prose">
+          Authoritative color values are in oklch. The hex strings are sRGB
+          approximations for tooling compatibility. oklch provides perceptually
+          uniform lightness — equal numeric steps produce equal visual changes —
+          making it ideal for systematic accessible palette design.
+        </p>
+
+        <!-- Canvas & Surface -->
+        <div class="subsection">
+          <h3 class="subsection__title">Canvas &amp; Surface</h3>
+          <p class="subsection__body prose">
+            Warm light surfaces reduce cognitive fatigue during daytime use (NDS
+            recommendation), while cool dark surfaces reduce eye strain at
+            night. The asymmetry is intentional.
+          </p>
+          <div class="grid grid--swatches" id="canvasSwatches"></div>
+        </div>
+
+        <!-- Text -->
+        <div class="subsection">
+          <h3 class="subsection__title">Text</h3>
+          <p class="subsection__body prose">
+            Text colors maintain a cool tint (hue 280°) for high contrast against
+            the warm canvas. Primary text exceeds WCAG 2.2 AA (4.5:1) on both
+            cream and white surfaces.
+          </p>
+          <div class="grid grid--swatches" id="textSwatches"></div>
+        </div>
+
+        <!-- Semantic -->
+        <div class="subsection">
+          <h3 class="subsection__title">Semantic Colors (Financial)</h3>
+          <p class="subsection__body prose">
+            These colors carry consistent meaning across the app. They are the
+            emotional backbone of the interface. We avoid bright red because
+            research on color psychology in financial contexts shows that red
+            triggers anxiety and shame responses (Elliot &amp; Maier, 2014). Our
+            "negative" is a soft coral — same hue family but reduced chroma.
+          </p>
+          <div class="grid grid--swatches" id="semanticSwatches"></div>
+        </div>
+
+        <!-- Categories -->
+        <div class="subsection">
+          <h3 class="subsection__title">Budget Category Colors</h3>
+          <p class="subsection__body prose">
+            All category colors sit at similar lightness values (0.58–0.68) so
+            no single category dominates a chart. Chroma is held low (0.02–0.14)
+            for a calm overall palette.
+          </p>
+          <div class="grid grid--cats" id="categorySwatches"></div>
+        </div>
+      </section>
+
+      <!-- ====================================================================== -->
+      <!--  3. Typography                                                           -->
+      <!-- ====================================================================== -->
+      <section class="section" id="typography" aria-labelledby="typography-title">
+        <p class="section__eyebrow">03 · Typography</p>
+        <h2 class="section__title" id="typography-title">
+          Typography
+          <a class="anchor" href="#typography" aria-label="Anchor to Typography">#</a>
+        </h2>
+        <p class="section__lede prose">
+          BetterBudgeter uses the system sans-serif stack exclusively. The British
+          Dyslexia Association recommends sans-serif typefaces with clear
+          character differentiation. System fonts meet this requirement while
+          loading instantly and feeling native to each platform.
+        </p>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Font Stack</h3>
+          <pre class="code-block">--bb-font-sans:
+  "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Verdana,
+  -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  "Helvetica Neue", Arial, sans-serif;
+
+--bb-font-mono:
+  ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;</pre>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Type Scale</h3>
+          <p class="subsection__body prose">
+            Every sample is rendered at its real size, weight, line-height, and
+            tracking. Minimum body size is 16px — a hard constraint, not a
+            guideline.
+          </p>
+          <div class="card" id="typeScale"></div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Rules</h3>
+          <ul class="checklist">
+            <li>Body text never below 16px.</li>
+            <li>Line height ≥ 1.5 for body (we use 1.6).</li>
+            <li>Positive letter-spacing for body (+0.01em) and captions (+0.02em).</li>
+            <li>Max line length 65–75 characters (max-width 768px).</li>
+            <li>Emphasis via semibold (600) or color — never italics.</li>
+            <li>Left-aligned only — never justified.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ====================================================================== -->
+      <!--  4. Layout                                                               -->
+      <!-- ====================================================================== -->
+      <section class="section" id="layout" aria-labelledby="layout-title">
+        <p class="section__eyebrow">04 · Layout</p>
+        <h2 class="section__title" id="layout-title">
+          Layout &amp; spacing
+          <a class="anchor" href="#layout" aria-label="Anchor to Layout">#</a>
+        </h2>
+        <p class="section__lede prose">
+          Built on a 4px grid with a primary rhythm of 8px. W3C COGA §4.4.10
+          explicitly recommends generous whitespace for users with cognitive
+          disabilities. Whitespace is a cognitive accessibility tool, not wasted
+          space.
+        </p>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Spacing Scale</h3>
+          <div class="card" id="spacingScale"></div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Layout Constraints</h3>
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Property</th>
+                  <th>Value</th>
+                  <th>Rationale</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Max content width</td>
+                  <td><code>768px</code></td>
+                  <td>Prevents lines exceeding 75 characters</td>
+                </tr>
+                <tr>
+                  <td>Page padding</td>
+                  <td><code>16px</code> mobile, <code>24px</code> tablet+</td>
+                  <td>Breathing room at edges</td>
+                </tr>
+                <tr>
+                  <td>Card padding</td>
+                  <td><code>20px</code></td>
+                  <td>Generous internal space</td>
+                </tr>
+                <tr>
+                  <td>Card gap</td>
+                  <td><code>16px</code></td>
+                  <td>Clear separation between cards</td>
+                </tr>
+                <tr>
+                  <td>Section gap</td>
+                  <td><code>32px</code></td>
+                  <td>Visual breathing room between sections</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Layout Patterns</h3>
+          <div class="prose">
+            <p>
+              <strong>Single-column (default).</strong> All pages use a
+              single-column layout with stacked cards. This is the most readable
+              pattern and works identically on mobile and desktop. Multi-column
+              dashboards create cognitive overload.
+            </p>
+            <p>
+              <strong>Two-column grid (limited use).</strong> Only for paired
+              summary cards (e.g., Income + Expenses side-by-side). Stacks to
+              single column on mobile (&lt; 640px).
+            </p>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Page Architecture</h3>
+          <p class="subsection__body prose">
+            Hub-and-spoke navigation with a persistent bottom tab bar (4 tabs:
+            Home, Budgets, Transactions, Settings). Research supports 3–5
+            navigation items for ADHD users — staying within working memory
+            limits. Each page has a maximum of 4 content sections.
+          </p>
+        </div>
+      </section>
+
+      <!-- ====================================================================== -->
+      <!--  5. Elevation & Depth                                                    -->
+      <!-- ====================================================================== -->
+      <section class="section" id="elevation" aria-labelledby="elevation-title">
+        <p class="section__eyebrow">05 · Elevation</p>
+        <h2 class="section__title" id="elevation-title">
+          Elevation &amp; depth
+          <a class="anchor" href="#elevation" aria-label="Anchor to Elevation">#</a>
+        </h2>
+        <p class="section__lede prose">
+          BetterBudgeter uses a deliberately flat elevation system. Depth comes
+          from background color shifts and subtle borders, not heavy shadows.
+          The warm cream canvas creates a natural "depth" effect — white cards
+          appear to float above the cream background without needing visible
+          shadows.
+        </p>
+        <div class="card">
+          <div class="shadow-grid">
+            <div class="shadow-card">
+              <div class="shadow-card__box shadow-card__box--sm"></div>
+              <p class="shadow-card__token">--bb-shadow-sm</p>
+              <p class="shadow-card__use">Subtle card lift</p>
+            </div>
+            <div class="shadow-card">
+              <div class="shadow-card__box shadow-card__box--md"></div>
+              <p class="shadow-card__token">--bb-shadow-md</p>
+              <p class="shadow-card__use">Dropdown, popover</p>
+            </div>
+            <div class="shadow-card">
+              <div class="shadow-card__box shadow-card__box--lg"></div>
+              <p class="shadow-card__token">--bb-shadow-lg</p>
+              <p class="shadow-card__use">Modal, dialog</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================== -->
+      <!--  6. Shapes                                                               -->
+      <!-- ====================================================================== -->
+      <section class="section" id="shapes" aria-labelledby="shapes-title">
+        <p class="section__eyebrow">06 · Shapes</p>
+        <h2 class="section__title" id="shapes-title">
+          Shapes &amp; radii
+          <a class="anchor" href="#shapes" aria-label="Anchor to Shapes">#</a>
+        </h2>
+        <p class="section__lede prose">
+          Rounded shapes are perceived as friendlier and less complex than
+          sharp corners (Bar &amp; Neta, 2006). In a financial context — where
+          anxiety is inherent — softer radii help counteract the emotional
+          weight of money management.
+        </p>
+        <div class="card">
+          <div class="radius-grid" id="radiusGrid"></div>
+        </div>
+      </section>
+
+      <!-- ====================================================================== -->
+      <!--  7. Components                                                           -->
+      <!-- ====================================================================== -->
+      <section class="section" id="components" aria-labelledby="components-title">
+        <p class="section__eyebrow">07 · Components</p>
+        <h2 class="section__title" id="components-title">
+          Components
+          <a class="anchor" href="#components" aria-label="Anchor to Components">#</a>
+        </h2>
+        <p class="section__lede prose">
+          Every component below is rendered live using the design tokens above.
+          Toggle the theme to see how each component adapts.
+        </p>
+
+        <!-- KPI Cards -->
+        <div class="subsection">
+          <h3 class="subsection__title">KPI Card</h3>
+          <p class="subsection__body prose">
+            One metric per card — never combine. Semantic background tint
+            communicates status at a glance. Hero number uses the 36px display
+            scale.
+          </p>
+          <div class="demo">
+            <span class="demo__label">Variants</span>
+            <div class="grid grid--two">
+              <div class="kpi">
+                <p class="kpi__label">Balance</p>
+                <p class="kpi__value">€2,847.20</p>
+                <p class="kpi__delta">Across 3 linked accounts</p>
+              </div>
+              <div class="kpi kpi--positive">
+                <p class="kpi__label">Income this month</p>
+                <p class="kpi__value kpi__value--secondary">€3,420.00</p>
+                <p class="kpi__delta">On track for monthly goal</p>
+              </div>
+              <div class="kpi kpi--caution">
+                <p class="kpi__label">Food budget</p>
+                <p class="kpi__value kpi__value--secondary">€170 / €200</p>
+                <p class="kpi__delta">€30 left this month</p>
+              </div>
+              <div class="kpi kpi--negative">
+                <p class="kpi__label">Transport</p>
+                <p class="kpi__value kpi__value--secondary">€132 / €120</p>
+                <p class="kpi__delta">€12 over — adjust or review</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Budget progress -->
+        <div class="subsection">
+          <h3 class="subsection__title">Budget Progress Card</h3>
+          <p class="subsection__body prose">
+            Remaining amount is the primary focus, not percentage. Language is
+            informational, never judgmental.
+          </p>
+          <div class="demo">
+            <span class="demo__label">States: on-track / warning / over</span>
+            <div class="grid" style="gap: var(--bb-space-3)">
+              <div class="budget">
+                <div class="budget__header">
+                  <h4 class="budget__name">Savings</h4>
+                  <span class="budget__remaining">€280 of €400 set aside</span>
+                </div>
+                <div class="budget__bar">
+                  <div class="budget__bar__fill budget__bar__fill--ok" style="width: 70%"></div>
+                </div>
+                <p class="budget__note">On track this month.</p>
+              </div>
+
+              <div class="budget">
+                <div class="budget__header">
+                  <h4 class="budget__name">Food</h4>
+                  <span class="budget__remaining">€30 left of €200</span>
+                </div>
+                <div class="budget__bar">
+                  <div class="budget__bar__fill budget__bar__fill--warn" style="width: 85%"></div>
+                </div>
+                <p class="budget__note">Food is at 85%. €30 left for this month.</p>
+              </div>
+
+              <div class="budget">
+                <div class="budget__header">
+                  <h4 class="budget__name">Transport</h4>
+                  <span class="budget__remaining">€132 of €120</span>
+                </div>
+                <div class="budget__bar">
+                  <div class="budget__bar__fill budget__bar__fill--over" style="width: 100%"></div>
+                </div>
+                <p class="budget__note">You've used your full Transport budget. €12 over.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transaction item -->
+        <div class="subsection">
+          <h3 class="subsection__title">Transaction Item</h3>
+          <p class="subsection__body prose">
+            Merchant name primary, amount right-aligned. Amount colored by type.
+            No icons in default list view — reduces visual noise.
+          </p>
+          <div class="demo">
+            <span class="demo__label">Default list</span>
+            <div class="txns">
+              <div class="txn">
+                <div>
+                  <p class="txn__name">Edeka</p>
+                  <p class="txn__meta">Food · Today</p>
+                </div>
+                <p class="txn__amount txn__amount--neg">−€34.80</p>
+              </div>
+              <div class="txn">
+                <div>
+                  <p class="txn__name">Deutsche Bahn</p>
+                  <p class="txn__meta">Transport · Yesterday</p>
+                </div>
+                <p class="txn__amount txn__amount--neg">−€12.40</p>
+              </div>
+              <div class="txn">
+                <div>
+                  <p class="txn__name">Salary — Produkter GmbH</p>
+                  <p class="txn__meta">Income · 3 days ago</p>
+                </div>
+                <p class="txn__amount txn__amount--pos">+€1,420.00</p>
+              </div>
+              <div class="txn">
+                <div>
+                  <p class="txn__name">Spotify</p>
+                  <p class="txn__meta">Entertainment · 5 days ago</p>
+                </div>
+                <p class="txn__amount txn__amount--neg">−€9.99</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div class="subsection">
+          <h3 class="subsection__title">Empty State</h3>
+          <p class="subsection__body prose">
+            Never a blank screen. Positive framing ("Start by…") and exactly one
+            CTA.
+          </p>
+          <div class="demo">
+            <span class="demo__label">First-run / no data</span>
+            <div class="empty">
+              <h4 class="empty__title">No budgets yet</h4>
+              <p class="empty__body">
+                Set up a budget to start tracking your spending. You can adjust
+                or remove it anytime.
+              </p>
+              <button type="button" class="btn btn--primary">Create your first budget</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alert banner -->
+        <div class="subsection">
+          <h3 class="subsection__title">Alert Banner</h3>
+          <p class="subsection__body prose">
+            One sentence of context, one sentence of meaning. Dismissible — user
+            controls when to clear. No auto-dismiss.
+          </p>
+          <div class="demo">
+            <span class="demo__label">Caution / Critical</span>
+            <div class="grid" style="gap: var(--bb-space-3)">
+              <div class="alert alert--caution" role="status">
+                <div>
+                  <p class="alert__title">Food is at 85%</p>
+                  <p class="alert__body">€30 left for this month. Adjust your budget or review recent spending.</p>
+                </div>
+                <button class="alert__dismiss" aria-label="Dismiss">✕</button>
+              </div>
+              <div class="alert alert--negative" role="status">
+                <div>
+                  <p class="alert__title">Transport over by €12</p>
+                  <p class="alert__body">You've used your full Transport budget. Adjust your budget or review recent spending.</p>
+                </div>
+                <button class="alert__dismiss" aria-label="Dismiss">✕</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="subsection">
+          <h3 class="subsection__title">Buttons</h3>
+          <p class="subsection__body prose">
+            Minimum 44×44px touch target (WCAG 2.2 AA). Primary actions limited
+            to one per page.
+          </p>
+          <div class="demo">
+            <span class="demo__label">Variants</span>
+            <div class="btn-row">
+              <button type="button" class="btn btn--primary">Primary action</button>
+              <button type="button" class="btn btn--secondary">Secondary</button>
+              <button type="button" class="btn btn--ghost">Ghost</button>
+              <button type="button" class="btn btn--destructive">Remove budget</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab bar -->
+        <div class="subsection">
+          <h3 class="subsection__title">Tab Bar</h3>
+          <p class="subsection__body prose">
+            Persistent bottom navigation. 4 tabs — within working memory limits.
+            Always visible. Touch targets 44×44px minimum.
+          </p>
+          <div class="demo">
+            <span class="demo__label">Bottom navigation</span>
+            <nav class="tabbar" aria-label="Primary">
+              <button type="button" class="tab" aria-current="page">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 12 12 3l9 9" />
+                  <path d="M5 10v10h14V10" />
+                </svg>
+                Home
+              </button>
+              <button type="button" class="tab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="6" width="18" height="14" rx="2" />
+                  <path d="M3 10h18" />
+                </svg>
+                Budgets
+              </button>
+              <button type="button" class="tab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M4 7h16" />
+                  <path d="M4 12h16" />
+                  <path d="M4 17h10" />
+                </svg>
+                Transactions
+              </button>
+              <button type="button" class="tab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+                </svg>
+                Settings
+              </button>
+            </nav>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================== -->
+      <!--  8. Do's and Don'ts                                                      -->
+      <!-- ====================================================================== -->
+      <section class="section" id="do-dont" aria-labelledby="do-dont-title">
+        <p class="section__eyebrow">08 · Do's &amp; Don'ts</p>
+        <h2 class="section__title" id="do-dont-title">
+          Do's &amp; Don'ts
+          <a class="anchor" href="#do-dont" aria-label="Anchor to Do's and Don'ts">#</a>
+        </h2>
+        <p class="section__lede prose">
+          Five categories, paired guidance. Every "Don't" has an explicit "Do"
+          alternative — never leave the reader without a path forward.
+        </p>
+
+        <!-- Color -->
+        <div class="subsection">
+          <h3 class="subsection__title">Color</h3>
+          <div class="ddo-grid">
+            <div class="ddo ddo--do">
+              <p class="ddo__tag">✓ Do</p>
+              <p class="ddo__body">Use soft coral (<code>--bb-negative</code>) for overspending indicators.</p>
+              <p class="ddo__why">Red triggers anxiety responses in financial contexts (Elliot &amp; Maier, 2014).</p>
+            </div>
+            <div class="ddo ddo--dont">
+              <p class="ddo__tag">× Don't</p>
+              <p class="ddo__body">Use bright red, even for critical errors.</p>
+              <p class="ddo__why">Soft coral at hue 25° with chroma 0.16 communicates urgency without panic.</p>
+            </div>
+            <div class="ddo ddo--do">
+              <p class="ddo__tag">✓ Do</p>
+              <p class="ddo__body">Use semantic background tints to communicate status at a glance.</p>
+              <p class="ddo__why">Color reinforces meaning when paired with text.</p>
+            </div>
+            <div class="ddo ddo--dont">
+              <p class="ddo__tag">× Don't</p>
+              <p class="ddo__body">Rely on color alone — always pair color with text labels.</p>
+              <p class="ddo__why">WCAG 2.2: Use of Color.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Typography -->
+        <div class="subsection">
+          <h3 class="subsection__title">Typography</h3>
+          <div class="ddo-grid">
+            <div class="ddo ddo--do">
+              <p class="ddo__tag">✓ Do</p>
+              <p class="ddo__body">Maintain 16px minimum for body text. Use 12px only for timestamps and captions.</p>
+              <p class="ddo__why">W3C COGA + NDS hard constraint.</p>
+            </div>
+            <div class="ddo ddo--dont">
+              <p class="ddo__tag">× Don't</p>
+              <p class="ddo__body">Use italics for emphasis. Use semibold (600) or semantic color instead.</p>
+              <p class="ddo__why">British Dyslexia Association guideline.</p>
+            </div>
+            <div class="ddo ddo--do">
+              <p class="ddo__tag">✓ Do</p>
+              <p class="ddo__body">Left-align all text.</p>
+              <p class="ddo__why">Justified text creates uneven spacing that disrupts reading flow.</p>
+            </div>
+            <div class="ddo ddo--dont">
+              <p class="ddo__tag">× Don't</p>
+              <p class="ddo__body">Use justified or center-aligned body text.</p>
+              <p class="ddo__why">BDA, NDS.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layout -->
+        <div class="subsection">
+          <h3 class="subsection__title">Layout</h3>
+          <div class="ddo-grid">
+            <div class="ddo ddo--do">
+              <p class="ddo__tag">✓ Do</p>
+              <p class="ddo__body">Limit each page to 4 content sections maximum.</p>
+              <p class="ddo__why">7+ sections create cognitive overload for ADHD users.</p>
+            </div>
+            <div class="ddo ddo--dont">
+              <p class="ddo__tag">× Don't</p>
+              <p class="ddo__body">Create multi-column dashboard layouts.</p>
+              <p class="ddo__why">Single-column reads top-to-bottom like a document.</p>
+            </div>
+            <div class="ddo ddo--do">
+              <p class="ddo__tag">✓ Do</p>
+              <p class="ddo__body">Use generous whitespace between sections (32px+).</p>
+              <p class="ddo__why">W3C COGA §4.4.10 — whitespace is a cognitive accessibility tool.</p>
+            </div>
+            <div class="ddo ddo--dont">
+              <p class="ddo__tag">× Don't</p>
+              <p class="ddo__body">Pack elements tightly to "fit more on screen."</p>
+              <p class="ddo__why">Visual crowding increases parsing load.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Language -->
+        <div class="subsection">
+          <h3 class="subsection__title">Language</h3>
+          <div class="ddo-grid">
+            <div class="ddo ddo--do">
+              <p class="ddo__tag">✓ Do</p>
+              <p class="ddo__body">Frame overspending as information: "Your Food spending reached €200."</p>
+              <p class="ddo__why">Neutral framing avoids shame responses.</p>
+            </div>
+            <div class="ddo ddo--dont">
+              <p class="ddo__tag">× Don't</p>
+              <p class="ddo__body">Use judgmental language: "You exceeded your budget" or "Budget failed."</p>
+              <p class="ddo__why">Shame is the primary driver of financial app abandonment.</p>
+            </div>
+            <div class="ddo ddo--do">
+              <p class="ddo__tag">✓ Do</p>
+              <p class="ddo__body">Lead with what the user can do: "Adjust your budget or review recent spending."</p>
+              <p class="ddo__why">A path forward is more useful than a verdict.</p>
+            </div>
+            <div class="ddo ddo--dont">
+              <p class="ddo__tag">× Don't</p>
+              <p class="ddo__body">Use streaks, achievements, or gamification.</p>
+              <p class="ddo__why">Counterproductive for ADHD users with inconsistent patterns.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Motion -->
+        <div class="subsection">
+          <h3 class="subsection__title">Motion</h3>
+          <div class="ddo-grid">
+            <div class="ddo ddo--do">
+              <p class="ddo__tag">✓ Do</p>
+              <p class="ddo__body">Respect <code>prefers-reduced-motion: reduce</code> for all non-essential animation.</p>
+              <p class="ddo__why">WCAG 2.2 + ADHD research.</p>
+            </div>
+            <div class="ddo ddo--dont">
+              <p class="ddo__tag">× Don't</p>
+              <p class="ddo__body">Use bouncing, pulsing, parallax, or looping animations.</p>
+              <p class="ddo__why">Motion sensitivity and attention disruption.</p>
+            </div>
+            <div class="ddo ddo--do">
+              <p class="ddo__tag">✓ Do</p>
+              <p class="ddo__body">Keep transitions under 300ms.</p>
+              <p class="ddo__why">Long animations feel like blockers, not feedback.</p>
+            </div>
+            <div class="ddo ddo--dont">
+              <p class="ddo__tag">× Don't</p>
+              <p class="ddo__body">Auto-dismiss toasts or notifications.</p>
+              <p class="ddo__why">W3C COGA §4.6.1 — respect the user's reading speed.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interaction -->
+        <div class="subsection">
+          <h3 class="subsection__title">Interaction</h3>
+          <div class="ddo-grid">
+            <div class="ddo ddo--do">
+              <p class="ddo__tag">✓ Do</p>
+              <p class="ddo__body">Use confirmation dialogs with supportive language: "Remove this budget? You can recreate it anytime."</p>
+              <p class="ddo__why">Explain what happens, not what could go wrong.</p>
+            </div>
+            <div class="ddo ddo--dont">
+              <p class="ddo__tag">× Don't</p>
+              <p class="ddo__body">Ask "Are you sure?" with no further context.</p>
+              <p class="ddo__why">Adds anxiety without adding information.</p>
+            </div>
+            <div class="ddo ddo--do">
+              <p class="ddo__tag">✓ Do</p>
+              <p class="ddo__body">Show skeleton screens for page loads.</p>
+              <p class="ddo__why">Maintains layout; avoids spinner-only blocking.</p>
+            </div>
+            <div class="ddo ddo--dont">
+              <p class="ddo__tag">× Don't</p>
+              <p class="ddo__body">Block the entire page with a loading spinner.</p>
+              <p class="ddo__why">Layout shift on completion increases cognitive load.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================== -->
+      <!--  9. Motion & Animation                                                   -->
+      <!-- ====================================================================== -->
+      <section class="section" id="motion" aria-labelledby="motion-title">
+        <p class="section__eyebrow">09 · Motion</p>
+        <h2 class="section__title" id="motion-title">
+          Motion &amp; animation
+          <a class="anchor" href="#motion" aria-label="Anchor to Motion">#</a>
+        </h2>
+        <p class="section__lede prose">
+          All non-essential motion respects <code>prefers-reduced-motion: reduce</code>.
+          Animations are functional (communicate state change), never decorative.
+          Maximum duration 300ms for transitions, 500ms for complex sequences.
+          Easing: <code>ease-out</code> for entering elements, <code>ease-in</code>
+          for exiting.
+        </p>
+        <div class="subsection">
+          <h3 class="subsection__title">Allowed animations</h3>
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Context</th>
+                  <th>Animation</th>
+                  <th>Duration</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Page transition</td><td>Fade (opacity 0→1)</td><td>150ms</td></tr>
+                <tr><td>Card appear</td><td>Fade + subtle rise (0→4px translateY)</td><td>200ms</td></tr>
+                <tr><td>Progress bar fill</td><td>Width transition</td><td>300ms</td></tr>
+                <tr><td>Button press</td><td>Scale 1→0.97→1</td><td>100ms</td></tr>
+                <tr><td>Toast enter</td><td>Slide up from bottom</td><td>200ms</td></tr>
+                <tr><td>Toast exit</td><td>Fade out</td><td>150ms</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="subsection">
+          <h3 class="subsection__title">Prohibited animations</h3>
+          <ul class="checklist checklist--no">
+            <li>Autoplay animations on page load (except skeleton screens).</li>
+            <li>Bouncing or pulsing elements.</li>
+            <li>Parallax scrolling.</li>
+            <li>Background animations.</li>
+            <li>Animated gradients.</li>
+            <li>Any animation that loops indefinitely.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ====================================================================== -->
+      <!--  10. Copy & Language                                                     -->
+      <!-- ====================================================================== -->
+      <section class="section" id="copy" aria-labelledby="copy-title">
+        <p class="section__eyebrow">10 · Copy</p>
+        <h2 class="section__title" id="copy-title">
+          Copy &amp; language
+          <a class="anchor" href="#copy" aria-label="Anchor to Copy">#</a>
+        </h2>
+        <p class="section__lede prose">
+          Supportive. Like a patient friend who's good with money — not a
+          financial advisor, not a parent, not a teacher. Neutral, warm,
+          informational.
+        </p>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Rules</h3>
+          <ul class="checklist">
+            <li><strong>Never blame.</strong> No "you overspent," "budget failed," or "you need to."</li>
+            <li><strong>Neutral framing.</strong> "Your Food spending reached €200" instead of "You exceeded your Food budget."</li>
+            <li><strong>Lead with action.</strong> "Adjust your budget or review recent spending" instead of just reporting the problem.</li>
+            <li><strong>Avoid jargon.</strong> "Spending limit" instead of "budget allocation."</li>
+            <li><strong>Be specific.</strong> "€30 remaining in Food" instead of "Budget is getting low."</li>
+            <li><strong>Celebrate quietly.</strong> "All budgets on track this month" — no elaborate achievement systems.</li>
+          </ul>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Specific rewrites</h3>
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Context</th>
+                  <th>Avoid</th>
+                  <th>Use instead</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Over budget</td>
+                  <td>"Budget exceeded"</td>
+                  <td>"You've used your full Food budget. €20 over."</td>
+                </tr>
+                <tr>
+                  <td>Warning</td>
+                  <td>"Watch your spending"</td>
+                  <td>"Food is at 85%. €30 left for this month."</td>
+                </tr>
+                <tr>
+                  <td>On track</td>
+                  <td>"You're doing well"</td>
+                  <td>"All budgets on track."</td>
+                </tr>
+                <tr>
+                  <td>No data</td>
+                  <td>"No transactions found"</td>
+                  <td>"Transactions will appear here after your first sync."</td>
+                </tr>
+                <tr>
+                  <td>Error</td>
+                  <td>"Failed to sync"</td>
+                  <td>"Couldn't connect to your bank. Try again?"</td>
+                </tr>
+                <tr>
+                  <td>Empty budget</td>
+                  <td>"No budgets set"</td>
+                  <td>"Set up a budget to start tracking your spending."</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================== -->
+      <!--  11. Accessibility                                                       -->
+      <!-- ====================================================================== -->
+      <section class="section" id="a11y" aria-labelledby="a11y-title">
+        <p class="section__eyebrow">11 · Accessibility</p>
+        <h2 class="section__title" id="a11y-title">
+          Accessibility
+          <a class="anchor" href="#a11y" aria-label="Anchor to Accessibility">#</a>
+        </h2>
+        <p class="section__lede prose">
+          BetterBudgeter targets WCAG 2.2 AA at minimum, with additional
+          ADHD-specific requirements layered on top.
+        </p>
+        <div class="grid grid--two">
+          <div class="card">
+            <h3 class="subsection__title" style="margin-top:0">WCAG 2.2 AA</h3>
+            <ul class="checklist">
+              <li>4.5:1 contrast for body text, 3:1 for large text and UI components.</li>
+              <li>Touch targets minimum 44×44px.</li>
+              <li>Visible focus ring on all interactive elements.</li>
+              <li>All interactive elements reachable via Tab key.</li>
+              <li>Proper ARIA labels, semantic HTML, landmark regions.</li>
+              <li>App remains functional at 200% zoom.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3 class="subsection__title" style="margin-top:0">ADHD-specific</h3>
+            <ul class="checklist">
+              <li><code>prefers-reduced-motion</code> — disable non-essential animations.</li>
+              <li><code>prefers-color-scheme</code> — support both light and dark.</li>
+              <li>No time limits — no auto-dismissing toasts.</li>
+              <li>Consistent layout — no layout shifts during loading.</li>
+              <li>Single-column reading order — top to bottom.</li>
+              <li>Max line length 65–75 characters.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="subsection">
+          <h3 class="subsection__title">Semantic HTML</h3>
+          <ul class="checklist">
+            <li>Use <code>&lt;main&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;header&gt;</code>, <code>&lt;section&gt;</code> landmarks.</li>
+            <li>Headings follow strict hierarchy (h1 → h2 → h3, no skipping).</li>
+            <li>Form inputs always have associated <code>&lt;label&gt;</code> elements.</li>
+            <li>Interactive elements use <code>&lt;button&gt;</code> or <code>&lt;a&gt;</code>, never <code>&lt;div&gt;</code> with onClick.</li>
+            <li>Error messages linked to inputs via <code>aria-describedby</code>.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ====================================================================== -->
+      <!--  12. Research Citations                                                  -->
+      <!-- ====================================================================== -->
+      <section class="section" id="research" aria-labelledby="research-title">
+        <p class="section__eyebrow">12 · Research</p>
+        <h2 class="section__title" id="research-title">
+          Research citations
+          <a class="anchor" href="#research" aria-label="Anchor to Research">#</a>
+        </h2>
+        <p class="section__lede prose">
+          Every design decision in this document is traceable to empirical
+          research. The list below is the canonical set of sources.
+        </p>
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Relevance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>W3C COGA — "Making Content Usable" (2021)</td>
+                <td>8 objectives, ~50 patterns for cognitive accessibility. Informs layout, whitespace, animation, and content rules.</td>
+              </tr>
+              <tr>
+                <td>Neurodiversity Design System (neurodiversity.design)</td>
+                <td>Principles for typography, color, and interface design optimized for neurodiverse users. Informs warm canvas, letter-spacing, low-saturation palette.</td>
+              </tr>
+              <tr>
+                <td>British Dyslexia Association — Style Guide</td>
+                <td>Sans-serif fonts, no italics for emphasis, left-alignment, generous line-height. All adopted.</td>
+              </tr>
+              <tr>
+                <td>Elliot &amp; Maier (2014) — Color Psychology</td>
+                <td>Red triggers anxiety/avoidance responses. Basis for soft coral over bright red.</td>
+              </tr>
+              <tr>
+                <td>Bar &amp; Neta (2006) — Curved Visual Objects</td>
+                <td>Humans prefer rounded shapes, perceive them as friendlier. Basis for softer border radii.</td>
+              </tr>
+              <tr>
+                <td>BetterBudgeter ADHD_UX_RESEARCH.md</td>
+                <td>Internal research covering envelope budgeting, three-bucket model, hub-and-spoke architecture, shame-driven abandonment.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- ====================================================================== -->
+    <!--  Footer                                                                  -->
+    <!-- ====================================================================== -->
+    <footer class="footer">
+      <div class="page">
+        <p>
+          BetterBudgeter — Design Language · Live preview generated from
+          <a href="./DESIGN.md">docs/DESIGN.md</a>. Read alongside
+          <a href="./DESIGN_SYSTEM.md">DESIGN_SYSTEM.md</a> and
+          <a href="./ADHD_UX_RESEARCH.md">ADHD_UX_RESEARCH.md</a>.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      /* -------------------------------------------------------------------- *
+       *  Theme toggle — persists to localStorage, respects prefers-color-scheme.
+       * -------------------------------------------------------------------- */
+      (function () {
+        const STORAGE_KEY = "bb-design-preview-theme";
+        const root = document.documentElement;
+        const btn = document.getElementById("themeToggle");
+        const label = document.getElementById("themeToggleLabel");
+
+        function apply(theme) {
+          root.setAttribute("data-theme", theme);
+          label.textContent = theme === "dark" ? "Light" : "Dark";
+          btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+        }
+
+        // Initial: stored preference > system preference > light fallback
+        let initial = null;
+        try {
+          initial = localStorage.getItem(STORAGE_KEY);
+        } catch (_) {
+          /* localStorage may be unavailable; fall through */
+        }
+        if (!initial) {
+          initial = window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        }
+        apply(initial);
+
+        btn.addEventListener("click", function () {
+          const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+          apply(next);
+          try {
+            localStorage.setItem(STORAGE_KEY, next);
+          } catch (_) {
+            /* ignore */
+          }
+        });
+      })();
+
+      /* -------------------------------------------------------------------- *
+       *  Token catalog — single source of truth for the live swatch grids.
+       *  Hex values come from the DESIGN.md YAML frontmatter (sRGB approx).
+       *  oklch values are pulled verbatim from the prose (authoritative).
+       * -------------------------------------------------------------------- */
+      const COLORS = {
+        canvas: [
+          {
+            name: "--bb-bg",
+            desc: "Page background — warm cream canvas",
+            light: { oklch: "oklch(0.985 0.008 80)", hex: "#faf8f2" },
+            dark: { oklch: "oklch(0.155 0.005 280)", hex: "#1e1e28" },
+          },
+          {
+            name: "--bb-surface",
+            desc: "Card / container background",
+            light: { oklch: "oklch(1 0 0)", hex: "#ffffff" },
+            dark: { oklch: "oklch(0.195 0.005 280)", hex: "#28282f" },
+          },
+          {
+            name: "--bb-surface-raised",
+            desc: "Elevated surface — hover, active",
+            light: { oklch: "oklch(0.975 0.002 280)", hex: "#f4f4f6" },
+            dark: { oklch: "oklch(0.235 0.006 280)", hex: "#33333a" },
+          },
+          {
+            name: "--bb-border",
+            desc: "Borders and dividers",
+            light: { oklch: "oklch(0.91 0.004 280)", hex: "#e3e3e8" },
+            dark: { oklch: "oklch(0.28 0.006 280)", hex: "#3d3d44" },
+          },
+        ],
+        text: [
+          {
+            name: "--bb-text",
+            desc: "Primary text",
+            light: { oklch: "oklch(0.205 0.006 280)", hex: "#1e1e28" },
+            dark: { oklch: "oklch(0.965 0.002 280)", hex: "#f2f2f5" },
+          },
+          {
+            name: "--bb-text-secondary",
+            desc: "Secondary / muted text",
+            light: { oklch: "oklch(0.48 0.012 280)", hex: "#65657a" },
+            dark: { oklch: "oklch(0.66 0.012 280)", hex: "#8a8a98" },
+          },
+        ],
+        semantic: [
+          {
+            name: "--bb-positive",
+            desc: "Income · on-track · success",
+            light: { oklch: "oklch(0.62 0.14 155)", hex: "#2d9b6b" },
+            dark: { oklch: "oklch(0.72 0.14 155)", hex: "#4dba8a" },
+          },
+          {
+            name: "--bb-positive-bg",
+            desc: "Positive background tint",
+            light: { oklch: "oklch(0.95 0.04 155)", hex: "#ddf2e8" },
+            dark: { oklch: "oklch(0.22 0.04 155)", hex: "#1f3a30" },
+          },
+          {
+            name: "--bb-caution",
+            desc: "Warning · approaching limit",
+            light: { oklch: "oklch(0.72 0.14 75)", hex: "#b89038" },
+            dark: { oklch: "oklch(0.78 0.14 75)", hex: "#c9a350" },
+          },
+          {
+            name: "--bb-caution-bg",
+            desc: "Caution background tint",
+            light: { oklch: "oklch(0.95 0.04 75)", hex: "#f5edda" },
+            dark: { oklch: "oklch(0.22 0.04 75)", hex: "#3a3424" },
+          },
+          {
+            name: "--bb-negative",
+            desc: "Expense · over-budget · soft coral",
+            light: { oklch: "oklch(0.58 0.16 25)", hex: "#c25848" },
+            dark: { oklch: "oklch(0.68 0.18 25)", hex: "#d97a68" },
+          },
+          {
+            name: "--bb-negative-bg",
+            desc: "Negative background tint",
+            light: { oklch: "oklch(0.95 0.04 25)", hex: "#f8e5e0" },
+            dark: { oklch: "oklch(0.22 0.04 25)", hex: "#3a2926" },
+          },
+          {
+            name: "--bb-info",
+            desc: "Primary action · info highlights",
+            light: { oklch: "oklch(0.60 0.12 245)", hex: "#4878b0" },
+            dark: { oklch: "oklch(0.70 0.12 245)", hex: "#6a98c8" },
+          },
+          {
+            name: "--bb-info-bg",
+            desc: "Info background tint",
+            light: { oklch: "oklch(0.95 0.03 245)", hex: "#e2ecf5" },
+            dark: { oklch: "oklch(0.22 0.03 245)", hex: "#243044" },
+          },
+        ],
+        categories: [
+          { label: "Essentials", token: "--bb-cat-essentials", oklch: "oklch(0.62 0.10 245)" },
+          { label: "Discretionary", token: "--bb-cat-discretionary", oklch: "oklch(0.65 0.12 165)" },
+          { label: "Savings", token: "--bb-cat-savings", oklch: "oklch(0.62 0.14 155)" },
+          { label: "Food", token: "--bb-cat-food", oklch: "oklch(0.68 0.10 55)" },
+          { label: "Transport", token: "--bb-cat-transport", oklch: "oklch(0.62 0.10 200)" },
+          { label: "Entertainment", token: "--bb-cat-entertainment", oklch: "oklch(0.65 0.12 290)" },
+          { label: "Other", token: "--bb-cat-other", oklch: "oklch(0.58 0.02 280)" },
+        ],
+      };
+
+      const TYPE_SCALE = [
+        { token: "--bb-text-3xl", size: 36, lh: 1.2, weight: 700, tracking: "-0.5px", sample: "€2,847.20", usage: "Hero numbers" },
+        { token: "--bb-text-2xl", size: 28, lh: 1.3, weight: 700, tracking: "-0.3px", sample: "Page title", usage: "Page titles" },
+        { token: "--bb-text-xl", size: 22, lh: 1.4, weight: 600, tracking: "0", sample: "Section heading", usage: "Section headings" },
+        { token: "--bb-text-lg", size: 18, lh: 1.5, weight: 500, tracking: "0", sample: "Emphasized body label", usage: "Emphasized body, labels" },
+        { token: "--bb-text-base", size: 16, lh: 1.6, weight: 400, tracking: "0.01em", sample: "Body text — the readable minimum for everything that matters.", usage: "Body (minimum)" },
+        { token: "--bb-text-sm", size: 14, lh: 1.5, weight: 400, tracking: "0.01em", sample: "Secondary text for less critical info.", usage: "Secondary" },
+        { token: "--bb-text-xs", size: 12, lh: 1.5, weight: 400, tracking: "0.02em", sample: "Captions, timestamps", usage: "Captions" },
+      ];
+
+      const SPACING = [
+        { token: "--bb-space-1", value: 4, usage: "Tight internal spacing (icon-to-text)" },
+        { token: "--bb-space-2", value: 8, usage: "Default internal padding" },
+        { token: "--bb-space-3", value: 12, usage: "Between related elements" },
+        { token: "--bb-space-4", value: 16, usage: "Standard gap between components" },
+        { token: "--bb-space-5", value: 20, usage: "Card internal padding" },
+        { token: "--bb-space-6", value: 24, usage: "Between sections within a page" },
+        { token: "--bb-space-8", value: 32, usage: "Between major page sections" },
+        { token: "--bb-space-10", value: 40, usage: "Page-level vertical rhythm" },
+        { token: "--bb-space-12", value: 48, usage: "Large section separation" },
+      ];
+
+      const RADII = [
+        { token: "--bb-radius-sm", value: "6px", usage: "Small elements" },
+        { token: "--bb-radius-md", value: "10px", usage: "Inputs, buttons" },
+        { token: "--bb-radius-lg", value: "14px", usage: "Cards, containers" },
+        { token: "--bb-radius-xl", value: "20px", usage: "Large panels, modals" },
+        { token: "--bb-radius-pill", value: "9999px", usage: "Pill badges, tags" },
+      ];
+
+      /* -------------------------------------------------------------------- *
+       *  Renderers.                                                          *
+       *  Each builds the DOM for a section from its data source above.       *
+       * -------------------------------------------------------------------- */
+      function el(tag, attrs, children) {
+        const node = document.createElement(tag);
+        if (attrs)
+          Object.keys(attrs).forEach(function (k) {
+            if (k === "style") {
+              Object.assign(node.style, attrs[k]);
+            } else if (k === "class") {
+              node.className = attrs[k];
+            } else {
+              node.setAttribute(k, attrs[k]);
+            }
+          });
+        if (children != null) {
+          if (!Array.isArray(children)) children = [children];
+          children.forEach(function (c) {
+            if (c == null) return;
+            if (typeof c === "string") {
+              node.appendChild(document.createTextNode(c));
+            } else {
+              node.appendChild(c);
+            }
+          });
+        }
+        return node;
+      }
+
+      function renderColorSwatches(items, containerId) {
+        const container = document.getElementById(containerId);
+        items.forEach(function (item) {
+          const swatch = el("article", { class: "swatch" }, [
+            el("div", {
+              class: "swatch__bar",
+              style: {
+                /* Use a `currentColor`-aware swap so theme toggle re-renders */
+                backgroundColor: item.light.oklch,
+              },
+              "data-light": item.light.oklch,
+              "data-dark": item.dark.oklch,
+            }),
+            el("div", { class: "swatch__body" }, [
+              el("p", { class: "swatch__name" }, item.name),
+              el("p", { class: "swatch__desc" }, item.desc),
+              el("div", { class: "swatch__values" }, [
+                el("span", { class: "swatch__value" }, [
+                  el("strong", null, "light "),
+                  document.createTextNode(item.light.oklch + "  ·  " + item.light.hex),
+                ]),
+                el("span", { class: "swatch__value" }, [
+                  el("strong", null, "dark  "),
+                  document.createTextNode(item.dark.oklch + "  ·  " + item.dark.hex),
+                ]),
+              ]),
+            ]),
+          ]);
+          container.appendChild(swatch);
+        });
+      }
+
+      function renderCategorySwatches() {
+        const container = document.getElementById("categorySwatches");
+        COLORS.categories.forEach(function (cat) {
+          container.appendChild(
+            el("div", { class: "cat-swatch" }, [
+              el("div", { class: "cat-swatch__dot", style: { backgroundColor: cat.oklch } }),
+              el("div", null, [
+                el("p", { class: "cat-swatch__label" }, cat.label),
+                el("p", { class: "cat-swatch__value" }, cat.oklch),
+              ]),
+            ])
+          );
+        });
+      }
+
+      function renderTypeScale() {
+        const container = document.getElementById("typeScale");
+        TYPE_SCALE.forEach(function (t) {
+          container.appendChild(
+            el("div", { class: "type-row" }, [
+              el("div", { class: "type-row__meta" }, [
+                el("span", { class: "type-row__token" }, t.token),
+                document.createTextNode(
+                  t.size +
+                    "px  ·  " +
+                    t.weight +
+                    "  ·  lh " +
+                    t.lh +
+                    "  ·  tracking " +
+                    t.tracking +
+                    "  ·  " +
+                    t.usage
+                ),
+              ]),
+              el(
+                "div",
+                {
+                  class: "type-row__sample",
+                  style: {
+                    fontSize: t.size + "px",
+                    lineHeight: String(t.lh),
+                    fontWeight: String(t.weight),
+                    letterSpacing: t.tracking,
+                  },
+                },
+                t.sample
+              ),
+            ])
+          );
+        });
+      }
+
+      function renderSpacing() {
+        const container = document.getElementById("spacingScale");
+        SPACING.forEach(function (s) {
+          const row = el("div", { class: "spacing-row" }, [
+            el("span", { class: "spacing-row__token" }, s.token),
+            el("span", { class: "spacing-row__value" }, s.value + "px"),
+            el("div", { class: "spacing-row__bar", style: { width: s.value + "px" } }),
+            el("p", { class: "spacing-row__usage" }, s.usage),
+          ]);
+          container.appendChild(row);
+        });
+      }
+
+      function renderRadii() {
+        const container = document.getElementById("radiusGrid");
+        RADII.forEach(function (r) {
+          container.appendChild(
+            el("div", { class: "radius-card" }, [
+              el("div", {
+                class: "radius-card__box",
+                style: { borderRadius: r.value === "9999px" ? "9999px" : r.value },
+              }),
+              el("p", { class: "radius-card__token" }, r.token),
+              el("p", { class: "radius-card__value" }, r.value + "  ·  " + r.usage),
+            ])
+          );
+        });
+      }
+
+      /* Mount everything */
+      renderColorSwatches(COLORS.canvas, "canvasSwatches");
+      renderColorSwatches(COLORS.text, "textSwatches");
+      renderColorSwatches(COLORS.semantic, "semanticSwatches");
+      renderCategorySwatches();
+      renderTypeScale();
+      renderSpacing();
+      renderRadii();
+
+      /* -------------------------------------------------------------------- *
+       *  Color swatch bar: keep both light + dark visible by always showing
+       *  the LIGHT oklch on the bar (so the swatch shows the actual hue, not
+       *  the active-theme background). We already display both values below.
+       * -------------------------------------------------------------------- */
+    </script>
+  </body>
+</html>
