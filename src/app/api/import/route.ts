@@ -215,7 +215,7 @@ export async function POST(
   } catch (error) {
     console.error("[api/import] Error:", error);
     return NextResponse.json(
-      { error: "Import failed. Please try again later." },
+      { error: "Couldn't sync your transactions. Try again?" },
       { status: 500 }
     );
   }

@@ -105,7 +105,7 @@ export function SyncTransactionsButton({
 
       if (!response.ok) {
         // API returned an error
-        throw new Error(data.error || "Import failed");
+        throw new Error(data.error || "Couldn't sync your transactions. Try again?");
       }
 
       // Display notifications from API response (includes budget alerts)
@@ -131,7 +131,7 @@ export function SyncTransactionsButton({
           toast.info("All transactions already up to date");
         } else if (data.totalErrors > 0 && data.totalImported > 0) {
           toast.warning(
-            `Imported ${data.totalImported} transactions. ${data.totalErrors} failed.`
+            `Synced ${data.totalImported} transactions. ${data.totalErrors} couldn't be imported.`
           );
         } else if (data.totalErrors > 0) {
           toast.error("Couldn't sync your transactions. Try again?");

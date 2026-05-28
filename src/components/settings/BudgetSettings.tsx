@@ -109,7 +109,7 @@ export function BudgetSettings({ currentBudgets }: BudgetSettingsProps) {
 
         if (!response.ok) {
           const data = await response.json();
-          throw new Error(data.error || "Failed to save budgets");
+          throw new Error(data.error || "Couldn't save your budgets. Try again?");
         }
 
         toast.success("Budgets saved successfully");

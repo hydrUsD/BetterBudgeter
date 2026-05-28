@@ -69,7 +69,7 @@ export default function SignOutButton({
       router.refresh(); // Refresh to update server-side auth state
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to sign out"
+        err instanceof Error ? err.message : "Couldn't sign out. Try again?"
       );
     } finally {
       setIsLoading(false);

@@ -240,7 +240,7 @@ export async function checkBudgetThresholds(): Promise<BudgetAlert[]> {
  *
  * ADHD DESIGN:
  * - Short, actionable messages
- * - Non-judgmental tone ("exceeded" not "failed")
+ * - Non-judgmental tone ("reached" not "exceeded" or "failed")
  * - Concrete numbers (not just percentages)
  *
  * @param alert - The budget alert data
@@ -252,10 +252,10 @@ export function formatBudgetAlertMessage(alert: BudgetAlert): string {
   const percentage = Math.round(alert.usagePercentage);
 
   if (alert.status === "over_budget") {
-    return `${alert.category} budget exceeded: €${spent} of €${limit} (${percentage}%)`;
+    return `You've used your full ${alert.category} budget. €${spent} of €${limit} (${percentage}%)`;
   }
 
-  return `${alert.category} budget warning: €${spent} of €${limit} (${percentage}%)`;
+  return `${alert.category} is at ${percentage}%. €${spent} of €${limit} used.`;
 }
 
 /**
@@ -266,7 +266,7 @@ export function formatBudgetAlertMessage(alert: BudgetAlert): string {
  */
 export function formatBudgetAlertTitle(alert: BudgetAlert): string {
   if (alert.status === "over_budget") {
-    return `${alert.category} budget exceeded`;
+    return `${alert.category} budget reached`;
   }
-  return `${alert.category} budget warning`;
+  return `${alert.category} getting close`;
 }
