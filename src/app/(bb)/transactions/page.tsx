@@ -37,6 +37,7 @@ import { getTransactions, getTransactionSummary } from "@/lib/db/transactions";
 import { getAccounts } from "@/lib/db/accounts";
 import { getCurrentMonthStart, getCurrentMonthEnd } from "@/lib/budgets";
 import { formatCurrency } from "@/utils/currency";
+import { groupByDate } from "@/lib/transactions/mappers";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -44,11 +45,9 @@ import {
   SyncTransactionsButton,
   TransactionItem,
   KpiCard,
-  type TransactionItemProps,
 } from "@/components/dashboard";
 
 import type { DbTransaction, DbAccount } from "@/lib/db/types";
-import type { TransactionCategory } from "@/types/finance";
 import type { TransactionSummary } from "@/lib/db/transactions";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -61,45 +60,8 @@ export const metadata = generateMetadata({ title: "Transactions" });
 // Private Helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Map a raw DbTransaction row to the TransactionItem view-model.
- * Same mapping logic as Home page (DRY would suggest a shared mapper,
- * but CLAUDE.md says "prefer locality" — Phase 10 can extract if both diverge).
- */
-function toTransactionItemProps(tx: DbTransaction): TransactionItemProps {
-  const merchant = tx.description ?? tx.creditor_name ?? tx.debtor_name ?? "Transaction";
-  const date = tx.booking_date || new Date().toISOString().split("T")[0];
-
-  return {
-    merchant,
-    amount: Math.abs(tx.amount),
-    type: tx.type,
-    category: (tx.category ?? "Other") as TransactionCategory,
-    date,
-  };
-}
-
-/**
- * Group transactions by booking date for section rendering.
- * Returns an array of [dateString, transactionItems[]] pairs,
- * ordered by date descending (most recent first).
- */
-function groupByDate(transactions: DbTransaction[]): [string, TransactionItemProps[]][] {
-  const groups = new Map<string, TransactionItemProps[]>();
-
-  for (const tx of transactions) {
-    const date = tx.booking_date || new Date().toISOString().split("T")[0];
-    const existing = groups.get(date) ?? [];
-    existing.push(toTransactionItemProps(tx));
-    groups.set(date, existing);
-  }
-
-  // Sort by date descending (most recent first — already sorted from DB,
-  // but Map insertion order may not preserve it across all runtimes)
-  return Array.from(groups.entries()).sort(
-    (a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime()
-  );
-}
+// toTransactionItemProps and groupByDate are imported from @/lib/transactions/mappers
+// (shared module — eliminates duplication with the Home page)
 
 /**
  * Format a date string as a section heading.

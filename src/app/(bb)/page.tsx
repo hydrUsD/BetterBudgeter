@@ -69,6 +69,7 @@ import { computeSafeToSpend } from "@/lib/safe-to-spend";
 
 import { nameFromEmail, greetingForTime } from "@/utils/greeting";
 import { formatCurrency } from "@/utils/currency";
+import { toTransactionItemProps } from "@/lib/transactions/mappers";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -76,11 +77,10 @@ import { EmptyState } from "@/components/common/EmptyState";
 import {
   SyncTransactionsButton,
   TransactionItem,
-  type TransactionItemProps,
 } from "@/components/dashboard";
 
 import type { DbAccount, DbTransaction } from "@/lib/db/types";
-import type { BudgetProgress, BudgetStatus, TransactionCategory } from "@/types/finance";
+import type { BudgetProgress, BudgetStatus } from "@/types/finance";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Metadata
@@ -119,37 +119,8 @@ function buildGreeting(name: string | null, now: Date): string {
   return name ? `${greetingByBand[band]}, ${name}.` : `${greetingByBand[band]}.`;
 }
 
-/**
- * Map a raw DbTransaction row to the TransactionItem view-model.
- *
- * WHY a mapping step:
- * TransactionItem is decoupled from the DB schema (CONTEXT D-CMP-02). The page owns
- * the transformation. If the DB schema changes, only this function needs to change —
- * not the component.
- *
- * Merchant derivation (RESEARCH Pattern 4): prefers the human-readable description
- * stored by the import pipeline, falls back to PSD2-style creditor/debtor fields,
- * and ultimately to "Transaction" so the UI never shows an empty merchant name.
- *
- * @param tx - Raw database row from getRecentTransactions()
- */
-function toTransactionItemProps(tx: DbTransaction): TransactionItemProps {
-  // Merchant: prefer description, then richer PSD2 creditor/debtor fields, then fallback.
-  // These fields are populated by the import pipeline (src/lib/import/index.ts).
-  const merchant = tx.description ?? tx.creditor_name ?? tx.debtor_name ?? "Transaction";
-
-  // Booking date fallback: DB schema says NOT NULL but TS type is `string` without
-  // guaranteeing non-empty. Guard against empty strings (RESEARCH Pitfall 4).
-  const date = tx.booking_date || new Date().toISOString().split("T")[0];
-
-  return {
-    merchant,
-    amount: Math.abs(tx.amount),  // TransactionItem renders sign from `type`
-    type: tx.type,                 // 'income' | 'expense' (DbTransactionType)
-    category: (tx.category ?? "Other") as TransactionCategory,
-    date,
-  };
-}
+// toTransactionItemProps is imported from @/lib/transactions/mappers
+// (shared module — eliminates duplication with transactions/page.tsx)
 
 /**
  * Map a BudgetStatus enum value to the corresponding Tailwind color class.
