@@ -348,7 +348,7 @@ export default async function HomePage() {
               action={
                 <Link
                   href="/settings"
-                  className="text-bb-sm text-bb-info underline-offset-4 hover:underline"
+                  className="text-bb-sm text-bb-info underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bb-info focus-visible:ring-offset-2 rounded-sm"
                 >
                   Go to settings
                 </Link>
@@ -382,7 +382,8 @@ export default async function HomePage() {
             // Key synthesized from merchant + date + index because the view-model does not
             // carry the DB `id`. Phase 9 may extend TransactionItemProps with `id` if
             // the /transactions page needs stable keys for animations.
-            <div>
+            // role="list" restores list semantics for screen readers (div-based list pattern).
+            <div role="list">
               {transactionItems.map((tx, idx) => (
                 <TransactionItem
                   key={`${tx.merchant}-${tx.date}-${idx}`}

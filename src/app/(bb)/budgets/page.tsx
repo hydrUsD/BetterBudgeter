@@ -136,7 +136,7 @@ export default async function BudgetsPage() {
         <div className="text-center">
           <Link
             href="/settings"
-            className="text-bb-sm text-bb-info underline-offset-4 hover:underline"
+            className="text-bb-sm text-bb-info underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bb-info focus-visible:ring-offset-2 rounded-sm"
           >
             Edit budgets →
           </Link>

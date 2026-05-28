@@ -128,7 +128,7 @@ export function TransactionItem({
     type === "income" ? "text-bb-positive" : "text-bb-negative";
 
   return (
-    <div className="flex flex-col gap-bb-1 py-bb-3 border-b border-bb-border last:border-b-0">
+    <div role="listitem" className="flex flex-col gap-bb-1 py-bb-3 border-b border-bb-border last:border-b-0">
       {/* Primary row: merchant name (left) + colored amount (right) */}
       <div className="flex items-baseline justify-between">
         {/* Merchant name: text-bb-base (16px), default weight 400.

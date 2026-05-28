@@ -150,8 +150,9 @@ export default async function TransactionsPage() {
                   {formatDateHeading(date)}
                 </h2>
 
-                {/* Transaction rows within the date group */}
-                <div className="bg-bb-surface border border-bb-border rounded-bb-lg px-bb-5">
+                {/* Transaction rows within the date group.
+                   role="list" restores list semantics for screen readers (div-based list pattern). */}
+                <div role="list" className="bg-bb-surface border border-bb-border rounded-bb-lg px-bb-5">
                   {items.map((tx, idx) => (
                     <TransactionItem
                       key={`${tx.merchant}-${tx.date}-${idx}`}

@@ -40,7 +40,7 @@ export function BudgetProgressSection({ budgetProgress }: BudgetProgressSectionP
         </p>
         <Link
           href="/settings"
-          className="text-bb-sm text-bb-info underline-offset-4 hover:underline"
+          className="text-bb-sm text-bb-info underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bb-info focus-visible:ring-offset-2 rounded-sm"
         >
           Set up budgets →
         </Link>
@@ -54,7 +54,7 @@ export function BudgetProgressSection({ budgetProgress }: BudgetProgressSectionP
         <h2 id="budget-progress-heading" className="text-bb-xl font-bold text-bb-text">Budget Progress</h2>
         <Link
           href="/settings"
-          className="text-bb-sm text-bb-text-secondary hover:text-bb-text underline-offset-4 hover:underline"
+          className="text-bb-sm text-bb-text-secondary hover:text-bb-text underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bb-info focus-visible:ring-offset-2 rounded-sm"
         >
           Edit budgets
         </Link>

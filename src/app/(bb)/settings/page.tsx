@@ -113,7 +113,7 @@ export default async function SettingsPage() {
               </p>
               <Link
                 href="/link-bank"
-                className="text-bb-sm text-bb-info underline-offset-4 hover:underline"
+                className="text-bb-sm text-bb-info underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bb-info focus-visible:ring-offset-2 rounded-sm"
               >
                 Link a bank account →
               </Link>
@@ -140,7 +140,7 @@ export default async function SettingsPage() {
 
               <Link
                 href="/link-bank"
-                className="text-bb-sm text-bb-info underline-offset-4 hover:underline mt-bb-2"
+                className="text-bb-sm text-bb-info underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bb-info focus-visible:ring-offset-2 rounded-sm mt-bb-2"
               >
                 Link another account →
               </Link>
