@@ -105,9 +105,9 @@ describe("BudgetProgressSection", () => {
     const { container } = render(
       <BudgetProgressSection budgetProgress={mockBudgetProgress} />
     );
-    // Verify amounts are rendered somewhere in the component
-    expect(container.textContent).toContain("250.00");
-    expect(container.textContent).toContain("170.00");
-    expect(container.textContent).toContain("350.00");
+    // formatCurrency uses de-DE locale → comma as decimal separator
+    expect(container.textContent).toContain("250,00");
+    expect(container.textContent).toContain("170,00");
+    expect(container.textContent).toContain("350,00");
   });
 });
