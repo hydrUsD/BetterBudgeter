@@ -25,7 +25,7 @@
 
 ## Architecture & Documentation Diagrams (FigJam)
 
-- **File**: BetterBudget Documentation Diagrams
+- **File**: BetterBudgeter — Architecture & Documentation Diagrams
 - **File Key**: `E9fARQDatZcIbXh21I7639`
 - **URL**: https://www.figma.com/board/E9fARQDatZcIbXh21I7639
 
@@ -89,4 +89,9 @@
 
 ---
 
-Generated: 2026-05-28
+## Revision History
+
+- **2026-05-29**: M003 fresh rebuild — all 28 FigJam diagrams regenerated (S01), audited (S02), and 6 desktop prototype screens added to Design file (S03). File keys unchanged (rebuilt in-place).
+- **2026-05-28**: Initial creation of both Figma files.
+
+Generated: 2026-05-29
