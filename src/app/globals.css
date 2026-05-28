@@ -397,6 +397,41 @@
   .animate-fadeIn {
     animation: fadeIn 150ms ease-out forwards;
   }
+
+  /* DESIGN.md §Motion — Card appear: fade + subtle rise (4px translateY), 200ms ease-out.
+     Defined as available utility; apply to card containers when enter animation is desired. */
+  @keyframes cardAppear {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-cardAppear {
+    animation: cardAppear 200ms ease-out forwards;
+  }
+
+  /* DESIGN.md §Motion — Button press: scale 1→0.97→1, 100ms.
+     Applied via :active pseudo-class — communicates tactile press feedback. */
+  @keyframes buttonPress {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.97);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .animate-buttonPress:active {
+    animation: buttonPress 100ms ease-out;
+  }
 }
 
 /* Accessibility: respect user's motion preference (A11Y-04).
@@ -410,5 +445,13 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Exception: loading spinners are functional (communicate ongoing state),
+     not decorative. WCAG 2.2 SC 2.3.3 allows informational animations.
+     Restore spinner rotation under reduced-motion with a gentler speed. */
+  .animate-spin {
+    animation-duration: 1.5s !important;
+    animation-iteration-count: infinite !important;
   }
 }
