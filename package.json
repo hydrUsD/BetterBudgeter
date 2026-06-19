@@ -1,5 +1,5 @@
 {
-  "name": "oops-budgeter",
+  "name": "better-budgeter",
   "version": "3.0.0",
   "private": true,
   "scripts": {
@@ -92,28 +92,32 @@
     "vitest": "4.0.18"
   },
   "author": {
-    "name": "Laith Alkhaddam aka Iconical or Sleepyico",
-    "url": "https://iconical.dev"
+    "name": "Paul Heuwer",
+    "email": "paul.heuwer@gmail.com"
   },
+  "contributors": [
+    {
+      "name": "Laith Alkhaddam (Iconical)",
+      "url": "https://iconical.dev"
+    }
+  ],
   "license": "Apache-2.0",
-  "homepage": "https://budget.oopsapps.tech",
+  "homepage": "https://www.better-budgeter.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OopsApps/OopsBudgeter"
+    "url": "https://github.com/hydrUsD/BetterBudgeter"
   },
   "bugs": {
-    "url": "https://github.com/OopsApps/OopsBudgeter/issues"
+    "url": "https://github.com/hydrUsD/BetterBudgeter/issues"
   },
-  "funding": {
-    "type": "sponsor",
-    "url": "https://buymeacoffee.com/iconical"
-  },
-  "description": "A personal budget tracker for effortless finance management.",
+  "description": "A web-based personal finance tracker designed for people with ADHD — built on top of OopsBudgeter.",
   "keywords": [
     "budget",
     "finance",
-    "pwa",
+    "adhd",
     "nextjs",
-    "react"
+    "react",
+    "supabase",
+    "psd2"
   ]
 }
